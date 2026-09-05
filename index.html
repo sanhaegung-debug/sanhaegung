@@ -178,9 +178,10 @@
       position: relative;
     }
 
+    /* 탭 내부 카드 사진 크기 확대 (일관성 유지) */
     .custom-img {
       width: 100%;
-      height: 150px;
+      height: 200px;
       object-fit: cover;
       border-radius: 6px;
       margin-bottom: 12px;
@@ -298,13 +299,13 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
-    /* 메인 대시보드 미리보기 스타일 (사진 크기 확대) */
+    /* 메인 대시보드 미리보기 스타일 (사진 대폭 확대 및 동일한 크기 통일) */
     .preview-card {
       background-color: #151515;
       border: 1px solid #2a2a2a;
       border-radius: 6px;
       padding: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -313,7 +314,7 @@
     }
     .preview-thumb-large {
       width: 100%;
-      height: 120px;
+      height: 160px;
       object-fit: cover;
       border-radius: 4px;
       margin-bottom: 8px;
@@ -1116,7 +1117,7 @@
         });
       });
 
-      // 스쿼드 자랑 메인 프리뷰 (사진 확대형 카드)
+      // 스쿼드 자랑 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
       const sqList = document.getElementById('main-squad-list');
       sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
       store.squads.slice(0, 2).forEach(s => {
@@ -1129,7 +1130,7 @@
           </div>`;
       });
 
-      // 스트리머 구단 요약 메인 프리뷰 (사진 확대형 카드)
+      // 스트리머 구단 요약 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
       const sp = document.getElementById('main-streamer-preview');
       sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
       store.streamers.slice(0, 2).forEach(s => {
