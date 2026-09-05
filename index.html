@@ -164,13 +164,13 @@
       width: 100%;
     }
 
-    .streamer-grid {
+    .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
     }
 
-    .streamer-card {
+    .custom-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
@@ -178,7 +178,7 @@
       position: relative;
     }
 
-    .streamer-img {
+    .custom-img {
       width: 100%;
       height: 150px;
       object-fit: cover;
@@ -189,18 +189,18 @@
       transition: opacity 0.2s;
     }
 
-    .streamer-img:hover {
+    .custom-img:hover {
       opacity: 0.85;
     }
 
-    .streamer-name {
+    .card-title-lg {
       font-size: 20px;
       font-weight: bold;
       margin-bottom: 5px;
       color: #fff;
     }
 
-    .streamer-owner {
+    .card-subtitle {
       font-size: 13px;
       color: var(--accent-color);
       margin-bottom: 12px;
@@ -236,7 +236,7 @@
       color: #000;
     }
 
-    .streamer-action-btns {
+    .card-action-btns {
       position: absolute;
       top: 15px;
       right: 15px;
@@ -244,7 +244,7 @@
       gap: 5px;
     }
 
-    .streamer-action-btns button {
+    .card-action-btns button {
       background: none;
       border: none;
       color: #777;
@@ -253,11 +253,11 @@
       padding: 2px 6px;
     }
 
-    .streamer-action-btns button:hover {
+    .card-action-btns button:hover {
       color: var(--accent-color);
     }
 
-    .streamer-action-btns button.del:hover {
+    .card-action-btns button.del:hover {
       color: #f44336;
     }
 
@@ -279,7 +279,7 @@
       border: 1px solid var(--border-color);
     }
 
-    /* 이미지 확대 모달 전용 스타일 */
+    /* 이미지 확대 모달 */
     #imageModal {
       display: none;
       position: fixed;
@@ -298,6 +298,36 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
   </style>
+
+  <!-- Firebase SDK 로드 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL-9nkL26H-ZQufDznXERNlf_eDeHmwjs",
+      authDomain: "sanhaegung-dea90.firebaseapp.com",
+      projectId: "sanhaegung-dea90",
+      storageBucket: "sanhaegung-dea90.firebasestorage.app",
+      messagingSenderId: "876388941028",
+      appId: "1:876388941028:web:51b83acd86fb1ef709c0f1",
+      measurementId: "G-9B699532TC"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.collection = collection;
+    window.getDocs = getDocs;
+    window.addDoc = addDoc;
+    window.deleteDoc = deleteDoc;
+    window.doc = doc;
+    window.updateDoc = updateDoc;
+    window.setDoc = setDoc;
+
+    window.dispatchEvent(new Event('firebase-ready'));
+  </script>
 </head>
 <body>
 
@@ -372,31 +402,28 @@
       <div id="detail-notice" style="display:none;"></div>
     </div>
 
-    <!-- 2. 스쿼드 자랑 탭 -->
+    <!-- 2. 스쿼드 자랑 탭 (카드형 UI) -->
     <div id="tab-squad" class="tab-content">
       <div class="action-bar">
-        <h3>클럽원 스쿼드 & 강화 인증</h3>
-        <button id="writeSquadBtn" style="display:none;" onclick="openPostForm('squad')">스쿼드 자랑하기</button>
+        <h3>클럽원 스쿼드 & 강화 인증 아카이브</h3>
+        <button id="writeSquadBtn" style="display:none;" onclick="openSquadForm()">스쿼드 등록</button>
       </div>
-      <div id="form-squad" class="card" style="display:none;">
-        <h4 id="form-title-squad">스쿼드 자랑 등록</h4>
-        <input type="hidden" id="editIndex-squad" value="">
-        <input type="text" id="squadTitle" placeholder="제목">
-        <textarea id="squadContent" rows="4" placeholder="내용 입력"></textarea>
-        <label>사진 첨부:</label>
-        <input type="file" id="squadFile" accept="image/*">
-        <button onclick="savePost('squad')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('squad')">취소</button>
+      
+      <div id="form-squad-card" class="card" style="display:none;">
+        <h4 id="squadFormTitle">새 스쿼드 자랑 등록</h4>
+        <input type="hidden" id="editSquadId" value="">
+        <input type="text" id="sqTitle" placeholder="제목 (예: 5조 바이에른 뮌헨 단일)">
+        <input type="text" id="sqOwner" placeholder="구단주명 (FC 온라인 닉네임)">
+        <input type="text" id="sqValue" placeholder="구단 가치 (예: 500조)">
+        <input type="text" id="sqFormation" placeholder="포메이션 (예: 4-2-3-1)">
+        <input type="text" id="sqColor" placeholder="팀컬러 (예: 바이에른 뮌헨)">
+        <label>스쿼드/선수 사진:</label>
+        <input type="file" id="sqFile" accept="image/*">
+        <button onclick="saveSquad()">저장하기</button>
+        <button class="btn-secondary" onclick="closeSquadForm()">취소</button>
       </div>
-      <div id="view-squad">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-squad"></tbody>
-        </table>
-      </div>
-      <div id="detail-squad" style="display:none;"></div>
+
+      <div id="squadGrid" class="grid-container"></div>
     </div>
 
     <!-- 3. 산이봤? 탭 -->
@@ -449,7 +476,7 @@
         <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
       </div>
 
-      <div id="streamerGrid" class="streamer-grid"></div>
+      <div id="streamerGrid" class="grid-container"></div>
     </div>
   </div>
 
@@ -502,19 +529,45 @@
   <script>
     const MASTER_PASSWORD = "1234";
 
-    let db = {
-      pendingUsers: JSON.parse(localStorage.getItem('san_pending') || '[]'),
-      approvedUsers: JSON.parse(localStorage.getItem('san_approved') || '[]'),
-      posts: JSON.parse(localStorage.getItem('san_posts') || '{"notice":[], "squad":[], "clip":[]}'),
-      streamers: JSON.parse(localStorage.getItem('san_streamers') || '[{"id":1, "name":"킴성태", "owner":"성태오리지널", "value":"500조", "formation":"4-2-3-1", "color":"바이에른 뮌헨", "url":"https://www.sooplive.co.kr", "image":""}]')
+    let store = {
+      pendingUsers: [],
+      approvedUsers: [],
+      posts: { notice: [], clip: [] },
+      squads: [],
+      streamers: []
     };
 
     let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
 
-    window.onload = () => {
+    window.addEventListener('firebase-ready', async () => {
+      await loadAllData();
       updateUIState();
       renderAll();
-    };
+    });
+
+    async function loadAllData() {
+      try {
+        const pSnap = await getDocs(collection(window.db, "pendingUsers"));
+        store.pendingUsers = pSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+
+        const aSnap = await getDocs(collection(window.db, "approvedUsers"));
+        store.approvedUsers = aSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+
+        const nSnap = await getDocs(collection(window.db, "notices"));
+        store.posts.notice = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+
+        const cSnap = await getDocs(collection(window.db, "clips"));
+        store.posts.clip = cSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+
+        const sqSnap = await getDocs(collection(window.db, "squads"));
+        store.squads = sqSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+
+        const stSnap = await getDocs(collection(window.db, "streamers"));
+        store.streamers = stSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+      } catch (e) {
+        console.error("데이터 로딩 실패:", e);
+      }
+    }
 
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -522,7 +575,7 @@
       document.getElementById('tab-' + tabName).classList.add('active');
       event.currentTarget.classList.add('active');
 
-      ['notice', 'squad', 'clip'].forEach(t => {
+      ['notice', 'clip'].forEach(t => {
         if(t !== tabName) closeDetail(t);
       });
     }
@@ -535,7 +588,6 @@
     }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
-    // 이미지 확대 모달 제어 함수
     function openImageModal(imgSrc) {
       document.getElementById('expandedImg').src = imgSrc;
       document.getElementById('imageModal').style.display = 'flex';
@@ -545,13 +597,16 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    function submitRegister() {
+    async function submitRegister() {
       const soop = document.getElementById('regSoop').value.trim();
       const fc = document.getElementById('regFc').value.trim();
       const pw = document.getElementById('regPw').value.trim();
       if(!soop || !fc || !pw) { alert("모든 항목을 입력해주세요."); return; }
-      db.pendingUsers.push({ soop, fc, pw });
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
+      
+      const newUser = { soop, fc, pw };
+      const docRef = await addDoc(collection(window.db, "pendingUsers"), newUser);
+      store.pendingUsers.push({ firestoreId: docRef.id, ...newUser });
+      
       alert("가입 신청이 완료되었습니다.");
       closeModals();
     }
@@ -576,46 +631,52 @@
 
     function renderAdminLists() {
       const pContainer = document.getElementById('pendingList');
-      pContainer.innerHTML = db.pendingUsers.length === 0 ? '<p style="color:#777;">대기 인원 없음</p>' : '';
-      db.pendingUsers.forEach((u, idx) => {
+      pContainer.innerHTML = store.pendingUsers.length === 0 ? '<p style="color:#777;">대기 인원 없음</p>' : '';
+      store.pendingUsers.forEach((u, idx) => {
         pContainer.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
             <span>${u.soop} (${u.fc})</span>
-            <div><button onclick="approveUser(${idx})">승인</button><button class="btn-danger" onclick="rejectUser(${idx})">거절</button></div>
+            <div><button onclick="approveUser('${u.firestoreId}', ${idx})">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})">거절</button></div>
           </div>`;
       });
 
       const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = db.approvedUsers.length === 0 ? '<p style="color:#777;">클럽원 없음</p>' : '';
-      db.approvedUsers.forEach((u, idx) => {
+      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777;">클럽원 없음</p>' : '';
+      store.approvedUsers.forEach((u, idx) => {
         aContainer.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
             <span>${u.soop} (${u.fc})</span>
-            <button class="btn-danger" onclick="kickUser(${idx})">퇴출</button>
+            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})">퇴출</button>
           </div>`;
       });
     }
 
-    function approveUser(idx) {
-      db.approvedUsers.push(db.pendingUsers.splice(idx, 1)[0]);
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
-      localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
+    async function approveUser(firestoreId, idx) {
+      const target = store.pendingUsers[idx];
+      await addDoc(collection(window.db, "approvedUsers"), target);
+      await deleteDoc(doc(window.db, "pendingUsers", firestoreId));
+      store.approvedUsers.push(target);
+      store.pendingUsers.splice(idx, 1);
       renderAdminLists();
     }
-    function rejectUser(idx) {
-      db.pendingUsers.splice(idx, 1);
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
+
+    async function rejectUser(firestoreId, idx) {
+      await deleteDoc(doc(window.db, "pendingUsers", firestoreId));
+      store.pendingUsers.splice(idx, 1);
       renderAdminLists();
     }
-    function kickUser(idx) {
+
+    async function kickUser(firestoreId, idx) {
       if(!confirm("퇴출하시겠습니까?")) return;
-      db.approvedUsers.splice(idx, 1);
-      localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
+      await deleteDoc(doc(window.db, "approvedUsers", firestoreId));
+      store.approvedUsers.splice(idx, 1);
       renderAdminLists();
     }
 
     function login() {
-      const found = db.approvedUsers.find(u => u.soop === document.getElementById('loginSoop').value.trim() && u.pw === document.getElementById('loginPw').value.trim());
+      const soopInput = document.getElementById('loginSoop').value.trim();
+      const pwInput = document.getElementById('loginPw').value.trim();
+      const found = store.approvedUsers.find(u => u.soop === soopInput && u.pw === pwInput);
       if(found) {
         currentUser = { soop: found.soop, role: 'member' };
         localStorage.setItem('san_current_user', JSON.stringify(currentUser));
@@ -652,8 +713,8 @@
       if(editIdx !== null) {
         document.getElementById(`form-title-${tab}`).innerText = "게시글 수정";
         document.getElementById(`editIndex-${tab}`).value = editIdx;
-        document.getElementById(`${tab}Title`).value = db.posts[tab][editIdx].title;
-        document.getElementById(`${tab}Content`).value = db.posts[tab][editIdx].content;
+        document.getElementById(`${tab}Title`).value = store.posts[tab][editIdx].title;
+        document.getElementById(`${tab}Content`).value = store.posts[tab][editIdx].content;
       } else {
         document.getElementById(`form-title-${tab}`).innerText = "새 글 등록";
         document.getElementById(`editIndex-${tab}`).value = '';
@@ -686,7 +747,7 @@
 
       (async () => {
         if(fileInput && fileInput.files[0]) mediaHtml += await readerFile(fileInput.files[0]);
-        else if(editIdxVal !== "") mediaHtml = db.posts[tab][editIdxVal].media;
+        else if(editIdxVal !== "") mediaHtml = store.posts[tab][editIdxVal].media;
 
         if(linkInput && linkInput.value.trim()) {
           let url = linkInput.value.trim();
@@ -695,16 +756,31 @@
           mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
         }
 
+        const colName = tab === 'notice' ? 'notices' : 'clips';
+
         if(editIdxVal !== "") {
           let idx = parseInt(editIdxVal);
-          db.posts[tab][idx].title = title;
-          db.posts[tab][idx].content = content;
-          if(mediaHtml) db.posts[tab][idx].media = mediaHtml;
+          let target = store.posts[tab][idx];
+          target.title = title;
+          target.content = content;
+          if(mediaHtml) target.media = mediaHtml;
+
+          await updateDoc(doc(window.db, colName, target.firestoreId), {
+            title, content, media: target.media
+          });
         } else {
-          db.posts[tab].unshift({ id: Date.now(), author: currentUser.soop, title, content, media: mediaHtml, date: new Date().toLocaleDateString() });
+          const newPost = {
+            id: Date.now(),
+            author: currentUser.soop,
+            title,
+            content,
+            media: mediaHtml,
+            date: new Date().toLocaleDateString()
+          };
+          const docRef = await addDoc(collection(window.db, colName), newPost);
+          store.posts[tab].unshift({ firestoreId: docRef.id, ...newPost });
         }
 
-        localStorage.setItem('san_posts', JSON.stringify(db.posts));
         closePostForm(tab);
         renderAll();
         if(editIdxVal !== "") viewDetail(tab, parseInt(editIdxVal));
@@ -712,7 +788,7 @@
     }
 
     function viewDetail(tab, idx) {
-      const p = db.posts[tab][idx];
+      const p = store.posts[tab][idx];
       document.getElementById('view-' + tab).style.display = 'none';
       const detailDiv = document.getElementById('detail-' + tab);
       detailDiv.style.display = 'block';
@@ -737,20 +813,118 @@
       document.getElementById('detail-' + tab).style.display = 'none';
     }
 
-    function deletePost(tab, idx) {
+    async function deletePost(tab, idx) {
       if(!confirm("삭제하시겠습니까?")) return;
-      db.posts[tab].splice(idx, 1);
-      localStorage.setItem('san_posts', JSON.stringify(db.posts));
+      const target = store.posts[tab][idx];
+      const colName = tab === 'notice' ? 'notices' : 'clips';
+      await deleteDoc(doc(window.db, colName, target.firestoreId));
+      store.posts[tab].splice(idx, 1);
       closeDetail(tab);
       renderAll();
     }
 
-    function openStreamerForm(id = null) {
+    // 스쿼드 자랑 카드 기능 (스트리머 형태와 동일, 링크 제외)
+    function openSquadForm(firestoreId = null) {
+      document.getElementById('form-squad-card').style.display = 'block';
+      if(firestoreId !== null) {
+        document.getElementById('squadFormTitle').innerText = "스쿼드 정보 수정";
+        document.getElementById('editSquadId').value = firestoreId;
+        const s = store.squads.find(item => item.firestoreId === firestoreId);
+        document.getElementById('sqTitle').value = s.title;
+        document.getElementById('sqOwner').value = s.owner;
+        document.getElementById('sqValue').value = s.value;
+        document.getElementById('sqFormation').value = s.formation;
+        document.getElementById('sqColor').value = s.color;
+      } else {
+        document.getElementById('squadFormTitle').innerText = "새 스쿼드 자랑 등록";
+        document.getElementById('editSquadId').value = '';
+        document.getElementById('sqTitle').value = '';
+        document.getElementById('sqOwner').value = currentUser ? currentUser.soop : '';
+        document.getElementById('sqValue').value = '';
+        document.getElementById('sqFormation').value = '';
+        document.getElementById('sqColor').value = '';
+        document.getElementById('sqFile').value = '';
+      }
+    }
+
+    function closeSquadForm() {
+      document.getElementById('form-squad-card').style.display = 'none';
+    }
+
+    async function saveSquad() {
+      const firestoreIdVal = document.getElementById('editSquadId').value;
+      const title = document.getElementById('sqTitle').value.trim();
+      const owner = document.getElementById('sqOwner').value.trim();
+      const value = document.getElementById('sqValue').value.trim() || '정보 없음';
+      const formation = document.getElementById('sqFormation').value.trim() || '정보 없음';
+      const color = document.getElementById('sqColor').value.trim() || '정보 없음';
+      const fileInput = document.getElementById('sqFile');
+
+      if(!title || !owner) { alert("제목과 구단주명은 필수입니다!"); return; }
+
+      const processImage = (file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+
+      let imageUrl = "";
+      if(fileInput && fileInput.files[0]) {
+        imageUrl = await processImage(fileInput.files[0]);
+      } else if(firestoreIdVal !== "") {
+        const existing = store.squads.find(s => s.firestoreId === firestoreIdVal);
+        imageUrl = existing ? existing.image : "";
+      }
+
+      if(firestoreIdVal !== "") {
+        let idx = store.squads.findIndex(s => s.firestoreId === firestoreIdVal);
+        let target = store.squads[idx];
+        target.title = title;
+        target.owner = owner;
+        target.value = value;
+        target.formation = formation;
+        target.color = color;
+        target.image = imageUrl;
+
+        await updateDoc(doc(window.db, "squads", firestoreIdVal), {
+          title, owner, value, formation, color, image: imageUrl
+        });
+        alert("수정되었습니다!");
+      } else {
+        const newSquad = {
+          id: Date.now(),
+          title,
+          owner,
+          value,
+          formation,
+          color,
+          image: imageUrl
+        };
+        const docRef = await addDoc(collection(window.db, "squads"), newSquad);
+        store.squads.unshift({ firestoreId: docRef.id, ...newSquad });
+        alert("등록되었습니다!");
+      }
+
+      closeSquadForm();
+      renderSquads();
+      renderMainDashboard();
+    }
+
+    async function deleteSquad(firestoreId) {
+      if(!confirm("정말 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "squads", firestoreId));
+      store.squads = store.squads.filter(s => s.firestoreId !== firestoreId);
+      renderSquads();
+      renderMainDashboard();
+    }
+
+    // 스트리머 구단 정보 기능
+    function openStreamerForm(firestoreId = null) {
       document.getElementById('form-streamer').style.display = 'block';
-      if(id !== null) {
+      if(firestoreId !== null) {
         document.getElementById('streamerFormTitle').innerText = "스트리머 정보 수정";
-        document.getElementById('editStreamerId').value = id;
-        const s = db.streamers.find(item => item.id === id);
+        document.getElementById('editStreamerId').value = firestoreId;
+        const s = store.streamers.find(item => item.firestoreId === firestoreId);
         document.getElementById('stName').value = s.name;
         document.getElementById('stOwner').value = s.owner;
         document.getElementById('stValue').value = s.value;
@@ -774,8 +948,8 @@
       document.getElementById('form-streamer').style.display = 'none';
     }
 
-    function saveStreamer() {
-      const idVal = document.getElementById('editStreamerId').value;
+    async function saveStreamer() {
+      const firestoreIdVal = document.getElementById('editStreamerId').value;
       const name = document.getElementById('stName').value.trim();
       const owner = document.getElementById('stOwner').value.trim();
       const value = document.getElementById('stValue').value.trim() || '정보 없음';
@@ -792,74 +966,118 @@
         reader.readAsDataURL(file);
       });
 
-      (async () => {
-        let imageUrl = "";
-        if(fileInput && fileInput.files[0]) {
-          imageUrl = await processImage(fileInput.files[0]);
-        } else if(idVal !== "") {
-          const existing = db.streamers.find(s => s.id == idVal);
-          imageUrl = existing ? existing.image : "";
-        }
+      let imageUrl = "";
+      if(fileInput && fileInput.files[0]) {
+        imageUrl = await processImage(fileInput.files[0]);
+      } else if(firestoreIdVal !== "") {
+        const existing = store.streamers.find(s => s.firestoreId === firestoreIdVal);
+        imageUrl = existing ? existing.image : "";
+      }
 
-        if(idVal !== "") {
-          let idx = db.streamers.findIndex(s => s.id == idVal);
-          db.streamers[idx] = { id: parseInt(idVal), name, owner, value, formation, color, url, image: imageUrl };
-          alert("수정되었습니다!");
-        } else {
-          db.streamers.unshift({ id: Date.now(), name, owner, value, formation, color, url, image: imageUrl });
-          alert("등록되었습니다!");
-        }
+      if(firestoreIdVal !== "") {
+        let idx = store.streamers.findIndex(s => s.firestoreId === firestoreIdVal);
+        let target = store.streamers[idx];
+        target.name = name;
+        target.owner = owner;
+        target.value = value;
+        target.formation = formation;
+        target.color = color;
+        target.url = url;
+        target.image = imageUrl;
 
-        localStorage.setItem('san_streamers', JSON.stringify(db.streamers));
-        closeStreamerForm();
-        renderStreamers();
-        renderMainDashboard();
-      })();
+        await updateDoc(doc(window.db, "streamers", firestoreIdVal), {
+          name, owner, value, formation, color, url, image: imageUrl
+        });
+        alert("수정되었습니다!");
+      } else {
+        const newStreamer = {
+          id: Date.now(),
+          name,
+          owner,
+          value,
+          formation,
+          color,
+          url,
+          image: imageUrl
+        };
+        const docRef = await addDoc(collection(window.db, "streamers"), newStreamer);
+        store.streamers.unshift({ firestoreId: docRef.id, ...newStreamer });
+        alert("등록되었습니다!");
+      }
+
+      closeStreamerForm();
+      renderStreamers();
+      renderMainDashboard();
     }
 
-    function deleteStreamer(id) {
+    async function deleteStreamer(firestoreId) {
       if(!confirm("정말 삭제하시겠습니까?")) return;
-      db.streamers = db.streamers.filter(s => s.id !== id);
-      localStorage.setItem('san_streamers', JSON.stringify(db.streamers));
+      await deleteDoc(doc(window.db, "streamers", firestoreId));
+      store.streamers = store.streamers.filter(s => s.firestoreId !== firestoreId);
       renderStreamers();
       renderMainDashboard();
     }
 
     function renderAll() {
       renderTable('notice');
-      renderTable('squad');
       renderTable('clip');
+      renderSquads();
       renderStreamers();
       renderMainDashboard();
     }
 
     function renderTable(tab) {
       const tbody = document.getElementById('table-' + tab);
-      tbody.innerHTML = db.posts[tab].length === 0 ? `<tr><td colspan="4" style="text-align:center; color:#777;">게시글이 없습니다.</td></tr>` : '';
-      db.posts[tab].forEach((p, idx) => {
-        tbody.innerHTML += `<tr onclick="viewDetail('${tab}', ${idx})"><td>${db.posts[tab].length - idx}</td><td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td><td>${p.author}</td><td>${p.date}</td></tr>`;
+      tbody.innerHTML = store.posts[tab].length === 0 ? `<tr><td colspan="4" style="text-align:center; color:#777;">게시글이 없습니다.</td></tr>` : '';
+      store.posts[tab].forEach((p, idx) => {
+        tbody.innerHTML += `<tr onclick="viewDetail('${tab}', ${idx})"><td>${store.posts[tab].length - idx}</td><td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td><td>${p.author}</td><td>${p.date}</td></tr>`;
+      });
+    }
+
+    function renderSquads() {
+      const grid = document.getElementById('squadGrid');
+      grid.innerHTML = store.squads.length === 0 ? '<p style="color:#777;">등록된 스쿼드 없음</p>' : '';
+      store.squads.forEach(s => {
+        let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === s.owner);
+        let actionBtns = canModify ? `
+          <div class="card-action-btns">
+            <button onclick="openSquadForm('${s.firestoreId}')">수정</button>
+            <button class="del" onclick="deleteSquad('${s.firestoreId}')">✕</button>
+          </div>` : '';
+
+        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}')" title="클릭해서 확대 보기">` : '';
+
+        grid.innerHTML += `
+          <div class="custom-card">
+            ${actionBtns}
+            ${imgHtml}
+            <div class="card-title-lg">${escapeHtml(s.title)}</div>
+            <div class="card-subtitle">구단주: ${escapeHtml(s.owner)}</div>
+            <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
+            <div class="info-row">포메이션: <span>${escapeHtml(s.formation)}</span></div>
+            <div class="info-row">팀컬러: <span>${escapeHtml(s.color)}</span></div>
+          </div>`;
       });
     }
 
     function renderStreamers() {
       const grid = document.getElementById('streamerGrid');
-      grid.innerHTML = db.streamers.length === 0 ? '<p style="color:#777;">등록된 스트리머 없음</p>' : '';
-      db.streamers.forEach(s => {
+      grid.innerHTML = store.streamers.length === 0 ? '<p style="color:#777;">등록된 스트리머 없음</p>' : '';
+      store.streamers.forEach(s => {
         let adminBtns = (currentUser && currentUser.role === 'admin') ? `
-          <div class="streamer-action-btns">
-            <button onclick="openStreamerForm(${s.id})">수정</button>
-            <button class="del" onclick="deleteStreamer(${s.id})">✕</button>
+          <div class="card-action-btns">
+            <button onclick="openStreamerForm('${s.firestoreId}')">수정</button>
+            <button class="del" onclick="deleteStreamer('${s.firestoreId}')">✕</button>
           </div>` : '';
 
-        // 사진이 있을 경우 클릭 시 openImageModal 호출하도록 설정
-        let imgHtml = s.image ? `<img src="${s.image}" class="streamer-img" onclick="openImageModal('${s.image}')" title="클릭해서 확대 보기">` : '';
+        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}')" title="클릭해서 확대 보기">` : '';
 
         grid.innerHTML += `
-          <div class="streamer-card">
+          <div class="custom-card">
             ${adminBtns}
             ${imgHtml}
-            <div class="streamer-name">${escapeHtml(s.name)}</div>
-            <div class="streamer-owner">구단주: ${escapeHtml(s.owner)}</div>
+            <div class="card-title-lg">${escapeHtml(s.name)}</div>
+            <div class="card-subtitle">구단주: ${escapeHtml(s.owner)}</div>
             <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
             <div class="info-row">포메이션: <span>${escapeHtml(s.formation)}</span></div>
             <div class="info-row">팀컬러: <span>${escapeHtml(s.color)}</span></div>
@@ -869,17 +1087,27 @@
     }
 
     function renderMainDashboard() {
-      ['notice', 'squad', 'clip'].forEach(tab => {
+      ['notice', 'clip'].forEach(tab => {
         const list = document.getElementById(`main-${tab}-list`);
-        list.innerHTML = db.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-        db.posts[tab].slice(0, 3).forEach((p, idx) => {
+        list.innerHTML = store.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
+        store.posts[tab].slice(0, 3).forEach((p, idx) => {
           list.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('${tab}'); viewDetail('${tab}', ${idx});">${escapeHtml(p.title)}</div>`;
         });
       });
 
+      const sqList = document.getElementById('main-squad-list');
+      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
+      store.squads.slice(0, 3).forEach(s => {
+        sqList.innerHTML += `
+          <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('squad')">
+            <b style="color:var(--accent-color);">${escapeHtml(s.title)}</b> (구단주: ${escapeHtml(s.owner)})<br>
+            <span>가치: ${escapeHtml(s.value)} | 컬러: ${escapeHtml(s.color)}</span>
+          </div>`;
+      });
+
       const sp = document.getElementById('main-streamer-preview');
-      sp.innerHTML = db.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
-      db.streamers.slice(0, 2).forEach(s => {
+      sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
+      store.streamers.slice(0, 2).forEach(s => {
         sp.innerHTML += `
           <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('streamer')">
             <b style="color:var(--accent-color);">${escapeHtml(s.name)}</b> (구단주: ${escapeHtml(s.owner)})<br>
