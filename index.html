@@ -18,7 +18,7 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
@@ -29,21 +29,23 @@
     .header {
       text-align: center;
       border-bottom: 2px solid var(--border-color);
-      padding-bottom: 20px;
-      margin-bottom: 20px;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
     }
 
     .header h1 {
       color: var(--accent-color);
       margin: 0 0 5px 0;
+      font-size: 24px;
     }
 
     .user-bar {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 15px;
-      font-size: 0.9em;
+      font-size: 0.85em;
+      flex-wrap: wrap;
     }
 
     .tab-menu {
@@ -52,17 +54,25 @@
       margin-bottom: 20px;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 10px;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-menu::-webkit-scrollbar {
+      display: none; /* 스크롤바 숨기기 (모바일 깔끔함 유지) */
     }
 
     .tab-btn {
       background-color: var(--card-bg);
       color: var(--text-color);
       border: 1px solid var(--border-color);
-      padding: 10px 20px;
+      padding: 8px 14px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 0.9em;
+      flex-shrink: 0;
     }
 
     .tab-btn.active {
@@ -96,6 +106,7 @@
       color: var(--text-color);
       border-radius: 4px;
       box-sizing: border-box;
+      font-size: 14px; /* 모바일 입력 시 자동 줌 방지 */
     }
 
     button {
@@ -106,6 +117,7 @@
       border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 0.9em;
     }
 
     button:hover { opacity: 0.9; }
@@ -117,6 +129,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-bar h3 {
+      margin: 0;
+      font-size: 1.1em;
     }
 
     .board-table {
@@ -129,10 +148,10 @@
     }
 
     .board-table th, .board-table td {
-      padding: 12px 15px;
+      padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
-      font-size: 0.95em;
+      font-size: 0.9em;
     }
 
     .board-table th {
@@ -149,7 +168,7 @@
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 20px;
+      padding: 15px;
       margin-top: 15px;
     }
 
@@ -160,31 +179,30 @@
     }
 
     iframe {
-      height: 315px;
+      height: 250px;
       width: 100%;
     }
 
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 15px;
     }
 
     .custom-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px;
       position: relative;
     }
 
-    /* 탭 내부 카드 사진 크기 확대 (일관성 유지) */
     .custom-img {
       width: 100%;
-      height: 200px;
+      height: 180px;
       object-fit: cover;
       border-radius: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background-color: #121212;
       cursor: pointer;
       transition: opacity 0.2s;
@@ -195,23 +213,23 @@
     }
 
     .card-title-lg {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       margin-bottom: 5px;
       color: #fff;
     }
 
     .card-subtitle {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--accent-color);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-weight: bold;
     }
 
     .info-row {
-      font-size: 14px;
+      font-size: 13px;
       color: #ccc;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .info-row span {
@@ -228,8 +246,8 @@
       padding: 8px;
       border-radius: 5px;
       font-weight: bold;
-      font-size: 13px;
-      margin-top: 15px;
+      font-size: 12px;
+      margin-top: 12px;
     }
 
     .soop-btn:hover {
@@ -239,8 +257,8 @@
 
     .card-action-btns {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 12px;
+      right: 12px;
       display: flex;
       gap: 5px;
     }
@@ -250,8 +268,8 @@
       border: none;
       color: #777;
       cursor: pointer;
-      font-size: 14px;
-      padding: 2px 6px;
+      font-size: 13px;
+      padding: 2px 5px;
     }
 
     .card-action-btns button:hover {
@@ -270,17 +288,20 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 15px;
+      box-sizing: border-box;
     }
 
     .modal-content {
       background: var(--card-bg);
-      padding: 25px;
+      padding: 20px;
       border-radius: 8px;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       border: 1px solid var(--border-color);
+      box-sizing: border-box;
     }
 
-    /* 이미지 확대 모달 */
     #imageModal {
       display: none;
       position: fixed;
@@ -290,22 +311,22 @@
       align-items: center;
       z-index: 2000;
       cursor: pointer;
+      padding: 10px;
     }
 
     #expandedImg {
-      max-width: 90%;
-      max-height: 90vh;
+      max-width: 95%;
+      max-height: 85vh;
       border-radius: 8px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
-    /* 메인 대시보드 미리보기 스타일 (사진 대폭 확대 및 동일한 크기 통일) */
     .preview-card {
       background-color: #151515;
       border: 1px solid #2a2a2a;
       border-radius: 6px;
       padding: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -314,11 +335,35 @@
     }
     .preview-thumb-large {
       width: 100%;
-      height: 160px;
+      height: 130px;
       object-fit: cover;
       border-radius: 4px;
       margin-bottom: 8px;
       background-color: #121212;
+    }
+
+    /* 모바일 반응형 대시보드 2단 레이아웃 -> 1단 전환 */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .header h1 {
+        font-size: 20px;
+      }
+      .user-bar {
+        font-size: 0.8em;
+        justify-content: center;
+      }
+      #tab-main > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+      .board-table th, .board-table td {
+        padding: 8px 6px;
+        font-size: 0.8em;
+      }
     }
   </style>
 
@@ -357,43 +402,43 @@
   <div class="container">
     <div class="header">
       <h1>⚽ FC온라인 클럽 [산해궁]</h1>
-      <p>공식 커뮤니티 & 정보 공유소</p>
+      <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #aaa;">공식 커뮤니티 & 정보 공유소</p>
     </div>
 
     <div class="user-bar">
-      <span id="userInfoDisplay" style="align-self: center; margin-right: 10px; color: #aaa;">비회원 (조회 전용)</span>
+      <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #aaa;">비회원 (조회 전용)</span>
       <button id="authBtn" onclick="openLoginModal()">로그인</button>
-      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">가입 승인 신청</button>
-      <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자 모드</button>
+      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">가입 승인</button>
+      <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자</button>
       <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
     </div>
 
     <div class="tab-menu">
-      <button class="tab-btn active" onclick="switchTab('main')">🏠 메인 대시보드</button>
-      <button class="tab-btn" onclick="switchTab('notice')">📢 공지사항</button>
-      <button class="tab-btn" onclick="switchTab('squad')">🛡️ 스쿼드 자랑</button>
-      <button class="tab-btn" onclick="switchTab('clip')">🎬 산이봤? (클립/밈)</button>
-      <button class="tab-btn" onclick="switchTab('streamer')">📺 스트리머 구단정보</button>
+      <button class="tab-btn active" onclick="switchTab('main')">🏠 메인</button>
+      <button class="tab-btn" onclick="switchTab('notice')">📢 공지</button>
+      <button class="tab-btn" onclick="switchTab('squad')">🛡️ 스쿼드</button>
+      <button class="tab-btn" onclick="switchTab('clip')">🎬 산이봤?</button>
+      <button class="tab-btn" onclick="switchTab('streamer')">📺 스트리머</button>
     </div>
 
     <!-- 0. 메인 대시보드 -->
     <div id="tab-main" class="tab-content active">
-      <h3>🔥 실시간 클럽 소식</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">📢 공지사항 최신글</h4>
+      <h3 style="font-size: 1.1em; color: var(--accent-color); margin-bottom: 12px;">🔥 실시간 클럽 소식</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">📢 공지사항 최신글</h4>
           <div id="main-notice-list"></div>
         </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">📺 스트리머 구단 요약</h4>
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">📺 스트리머 구단 요약</h4>
           <div id="main-streamer-preview"></div>
         </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">🎬 산이봤? 최신글</h4>
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🎬 산이봤? 최신글</h4>
           <div id="main-clip-list"></div>
         </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">🛡️ 스쿼드 자랑 최신글</h4>
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🛡️ 스쿼드 자랑 최신글</h4>
           <div id="main-squad-list"></div>
         </div>
       </div>
@@ -402,7 +447,7 @@
     <!-- 1. 공지사항 탭 -->
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
-        <h3>클럽 공지사항 (관리자 전용)</h3>
+        <h3>클럽 공지사항</h3>
         <button id="writeNoticeBtn" style="display:none;" onclick="openPostForm('notice')">공지 작성</button>
       </div>
       <div id="form-notice" class="card" style="display:none;">
@@ -417,7 +462,7 @@
       <div id="view-notice">
         <table class="board-table">
           <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
+            <tr><th style="width: 12%;">번호</th><th style="width: 58%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
           </thead>
           <tbody id="table-notice"></tbody>
         </table>
@@ -425,10 +470,10 @@
       <div id="detail-notice" style="display:none;"></div>
     </div>
 
-    <!-- 2. 스쿼드 자랑 탭 (카드형 UI) -->
+    <!-- 2. 스쿼드 자랑 탭 -->
     <div id="tab-squad" class="tab-content">
       <div class="action-bar">
-        <h3>클럽원 스쿼드 & 강화 인증 아카이브</h3>
+        <h3>스쿼드 & 강화 인증</h3>
         <button id="writeSquadBtn" style="display:none;" onclick="openSquadForm()">스쿼드 등록</button>
       </div>
       
@@ -436,12 +481,12 @@
         <h4 id="squadFormTitle">새 스쿼드 자랑 등록</h4>
         <input type="hidden" id="editSquadId" value="">
         <input type="text" id="sqTitle" placeholder="제목 (예: 5조 바이에른 뮌헨 단일)">
-        <input type="text" id="sqOwner" placeholder="구단주명 (FC 온라인 닉네임)">
+        <input type="text" id="sqOwner" placeholder="구단주명">
         <input type="text" id="sqValue" placeholder="구단 가치 (예: 500조)">
         <input type="text" id="sqFormation" placeholder="포메이션 (예: 4-2-3-1)">
         <input type="text" id="sqColor" placeholder="팀컬러 (예: 바이에른 뮌헨)">
-        <label>스쿼드/선수 사진:</label>
-        <input type="file" id="sqFile" accept="image/*">
+        <label style="font-size: 0.85em; color: #aaa;">스쿼드/선수 사진:</label>
+        <input type="file" id="sqFile" accept="image/*" style="margin-top:5px;">
         <button onclick="saveSquad()">저장하기</button>
         <button class="btn-secondary" onclick="closeSquadForm()">취소</button>
       </div>
@@ -452,16 +497,16 @@
     <!-- 3. 산이봤? 탭 -->
     <div id="tab-clip" class="tab-content">
       <div class="action-bar">
-        <h3>산해궁이거봤어? (유머/클립/밈)</h3>
-        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">클립/짤 올리기</button>
+        <h3>산이봤? (유머/클립/밈)</h3>
+        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">글 올리기</button>
       </div>
       <div id="form-clip" class="card" style="display:none;">
         <h4 id="form-title-clip">산이봤? 게시글 등록</h4>
         <input type="hidden" id="editIndex-clip" value="">
         <input type="text" id="clipTitle" placeholder="제목">
         <textarea id="clipContent" rows="4" placeholder="내용"></textarea>
-        <label>파일 첨부:</label>
-        <input type="file" id="clipFile" accept="image/*,video/*">
+        <label style="font-size: 0.85em; color: #aaa;">파일 첨부:</label>
+        <input type="file" id="clipFile" accept="image/*,video/*" style="margin-top:5px;">
         <input type="text" id="clipLink" placeholder="유튜브 링크">
         <button onclick="savePost('clip')">등록</button>
         <button class="btn-secondary" onclick="closePostForm('clip')">취소</button>
@@ -469,7 +514,7 @@
       <div id="view-clip">
         <table class="board-table">
           <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
+            <tr><th style="width: 12%;">번호</th><th style="width: 58%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
           </thead>
           <tbody id="table-clip"></tbody>
         </table>
@@ -480,21 +525,21 @@
     <!-- 4. 스트리머 구단정보 탭 -->
     <div id="tab-streamer" class="tab-content">
       <div class="action-bar">
-        <h3>SOOP 스트리머 구단 정보 아카이브</h3>
+        <h3>SOOP 스트리머 구단</h3>
         <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">스트리머 등록</button>
       </div>
       
       <div id="form-streamer" class="card" style="display:none;">
-        <h4 id="streamerFormTitle">새 스트리머 구단 정보 등록</h4>
+        <h4 id="streamerFormTitle">새 스트리머 정보 등록</h4>
         <input type="hidden" id="editStreamerId" value="">
-        <input type="text" id="stName" placeholder="스트리머 이름 (예: 킴성태)">
-        <input type="text" id="stOwner" placeholder="구단주명 (FC 온라인 닉네임)">
-        <input type="text" id="stValue" placeholder="구단 가치 (예: 500조)">
-        <input type="text" id="stFormation" placeholder="포메이션 (예: 4-2-3-1)">
-        <input type="text" id="stColor" placeholder="팀컬러 (예: 바이에른 뮌헨)">
+        <input type="text" id="stName" placeholder="스트리머 이름">
+        <input type="text" id="stOwner" placeholder="구단주명">
+        <input type="text" id="stValue" placeholder="구단 가치">
+        <input type="text" id="stFormation" placeholder="포메이션">
+        <input type="text" id="stColor" placeholder="팀컬러">
         <input type="text" id="stUrl" placeholder="SOOP 방송국 링크 (URL)">
-        <label>스트리머 프로필/구단 사진:</label>
-        <input type="file" id="stFile" accept="image/*">
+        <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진:</label>
+        <input type="file" id="stFile" accept="image/*" style="margin-top:5px;">
         <button onclick="saveStreamer()">저장하기</button>
         <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
       </div>
@@ -511,41 +556,41 @@
   <!-- 모달 창들 -->
   <div id="registerModal" class="modal">
     <div class="modal-content">
-      <h3>클럽 가입 승인 신청</h3>
+      <h3 style="margin-top:0;">클럽 가입 승인 신청</h3>
       <input type="text" id="regSoop" placeholder="SOOP 닉네임">
       <input type="text" id="regFc" placeholder="FC온라인 닉네임">
       <input type="password" id="regPw" placeholder="개별 비밀번호">
-      <button onclick="submitRegister()">신청하기</button>
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
+      <button onclick="submitRegister()" style="width:100%; margin-top:5px;">신청하기</button>
+      <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
     </div>
   </div>
 
   <div id="loginModal" class="modal">
     <div class="modal-content">
-      <h3>클럽원 로그인</h3>
+      <h3 style="margin-top:0;">클럽원 로그인</h3>
       <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
       <input type="password" id="loginPw" placeholder="개별 비밀번호">
-      <button onclick="login()">로그인</button>
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
+      <button onclick="login()" style="width:100%; margin-top:5px;">로그인</button>
+      <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
     </div>
   </div>
 
   <div id="adminModal" class="modal">
-    <div class="modal-content" style="width: 550px; max-height: 80vh; overflow-y: auto;">
-      <h3>관리자 제어판</h3>
+    <div class="modal-content" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+      <h3 style="margin-top:0;">관리자 제어판</h3>
       <div id="adminAuthSection">
         <input type="password" id="adminMasterPw" placeholder="마스터 관리자 비밀번호">
-        <button onclick="verifyAdmin()">관리자 인증</button>
+        <button onclick="verifyAdmin()" style="width:100%; margin-top:5px;">관리자 인증</button>
       </div>
       <div id="adminDashboard" style="display:none; margin-top:15px;">
         <hr style="border-color:var(--border-color);">
-        <h4>⏳ 가입 승인 대기 목록</h4>
+        <h4 style="font-size:0.95em; color:var(--accent-color);">⏳ 가입 승인 대기 목록</h4>
         <div id="pendingList"></div>
-        <hr style="border-color:var(--border-color); margin-top:20px;">
-        <h4>👥 승인된 클럽원 명단</h4>
+        <hr style="border-color:var(--border-color); margin-top:15px;">
+        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 클럽원 명단</h4>
         <div id="approvedList"></div>
       </div>
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:15px;">닫기</button>
+      <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:15px;">닫기</button>
     </div>
   </div>
 
@@ -655,22 +700,22 @@
 
     function renderAdminLists() {
       const pContainer = document.getElementById('pendingList');
-      pContainer.innerHTML = store.pendingUsers.length === 0 ? '<p style="color:#777;">대기 인원 없음</p>' : '';
+      pContainer.innerHTML = store.pendingUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">대기 인원 없음</p>' : '';
       store.pendingUsers.forEach((u, idx) => {
         pContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span>${u.soop} (${u.fc})</span>
-            <div><button onclick="approveUser('${u.firestoreId}', ${idx})">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})">거절</button></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:5px;">${u.soop} (${u.fc})</span>
+            <div style="display:flex; gap:4px; flex-shrink:0;"><button onclick="approveUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">거절</button></div>
           </div>`;
       });
 
       const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777;">클럽원 없음</p>' : '';
+      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">클럽원 없음</p>' : '';
       store.approvedUsers.forEach((u, idx) => {
         aContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span>${u.soop} (${u.fc})</span>
-            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})">퇴출</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:5px;">${u.soop} (${u.fc})</span>
+            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em; flex-shrink:0;">퇴출</button>
           </div>`;
       });
     }
@@ -721,7 +766,7 @@
 
     function updateUIState() {
       const isAdmin = currentUser && currentUser.role === 'admin';
-      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '클럽원'})` : "비회원 (조회 전용)";
+      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '클럽원'})` : "비회원";
       document.getElementById('authBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('registerBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
@@ -821,9 +866,9 @@
       detailDiv.innerHTML = `
         <div class="post-detail">
           <button class="btn-secondary" onclick="closeDetail('${tab}')" style="margin-bottom:10px;">목록으로</button>
-          <h2 style="color:var(--accent-color); margin-top:0;">${escapeHtml(p.title)}</h2>
-          <div style="font-size:0.9em; color:#888; margin-bottom:15px;">작성자: <b>${p.author}</b> | 날짜: ${p.date}</div>
-          <div style="white-space: pre-wrap; margin-bottom:15px;">${escapeHtml(p.content)}</div>
+          <h2 style="color:var(--accent-color); margin-top:0; font-size:1.2em;">${escapeHtml(p.title)}</h2>
+          <div style="font-size:0.85em; color:#888; margin-bottom:15px;">작성자: <b>${p.author}</b> | 날짜: ${p.date}</div>
+          <div style="white-space: pre-wrap; margin-bottom:15px; font-size:0.95em;">${escapeHtml(p.content)}</div>
           ${p.media}
           <div style="margin-top:20px; display:flex; gap:10px;">
             ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button>` : ''}
@@ -1058,7 +1103,7 @@
 
     function renderSquads() {
       const grid = document.getElementById('squadGrid');
-      grid.innerHTML = store.squads.length === 0 ? '<p style="color:#777;">등록된 스쿼드 없음</p>' : '';
+      grid.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
       store.squads.forEach(s => {
         let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === s.owner);
         let actionBtns = canModify ? `
@@ -1084,7 +1129,7 @@
 
     function renderStreamers() {
       const grid = document.getElementById('streamerGrid');
-      grid.innerHTML = store.streamers.length === 0 ? '<p style="color:#777;">등록된 스트리머 없음</p>' : '';
+      grid.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
       store.streamers.forEach(s => {
         let adminBtns = (currentUser && currentUser.role === 'admin') ? `
           <div class="card-action-btns">
@@ -1111,35 +1156,33 @@
     function renderMainDashboard() {
       ['notice', 'clip'].forEach(tab => {
         const list = document.getElementById(`main-${tab}-list`);
-        list.innerHTML = store.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
+        list.innerHTML = store.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.85em;">게시글 없음</p>' : '';
         store.posts[tab].slice(0, 3).forEach((p, idx) => {
-          list.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('${tab}'); viewDetail('${tab}', ${idx});">${escapeHtml(p.title)}</div>`;
+          list.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.85em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="switchTab('${tab}'); viewDetail('${tab}', ${idx});">${escapeHtml(p.title)}</div>`;
         });
       });
 
-      // 스트리머 구단 요약 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
       const sp = document.getElementById('main-streamer-preview');
-      sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
+      sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.85em;">등록된 스트리머 없음</p>' : '';
       store.streamers.slice(0, 2).forEach(s => {
-        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:12px;">No Image</div>`;
+        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:11px;">No Image</div>`;
         sp.innerHTML += `
           <div class="preview-card" onclick="switchTab('streamer')">
             ${thumbHtml}
-            <div style="font-size:0.95em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.name)}</div>
-            <div style="font-size:0.85em; color:#ccc;">구단주: ${escapeHtml(s.owner)} | 가치: ${escapeHtml(s.value)}</div>
+            <div style="font-size:0.9em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.name)}</div>
+            <div style="font-size:0.8em; color:#ccc;">가치: ${escapeHtml(s.value)}</div>
           </div>`;
       });
 
-      // 스쿼드 자랑 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
       const sqList = document.getElementById('main-squad-list');
-      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
+      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.85em;">등록된 스쿼드 없음</p>' : '';
       store.squads.slice(0, 2).forEach(s => {
-        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:12px;">No Image</div>`;
+        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:11px;">No Image</div>`;
         sqList.innerHTML += `
           <div class="preview-card" onclick="switchTab('squad')">
             ${thumbHtml}
-            <div style="font-size:0.95em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.title)}</div>
-            <div style="font-size:0.85em; color:#ccc;">구단주: ${escapeHtml(s.owner)} | 가치: ${escapeHtml(s.value)}</div>
+            <div style="font-size:0.9em; font-weight:bold; color:var(--accent-color); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(s.title)}</div>
+            <div style="font-size:0.8em; color:#ccc;">구단주: ${escapeHtml(s.owner)}</div>
           </div>`;
       });
     }
