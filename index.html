@@ -1,803 +1,307 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FC온라인 클럽 [산해궁]</title>
-  <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-color: #00e676;
-      --text-color: #ffffff;
-      --border-color: #333333;
-    }
-
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .header {
-      text-align: center;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 20px;
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      color: var(--accent-color);
-      margin: 0 0 5px 0;
-    }
-
-    /* 상단 유저 바 */
-    .user-bar {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-bottom: 15px;
-      font-size: 0.9em;
-    }
-
-    /* 탭 메뉴 스타일 */
-    .tab-menu {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .tab-btn.active {
-      background-color: var(--accent-color);
-      color: #000;
-      border-color: var(--accent-color);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* 공통 카드 및 폼 스타일 */
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #121212;
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background-color: var(--accent-color);
-      color: #000;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover { opacity: 0.9; }
-    .btn-secondary { background-color: #444; color: #fff; }
-    .btn-danger { background-color: #f44336; color: #fff; }
-
-    .action-bar {
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* 에펨코리아 스타일 게시판 리스트 표 */
-    .board-table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-
-    .board-table th, .board-table td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 0.95em;
-    }
-
-    .board-table th {
-      background-color: #181818;
-      color: var(--accent-color);
-    }
-
-    .board-table tr:hover {
-      background-color: rgba(255, 255, 255, 0.03);
-      cursor: pointer;
-    }
-
-    /* 상세 보기 영역 */
-    .post-detail {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 15px;
-    }
-
-    /* 미디어 미리보기 */
-    img, video, iframe {
-      max-width: 100%;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-
-    iframe {
-      height: 315px;
-      width: 100%;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 8px;
-      width: 400px;
-      border: 1px solid var(--border-color);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>산해궁 - SOOP 스트리머 구단 정보</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1f1f1f;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #ff0055;
+        }
+        header h1 {
+            margin: 0;
+            color: #ff0055;
+            font-size: 28px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        h2 {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-toggle-btn {
+            background-color: #333;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .admin-toggle-btn:hover {
+            background-color: #ff0055;
+            color: white;
+            border-color: #ff0055;
+        }
+        /* 관리자 패널 */
+        .admin-panel {
+            background-color: #1a1a1a;
+            border: 1px dashed #ff0055;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .admin-panel h3 {
+            margin-top: 0;
+            color: #ff0055;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            background-color: #ff0055;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #e0004c;
+        }
+        /* 스트리머 카드 Grid */
+        .streamer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .streamer-card {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            position: relative;
+        }
+        .streamer-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        .streamer-owner {
+            font-size: 13px;
+            color: #ff0055;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .info-row {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 6px;
+        }
+        .info-row span {
+            color: #fff;
+            font-weight: bold;
+        }
+        .soop-btn {
+            display: block;
+            text-align: center;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .soop-btn:hover {
+            background-color: #ff0055;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            color: #ff0055;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header">
-      <h1>⚽ FC온라인 클럽 [산해궁]</h1>
-      <p>공식 커뮤니티 & 정보 공유소</p>
-    </div>
+    <header>
+        <h1>🏛️ 산해궁 (SANHAEGUNG)</h1>
+        <p>SOOP 스트리머 구단 정보 아카이브</p>
+    </header>
 
-    <!-- 유저 및 인증 상태 바 -->
-    <div class="user-bar">
-      <span id="userInfoDisplay" style="align-self: center; margin-right: 10px; color: #aaa;">비회원 (조회 전용)</span>
-      <button id="authBtn" onclick="openLoginModal()">로그인</button>
-      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">가입 승인 신청</button>
-      <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자 모드</button>
-      <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
-    </div>
+    <div class="container">
+        <h2>
+            <span>🔴 SOOP 스트리머 구단 정보</span>
+            <button class="admin-toggle-btn" onclick="toggleAdminPanel()">관리자 모드 열기/닫기</button>
+        </h2>
 
-    <!-- 탭 메뉴 -->
-    <div class="tab-menu">
-      <button class="tab-btn active" onclick="switchTab('main')">🏠 메인 대시보드</button>
-      <button class="tab-btn" onclick="switchTab('notice')">📢 공지사항</button>
-      <button class="tab-btn" onclick="switchTab('squad')">🛡️ 스쿼드 자랑</button>
-      <button class="tab-btn" onclick="switchTab('clip')">🎬 산이봤? (클립/밈)</button>
-      <button class="tab-btn" onclick="switchTab('streamer')">📺 스트리머 구단정보</button>
-    </div>
-
-    <!-- 0. 메인 대시보드 (에펨코리아 스타일 통합 뷰) -->
-    <div id="tab-main" class="tab-content active">
-      <h3>🔥 실시간 클럽 소식</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">📢 공지사항 최신글</h4>
-          <div id="main-notice-list"></div>
-        </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">🛡️ 스쿼드 자랑 최신글</h4>
-          <div id="main-squad-list"></div>
-        </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">🎬 산이봤? 최신글</h4>
-          <div id="main-clip-list"></div>
-        </div>
-        <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">📺 스트리머 구단 요약</h4>
-          <div id="main-streamer-preview"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1. 공지사항 탭 -->
-    <div id="tab-notice" class="tab-content">
-      <div class="action-bar">
-        <h3>클럽 공지사항 (관리자 전용)</h3>
-        <button id="writeNoticeBtn" style="display:none;" onclick="openPostForm('notice')">공지 작성</button>
-      </div>
-      <div id="form-notice" class="card" style="display:none;">
-        <h4 id="form-title-notice">새 공지사항 등록</h4>
-        <input type="hidden" id="editIndex-notice" value="">
-        <input type="text" id="noticeTitle" placeholder="제목">
-        <textarea id="noticeContent" rows="4" placeholder="내용"></textarea>
-        <input type="file" id="noticeFile" accept="image/*">
-        <button onclick="savePost('notice')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('notice')">취소</button>
-      </div>
-      <div id="view-notice">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-notice"></tbody>
-        </table>
-      </div>
-      <div id="detail-notice" style="display:none;"></div>
-    </div>
-
-    <!-- 2. 스쿼드 자랑 탭 -->
-    <div id="tab-squad" class="tab-content">
-      <div class="action-bar">
-        <h3>클럽원 스쿼드 & 강화 인증</h3>
-        <button id="writeSquadBtn" style="display:none;" onclick="openPostForm('squad')">스쿼드 자랑하기</button>
-      </div>
-      <div id="form-squad" class="card" style="display:none;">
-        <h4 id="form-title-squad">스쿼드 자랑 등록</h4>
-        <input type="hidden" id="editIndex-squad" value="">
-        <input type="text" id="squadTitle" placeholder="제목 (예: 8토츠 킴성태 팀 완성!)">
-        <textarea id="squadContent" rows="4" placeholder="내용 입력"></textarea>
-        <label>사진 첨부:</label>
-        <input type="file" id="squadFile" accept="image/*">
-        <button onclick="savePost('squad')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('squad')">취소</button>
-      </div>
-      <div id="view-squad">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-squad"></tbody>
-        </table>
-      </div>
-      <div id="detail-squad" style="display:none;"></div>
-    </div>
-
-    <!-- 3. 산이봤? 탭 -->
-    <div id="tab-clip" class="tab-content">
-      <div class="action-bar">
-        <h3>산해궁이거봤어? (유머/클립/밈)</h3>
-        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">클립/짤 올리기</button>
-      </div>
-      <div id="form-clip" class="card" style="display:none;">
-        <h4 id="form-title-clip">산이봤? 게시글 등록</h4>
-        <input type="hidden" id="editIndex-clip" value="">
-        <input type="text" id="clipTitle" placeholder="제목">
-        <textarea id="clipContent" rows="4" placeholder="내용"></textarea>
-        <label>사진 또는 동영상 파일 첨부:</label>
-        <input type="file" id="clipFile" accept="image/*,video/*">
-        <input type="text" id="clipLink" placeholder="유튜브 링크 또는 외부 영상 링크 (선택)">
-        <button onclick="savePost('clip')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('clip')">취소</button>
-      </div>
-      <div id="view-clip">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 10%;">번호</th><th style="width: 60%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-clip"></tbody>
-        </table>
-      </div>
-      <div id="detail-clip" style="display:none;"></div>
-    </div>
-
-    <!-- 4. 스트리머 구단정보 탭 -->
-    <div id="tab-streamer" class="tab-content">
-      <div class="action-bar">
-        <h3>스트리머 킴성태 구단 정보</h3>
-        <button id="editStreamerBtn" style="display:none;" onclick="openStreamerEdit()">구단 정보 수정</button>
-      </div>
-      <div id="streamerInfoCard" class="card"></div>
-    </div>
-  </div>
-
-  <!-- 모달 창들 -->
-  <!-- 가입 신청 모달 -->
-  <div id="registerModal" class="modal">
-    <div class="modal-content">
-      <h3>클럽 가입 승인 신청</h3>
-      <input type="text" id="regSoop" placeholder="SOOP 닉네임">
-      <input type="text" id="regFc" placeholder="FC온라인 닉네임">
-      <input type="password" id="regPw" placeholder="사용할 개별 식별번호 (비밀번호)">
-      <button onclick="submitRegister()">신청하기</button>
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
-    </div>
-  </div>
-
-  <!-- 로그인 모달 -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h3>클럽원 로그인</h3>
-      <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
-      <input type="password" id="loginPw" placeholder="개별 식별번호 (비밀번호)">
-      <button onclick="login()">로그인</button>
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
-    </div>
-  </div>
-
-  <!-- 관리자 모드 모달 (승인/퇴출/스트리머정보 관리) -->
-  <div id="adminModal" class="modal">
-    <div class="modal-content" style="width: 550px; max-height: 80vh; overflow-y: auto;">
-      <h3>관리자 제어판</h3>
-      <p style="font-size:0.85em; color:#aaa;">마스터 관리자 비밀번호를 입력하거나 관리자 권한으로 제어합니다.</p>
-      
-      <div id="adminAuthSection">
-        <input type="password" id="adminMasterPw" placeholder="마스터 관리자 비밀번호">
-        <button onclick="verifyAdmin()">관리자 인증</button>
-      </div>
-
-      <div id="adminDashboard" style="display:none; margin-top:15px;">
-        <hr style="border-color:var(--border-color);">
-        <h4>⏳ 가입 승인 대기 목록</h4>
-        <div id="pendingList"></div>
-
-        <hr style="border-color:var(--border-color); margin-top:20px;">
-        <h4>👥 승인된 클럽원 명단 (퇴출 관리)</h4>
-        <div id="approvedList"></div>
-      </div>
-
-      <button class="btn-secondary" onclick="closeModals()" style="margin-top:15px;">닫기</button>
-    </div>
-  </div>
-
-  <script>
-    // ==========================================
-    // 🔒 마스터 관리자 비밀번호 (오직 본인만 수정 가능)
-    // ==========================================
-    const MASTER_PASSWORD = "1234"; // ← 필요시 변경 가능
-
-    // 데이터 저장소 초기화
-    let db = {
-      pendingUsers: JSON.parse(localStorage.getItem('san_pending') || '[]'),
-      approvedUsers: JSON.parse(localStorage.getItem('san_approved') || '[]'),
-      posts: JSON.parse(localStorage.getItem('san_posts') || '{"notice":[], "squad":[], "clip":[]}'),
-      streamer: JSON.parse(localStorage.getItem('san_streamer') || '{"title":"킴성태 본캐 구단","value":"500조","squadDesc":"현재 바이에른 뮌헨 + 레알 마드리드 팀컬러 적용 중!","image":""}')
-    };
-
-    let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
-
-    window.onload = () => {
-      updateUIState();
-      renderAll();
-    };
-
-    // 탭 전환
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tabName).classList.add('active');
-      event.currentTarget.classList.add('active');
-
-      // 상세보기가 켜져있다면 목록으로 복귀
-      ['notice', 'squad', 'clip'].forEach(t => {
-        if(t !== tabName) closeDetail(t);
-      });
-    }
-
-    // 모달 제어
-    function openRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
-    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
-    function openAdminModal() { 
-      document.getElementById('adminModal').style.display = 'flex'; 
-      if(currentUser && currentUser.role === 'admin') {
-        showAdminDashboard();
-      }
-    }
-    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-
-    // 가입 승인 신청
-    function submitRegister() {
-      const soop = document.getElementById('regSoop').value.trim();
-      const fc = document.getElementById('regFc').value.trim();
-      const pw = document.getElementById('regPw').value.trim();
-
-      if(!soop || !fc || !pw) { alert("모든 항목을 입력해주세요."); return; }
-      
-      db.pendingUsers.push({ soop, fc, pw });
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
-      alert("가입 승인 신청이 완료되었습니다. 관리자 승인을 기다려주세요!");
-      closeModals();
-    }
-
-    // 관리자 인증
-    function verifyAdmin() {
-      const pw = document.getElementById('adminMasterPw').value;
-      if(pw === MASTER_PASSWORD) {
-        currentUser = { soop: "최고관리자", role: "admin" };
-        localStorage.setItem('san_current_user', JSON.stringify(currentUser));
-        showAdminDashboard();
-        updateUIState();
-        alert("관리자 권한으로 인증되었습니다.");
-      } else {
-        alert("마스터 비밀번호가 틀렸습니다.");
-      }
-    }
-
-    function showAdminDashboard() {
-      document.getElementById('adminAuthSection').style.display = 'none';
-      document.getElementById('adminDashboard').style.display = 'block';
-      renderAdminLists();
-    }
-
-    function renderAdminLists() {
-      const pContainer = document.getElementById('pendingList');
-      pContainer.innerHTML = db.pendingUsers.length === 0 ? '<p style="color:#777;">대기 중인 인원이 없습니다.</p>' : '';
-      db.pendingUsers.forEach((u, idx) => {
-        pContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span><b>SOOP:</b> ${u.soop} | <b>FC:</b> ${u.fc}</span>
-            <div>
-              <button onclick="approveUser(${idx})">승인</button>
-              <button class="btn-danger" onclick="rejectUser(${idx})">거절</button>
+        <div id="adminPanel" class="admin-panel">
+            <h3>🛠️ 스트리머 정보 등록</h3>
+            <div class="form-group">
+                <label>스트리머 이름</label>
+                <input type="text" id="streamerName" placeholder="예: 감스트">
             </div>
-          </div>
-        `;
-      });
+            <div class="form-group">
+                <label>구단주명 (FC 온라인 닉네임)</label>
+                <input type="text" id="ownerName" placeholder="예: 감스트오리지널">
+            </div>
+            <div class="form-group">
+                <label>구단 가치</label>
+                <input type="text" id="clubValue" placeholder="예: 500조 300억">
+            </div>
+            <div class="form-group">
+                <label>포메이션</label>
+                <input type="text" id="formation" placeholder="예: 4-2-3-1">
+            </div>
+            <div class="form-group">
+                <label>팀컬러</label>
+                <input type="text" id="teamColor" placeholder="예: 맨체스터 유나이티드 / 대한민국">
+            </div>
+            <div class="form-group">
+                <label>SOOP 방송국 링크 (URL)</label>
+                <input type="text" id="soopUrl" placeholder="예: https://www.sooplive.co.kr/...">
+            </div>
+            <button class="submit-btn" onclick="addStreamer()">등록하기</button>
+        </div>
 
-      const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = db.approvedUsers.length === 0 ? '<p style="color:#777;">등록된 클럽원이 없습니다.</p>' : '';
-      db.approvedUsers.forEach((u, idx) => {
-        aContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span><b>SOOP:</b> ${u.soop} | <b>FC:</b> ${u.fc}</span>
-            <button class="btn-danger" onclick="kickUser(${idx})">퇴출</button>
-          </div>
-        `;
-      });
-    }
+        <div id="streamerGrid" class="streamer-grid">
+            <p style="color: #777;">데이터를 불러오는 중입니다...</p>
+        </div>
+    </div>
 
-    function approveUser(idx) {
-      const user = db.pendingUsers.splice(idx, 1)[0];
-      db.approvedUsers.push(user);
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
-      localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
-      renderAdminLists();
-    }
+    <script>
+        // 파이어베이스 설정 (본인의 프로젝트 키를 입력해 주세요)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    function rejectUser(idx) {
-      db.pendingUsers.splice(idx, 1);
-      localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
-      renderAdminLists();
-    }
-
-    function kickUser(idx) {
-      if(!confirm("정말 퇴출하시겠습니까?")) return;
-      db.approvedUsers.splice(idx, 1);
-      localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
-      renderAdminLists();
-    }
-
-    // 로그인
-    function login() {
-      const soop = document.getElementById('loginSoop').value.trim();
-      const pw = document.getElementById('loginPw').value.trim();
-
-      const found = db.approvedUsers.find(u => u.soop === soop && u.pw === pw);
-      if(found) {
-        currentUser = { soop: found.soop, role: 'member' };
-        localStorage.setItem('san_current_user', JSON.stringify(currentUser));
-        alert(`${found.soop}님 환영합니다!`);
-        closeModals();
-        updateUIState();
-      } else {
-        alert("정보가 일치하지 않거나 아직 승인되지 않은 계정입니다.");
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      localStorage.removeItem('san_current_user');
-      updateUIState();
-      alert("로그아웃 되었습니다.");
-    }
-
-    function updateUIState() {
-      const display = document.getElementById('userInfoDisplay');
-      const authBtn = document.getElementById('authBtn');
-      const registerBtn = document.getElementById('registerBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      
-      const writeNoticeBtn = document.getElementById('writeNoticeBtn');
-      const writeSquadBtn = document.getElementById('writeSquadBtn');
-      const writeClipBtn = document.getElementById('writeClipBtn');
-      const editStreamerBtn = document.getElementById('editStreamerBtn');
-
-      if(currentUser) {
-        display.innerText = `${currentUser.soop} (${currentUser.role === 'admin' ? '관리자' : '클럽원'})`;
-        authBtn.style.display = 'none';
-        registerBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-
-        if(currentUser.role === 'admin') {
-          writeNoticeBtn.style.display = 'inline-block';
-          writeSquadBtn.style.display = 'inline-block';
-          writeClipBtn.style.display = 'inline-block';
-          editStreamerBtn.style.display = 'inline-block';
-        } else {
-          writeNoticeBtn.style.display = 'none';
-          writeSquadBtn.style.display = 'inline-block';
-          writeClipBtn.style.display = 'inline-block';
-          editStreamerBtn.style.display = 'none';
+        // 관리자 패널 토글 함수
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
-      } else {
-        display.innerText = "비회원 (조회 전용)";
-        authBtn.style.display = 'inline-block';
-        registerBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
 
-        writeNoticeBtn.style.display = 'none';
-        writeSquadBtn.style.display = 'none';
-        writeClipBtn.style.display = 'none';
-        editStreamerBtn.style.display = 'none';
-      }
-    }
+        // 스트리머 등록 함수
+        function addStreamer() {
+            const name = document.getElementById('streamerName').value.trim();
+            const owner = document.getElementById('ownerName').value.trim();
+            const value = document.getElementById('clubValue').value.trim();
+            const formation = document.getElementById('formation').value.trim();
+            const color = document.getElementById('teamColor').value.trim();
+            const url = document.getElementById('soopUrl').value.trim();
 
-    // 게시글 작성 폼 열기/닫기 및 수정 모드 전환
-    function openPostForm(tab, editIdx = null) {
-      document.getElementById('form-' + tab).style.display = 'block';
-      if(editIdx !== null) {
-        document.getElementById(`form-title-${tab}`).innerText = "게시글 수정";
-        document.getElementById(`editIndex-${tab}`).value = editIdx;
-        const post = db.posts[tab][editIdx];
-        document.getElementById(`${tab}Title`).value = post.title;
-        document.getElementById(`${tab}Content`).value = post.content;
-      } else {
-        document.getElementById(`form-title-${tab}`).innerText = tab === 'notice' ? "새 공지사항 등록" : (tab === 'squad' ? "스쿼드 자랑 등록" : "산이봤? 게시글 등록");
-        document.getElementById(`editIndex-${tab}`).value = '';
-        document.getElementById(`${tab}Title`).value = '';
-        document.getElementById(`${tab}Content`).value = '';
-      }
-    }
-
-    function closePostForm(tab) { 
-      document.getElementById('form-' + tab).style.display = 'none'; 
-    }
-
-    // 게시글 저장 (등록 및 수정 처리)
-    function savePost(tab) {
-      const title = document.getElementById(`${tab}Title`).value.trim();
-      const content = document.getElementById(`${tab}Content`).value.trim();
-      const fileInput = document.getElementById(`${tab}File`);
-      const linkInput = document.getElementById(`${tab}Link`);
-      const editIdxVal = document.getElementById(`editIndex-${tab}`).value;
-
-      if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
-
-      let mediaHtml = "";
-      
-      const processFile = (file) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if(file.type.startsWith('image/')) {
-              resolve(`<img src="${e.target.result}">`);
-            } else if(file.type.startsWith('video/')) {
-              resolve(`<video controls src="${e.target.result}"></video>`);
-            } else {
-              resolve('');
+            if (!name || !owner) {
+                alert('스트리머 이름과 구단주명은 필수 입력 항목입니다!');
+                return;
             }
-          };
-          reader.readAsDataURL(file);
+
+            db.collection("streamers").add({
+                name: name,
+                owner: owner,
+                value: value || '정보 없음',
+                formation: formation || '정보 없음',
+                color: color || '정보 없음',
+                url: url || 'https://www.sooplive.co.kr/',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('성공적으로 등록되었습니다!');
+                // 입력창 초기화
+                document.getElementById('streamerName').value = '';
+                document.getElementById('ownerName').value = '';
+                document.getElementById('clubValue').value = '';
+                document.getElementById('formation').value = '';
+                document.getElementById('teamColor').value = '';
+                document.getElementById('soopUrl').value = '';
+                toggleAdminPanel();
+            }).catch((error) => {
+                alert('등록 중 오류가 발생했습니다: ' + error.message);
+            });
+        }
+
+        // 스트리머 삭제 함수
+        function deleteStreamer(id) {
+            if (confirm('정말 이 스트리머 정보를 삭제하시겠습니까?')) {
+                db.collection("streamers").doc(id).delete().then(() => {
+                    alert('삭제되었습니다.');
+                }).catch((error) => {
+                    alert('삭제 실패: ' + error.message);
+                });
+            }
+        }
+
+        // 실시간으로 데이터 불러오기 (Firestore)
+        db.collection("streamers").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+            const grid = document.getElementById('streamerGrid');
+            grid.innerHTML = '';
+
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="color: #777;">등록된 스트리머 정보가 없습니다. 관리자 모드를 열어 추가해 보세요!</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const id = doc.id;
+
+                const card = document.createElement('div');
+                card.className = 'streamer-card';
+                card.innerHTML = `
+                    <button class="delete-btn" onclick="deleteStreamer('${id}')" title="삭제">✕</button>
+                    <div class="streamer-name">${data.name}</div>
+                    <div class="streamer-owner">구단주: ${data.owner}</div>
+                    <div class="info-row">구단가치: <span>${data.value}</span></div>
+                    <div class="info-row">포메이션: <span>${data.formation}</span></div>
+                    <div class="info-row">팀컬러: <span>${data.color}</span></div>
+                    <a href="${data.url}" target="_blank" class="soop-btn">SOOP 방송국 바로가기</a>
+                `;
+                grid.appendChild(card);
+            });
         });
-      };
-
-      (async () => {
-        if(fileInput && fileInput.files[0]) {
-          mediaHtml += await processFile(fileInput.files[0]);
-        } else if(editIdxVal !== "") {
-          // 수정 시 기존 미디어가 있다면 유지
-          mediaHtml = db.posts[tab][editIdxVal].media;
-        }
-
-        if(linkInput && linkInput.value.trim()) {
-          let url = linkInput.value.trim();
-          if(url.includes('youtu.be/') || url.includes('youtube.com/watch?v=')) {
-            let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
-            if(videoId) videoId = videoId.split('&')[0];
-            mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-          } else {
-            mediaHtml += `<a href="${url}" target="_blank" style="color:var(--accent-color); display:block; margin-top:10px;">🔗 외부 링크 바로가기</a>`;
-          }
-        }
-
-        if(editIdxVal !== "") {
-          // 수정 완료
-          let idx = parseInt(editIdxVal);
-          db.posts[tab][idx].title = title;
-          db.posts[tab][idx].content = content;
-          if(mediaHtml) db.posts[tab][idx].media = mediaHtml;
-          alert("게시글이 수정되었습니다!");
-        } else {
-          // 신규 등록
-          const newPost = {
-            id: Date.now(),
-            author: currentUser.soop,
-            title,
-            content,
-            media: mediaHtml,
-            date: new Date().toLocaleDateString()
-          };
-          db.posts[tab].unshift(newPost);
-          alert("게시글이 등록되었습니다!");
-        }
-
-        localStorage.setItem('san_posts', JSON.stringify(db.posts));
-        closePostForm(tab);
-        renderAll();
-        if(editIdxVal !== "") viewDetail(tab, parseInt(editIdxVal));
-      })();
-    }
-
-    // 상세 보기 열기
-    function viewDetail(tab, idx) {
-      const p = db.posts[tab][idx];
-      const viewDiv = document.getElementById('view-' + tab);
-      const detailDiv = document.getElementById('detail-' + tab);
-
-      viewDiv.style.display = 'none';
-      detailDiv.style.display = 'block';
-
-      let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === p.author);
-
-      detailDiv.innerHTML = `
-        <div class="post-detail">
-          <button class="btn-secondary" onclick="closeDetail('${tab}')" style="margin-bottom:10px;">목록으로</button>
-          <h2 style="color:var(--accent-color); margin-top:0;">${escapeHtml(p.title)}</h2>
-          <div style="font-size:0.9em; color:#888; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            작성자: <b>${p.author}</b> | 작성일: ${p.date}
-          </div>
-          <div style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;">${escapeHtml(p.content)}</div>
-          ${p.media}
-          <div style="margin-top:20px; display:flex; gap:10px;">
-            ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button>` : ''}
-            ${canModify ? `<button class="btn-danger" onclick="deletePost('${tab}', ${idx})">삭제</button>` : ''}
-          </div>
-        </div>
-      `;
-    }
-
-    function closeDetail(tab) {
-      document.getElementById('view-' + tab).style.display = 'block';
-      document.getElementById('detail-' + tab).style.display = 'none';
-    }
-
-    function deletePost(tab, idx) {
-      if(!confirm("정말 삭제하시겠습니까?")) return;
-      db.posts[tab].splice(idx, 1);
-      localStorage.setItem('san_posts', JSON.stringify(db.posts));
-      closeDetail(tab);
-      renderAll();
-    }
-
-    // 스트리머 정보 수정
-    function openStreamerEdit() {
-      const newTitle = prompt("스트리머 구단 제목:", db.streamer.title);
-      if(newTitle === null) return;
-      const newVal = prompt("구단 가치:", db.streamer.value);
-      const newDesc = prompt("스쿼드 설명:", db.streamer.squadDesc);
-
-      db.streamer = { title: newTitle, value: newVal, squadDesc: newDesc };
-      localStorage.setItem('san_streamer', JSON.stringify(db.streamer));
-      renderStreamer();
-    }
-
-    // 렌더링 전체 함수
-    function renderAll() {
-      renderTable('notice');
-      renderTable('squad');
-      renderTable('clip');
-      renderStreamer();
-      renderMainDashboard();
-    }
-
-    function renderTable(tab) {
-      const tbody = document.getElementById('table-' + tab);
-      tbody.innerHTML = '';
-      const items = db.posts[tab];
-
-      if(items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">등록된 게시글이 없습니다.</td></tr>`;
-        return;
-      }
-
-      items.forEach((p, idx) => {
-        tbody.innerHTML += `
-          <tr onclick="viewDetail('${tab}', ${idx})">
-            <td>${items.length - idx}</td>
-            <td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td>
-            <td>${p.author}</td>
-            <td>${p.date}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function renderStreamer() {
-      const s = db.streamer;
-      const container = document.getElementById('streamerInfoCard');
-      container.innerHTML = `
-        <h2 style="color:var(--accent-color); margin-top:0;">${escapeHtml(s.title)}</h2>
-        <p><b>현재 구단 가치:</b> ${escapeHtml(s.value)}</p>
-        <p><b>스쿼드 요약:</b></p>
-        <div style="background:#121212; padding:10px; border-radius:4px; white-space:pre-wrap;">${escapeHtml(s.squadDesc)}</div>
-      `;
-    }
-
-    // 메인 대시보드 미리보기 렌더링
-    function renderMainDashboard() {
-      // 공지사항 최근 3개
-      const nList = document.getElementById('main-notice-list');
-      nList.innerHTML = db.posts.notice.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.notice.slice(0, 3).forEach((p, idx) => {
-        nList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('notice'); viewDetail('notice', ${idx});">${escapeHtml(p.title)}</div>`;
-      });
-
-      // 스쿼드 자랑 최근 3개
-      const sList = document.getElementById('main-squad-list');
-      sList.innerHTML = db.posts.squad.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.squad.slice(0, 3).forEach((p, idx) => {
-        sList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('squad'); viewDetail('squad', ${idx});">${escapeHtml(p.title)}</div>`;
-      });
-
-      // 산이봤? 최근 3개
-      const cList = document.getElementById('main-clip-list');
-      cList.innerHTML = db.posts.clip.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.clip.slice(0, 3).forEach((p, idx) => {
-        cList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('clip'); viewDetail('clip', ${idx});">${escapeHtml(p.title)}</div>`;
-      });
-
-      // 스트리머 구단 요약 미리보기
-      const sp = document.getElementById('main-streamer-preview');
-      const s = db.streamer;
-      sp.innerHTML = `
-        <div style="font-size:0.9em; cursor:pointer;" onclick="switchTab('streamer')">
-          <b style="color:var(--accent-color);">${escapeHtml(s.title)}</b><br>
-          <span>가치: ${escapeHtml(s.value)}</span>
-        </div>
-      `;
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-  </script>
+    </script>
 </body>
 </html>
