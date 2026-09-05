@@ -38,7 +38,6 @@
       margin: 0 0 5px 0;
     }
 
-    /* 상단 유저 바 */
     .user-bar {
       display: flex;
       justify-content: flex-end;
@@ -47,7 +46,6 @@
       font-size: 0.9em;
     }
 
-    /* 탭 메뉴 스타일 */
     .tab-menu {
       display: flex;
       gap: 5px;
@@ -81,7 +79,6 @@
       display: block;
     }
 
-    /* 공통 카드 및 폼 스타일 */
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -122,7 +119,6 @@
       align-items: center;
     }
 
-    /* 에펨코리아 스타일 게시판 리스트 표 */
     .board-table {
       width: 100%;
       border-collapse: collapse;
@@ -149,7 +145,6 @@
       cursor: pointer;
     }
 
-    /* 상세 보기 영역 */
     .post-detail {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -158,7 +153,6 @@
       margin-top: 15px;
     }
 
-    /* 미디어 미리보기 */
     img, video, iframe {
       max-width: 100%;
       border-radius: 6px;
@@ -170,7 +164,6 @@
       width: 100%;
     }
 
-    /* 스트리머 그리드 레이아웃 */
     .streamer-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -183,6 +176,15 @@
       border-radius: 10px;
       padding: 20px;
       position: relative;
+    }
+
+    .streamer-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background-color: #121212;
     }
 
     .streamer-name {
@@ -228,18 +230,28 @@
       color: #000;
     }
 
-    .delete-streamer-btn {
+    .streamer-action-btns {
       position: absolute;
       top: 15px;
       right: 15px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .streamer-action-btns button {
       background: none;
       border: none;
       color: #777;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
+      padding: 2px 6px;
     }
 
-    .delete-streamer-btn:hover {
+    .streamer-action-btns button:hover {
+      color: var(--accent-color);
+    }
+
+    .streamer-action-btns button.del:hover {
       color: #f44336;
     }
 
@@ -270,7 +282,6 @@
       <p>공식 커뮤니티 & 정보 공유소</p>
     </div>
 
-    <!-- 유저 및 인증 상태 바 -->
     <div class="user-bar">
       <span id="userInfoDisplay" style="align-self: center; margin-right: 10px; color: #aaa;">비회원 (조회 전용)</span>
       <button id="authBtn" onclick="openLoginModal()">로그인</button>
@@ -279,7 +290,6 @@
       <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
     </div>
 
-    <!-- 탭 메뉴 -->
     <div class="tab-menu">
       <button class="tab-btn active" onclick="switchTab('main')">🏠 메인 대시보드</button>
       <button class="tab-btn" onclick="switchTab('notice')">📢 공지사항</button>
@@ -288,7 +298,7 @@
       <button class="tab-btn" onclick="switchTab('streamer')">📺 스트리머 구단정보</button>
     </div>
 
-    <!-- 0. 메인 대시보드 (에펨코리아 스타일 통합 뷰) -->
+    <!-- 0. 메인 대시보드 -->
     <div id="tab-main" class="tab-content active">
       <h3>🔥 실시간 클럽 소식</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -346,7 +356,7 @@
       <div id="form-squad" class="card" style="display:none;">
         <h4 id="form-title-squad">스쿼드 자랑 등록</h4>
         <input type="hidden" id="editIndex-squad" value="">
-        <input type="text" id="squadTitle" placeholder="제목 (예: 8토츠 킴성태 팀 완성!)">
+        <input type="text" id="squadTitle" placeholder="제목">
         <textarea id="squadContent" rows="4" placeholder="내용 입력"></textarea>
         <label>사진 첨부:</label>
         <input type="file" id="squadFile" accept="image/*">
@@ -375,9 +385,9 @@
         <input type="hidden" id="editIndex-clip" value="">
         <input type="text" id="clipTitle" placeholder="제목">
         <textarea id="clipContent" rows="4" placeholder="내용"></textarea>
-        <label>사진 또는 동영상 파일 첨부:</label>
+        <label>파일 첨부:</label>
         <input type="file" id="clipFile" accept="image/*,video/*">
-        <input type="text" id="clipLink" placeholder="유튜브 링크 또는 외부 영상 링크 (선택)">
+        <input type="text" id="clipLink" placeholder="유튜브 링크">
         <button onclick="savePost('clip')">등록</button>
         <button class="btn-secondary" onclick="closePostForm('clip')">취소</button>
       </div>
@@ -392,92 +402,82 @@
       <div id="detail-clip" style="display:none;"></div>
     </div>
 
-    <!-- 4. 스트리머 구단정보 탭 -->
+    <!-- 4. 스트리머 구단정보 탭 (사진 업로드 및 수정 기능 포함) -->
     <div id="tab-streamer" class="tab-content">
       <div class="action-bar">
         <h3>SOOP 스트리머 구단 정보 아카이브</h3>
         <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">스트리머 등록</button>
       </div>
       
-      <!-- 관리자용 스트리머 등록 폼 -->
+      <!-- 스트리머 등록/수정 폼 -->
       <div id="form-streamer" class="card" style="display:none;">
-        <h4>새 스트리머 구단 정보 등록</h4>
+        <h4 id="streamerFormTitle">새 스트리머 구단 정보 등록</h4>
+        <input type="hidden" id="editStreamerId" value="">
         <input type="text" id="stName" placeholder="스트리머 이름 (예: 킴성태)">
         <input type="text" id="stOwner" placeholder="구단주명 (FC 온라인 닉네임)">
         <input type="text" id="stValue" placeholder="구단 가치 (예: 500조)">
         <input type="text" id="stFormation" placeholder="포메이션 (예: 4-2-3-1)">
-        <input type="text" id="stColor" placeholder="팀컬러 (예: 바이에른 뮌헨 / 대한민국)">
+        <input type="text" id="stColor" placeholder="팀컬러 (예: 바이에른 뮌헨)">
         <input type="text" id="stUrl" placeholder="SOOP 방송국 링크 (URL)">
-        <button onclick="saveStreamer()">등록</button>
+        <label>스트리머 프로필/구단 사진:</label>
+        <input type="file" id="stFile" accept="image/*">
+        <button onclick="saveStreamer()">저장하기</button>
         <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
       </div>
 
-      <!-- 스트리머 카드 리스트 출력 영역 -->
       <div id="streamerGrid" class="streamer-grid"></div>
     </div>
   </div>
 
   <!-- 모달 창들 -->
-  <!-- 가입 신청 모달 -->
   <div id="registerModal" class="modal">
     <div class="modal-content">
       <h3>클럽 가입 승인 신청</h3>
       <input type="text" id="regSoop" placeholder="SOOP 닉네임">
       <input type="text" id="regFc" placeholder="FC온라인 닉네임">
-      <input type="password" id="regPw" placeholder="사용할 개별 식별번호 (비밀번호)">
+      <input type="password" id="regPw" placeholder="개별 비밀번호">
       <button onclick="submitRegister()">신청하기</button>
       <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
     </div>
   </div>
 
-  <!-- 로그인 모달 -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <h3>클럽원 로그인</h3>
       <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
-      <input type="password" id="loginPw" placeholder="개별 식별번호 (비밀번호)">
+      <input type="password" id="loginPw" placeholder="개별 비밀번호">
       <button onclick="login()">로그인</button>
       <button class="btn-secondary" onclick="closeModals()" style="margin-top:5px;">닫기</button>
     </div>
   </div>
 
-  <!-- 관리자 모드 모달 (승인/퇴출 관리) -->
   <div id="adminModal" class="modal">
     <div class="modal-content" style="width: 550px; max-height: 80vh; overflow-y: auto;">
       <h3>관리자 제어판</h3>
-      <p style="font-size:0.85em; color:#aaa;">마스터 관리자 비밀번호를 입력하거나 관리자 권한으로 제어합니다.</p>
-      
       <div id="adminAuthSection">
         <input type="password" id="adminMasterPw" placeholder="마스터 관리자 비밀번호">
         <button onclick="verifyAdmin()">관리자 인증</button>
       </div>
-
       <div id="adminDashboard" style="display:none; margin-top:15px;">
         <hr style="border-color:var(--border-color);">
         <h4>⏳ 가입 승인 대기 목록</h4>
         <div id="pendingList"></div>
-
         <hr style="border-color:var(--border-color); margin-top:20px;">
-        <h4>👥 승인된 클럽원 명단 (퇴출 관리)</h4>
+        <h4>👥 승인된 클럽원 명단</h4>
         <div id="approvedList"></div>
       </div>
-
       <button class="btn-secondary" onclick="closeModals()" style="margin-top:15px;">닫기</button>
     </div>
   </div>
 
   <script>
-    // ==========================================
-    // 🔒 마스터 관리자 비밀번호 (오직 본인만 수정 가능)
-    // ==========================================
-    const MASTER_PASSWORD = "1234"; // ← 필요시 변경 가능
+    const MASTER_PASSWORD = "1234";
 
-    // 데이터 저장소 초기화
     let db = {
       pendingUsers: JSON.parse(localStorage.getItem('san_pending') || '[]'),
       approvedUsers: JSON.parse(localStorage.getItem('san_approved') || '[]'),
       posts: JSON.parse(localStorage.getItem('san_posts') || '{"notice":[], "squad":[], "clip":[]}'),
-      streamers: JSON.parse(localStorage.getItem('san_streamers') || '[{"id":1, "name":"킴성태", "owner":"성태오리지널", "value":"500조", "formation":"4-2-3-1", "color":"바이에른 뮌헨", "url":"https://www.sooplive.co.kr"}]')
+      streamers: JSON.parse(localStorage.getItem('san_streamers') || '[{"id":1, "name":"킴성태", "owner":"성태오리지널", "value":"500조", "formation":"4-2-3-1", "color":"바이에른 뮌헨", "url":"https://www.sooplive.co.kr", "image":""}]')
     };
 
     let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
@@ -487,7 +487,6 @@
       renderAll();
     };
 
-    // 탭 전환
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -499,42 +498,34 @@
       });
     }
 
-    // 모달 제어
     function openRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
     function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
     function openAdminModal() { 
       document.getElementById('adminModal').style.display = 'flex'; 
-      if(currentUser && currentUser.role === 'admin') {
-        showAdminDashboard();
-      }
+      if(currentUser && currentUser.role === 'admin') showAdminDashboard();
     }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
-    // 가입 승인 신청
     function submitRegister() {
       const soop = document.getElementById('regSoop').value.trim();
       const fc = document.getElementById('regFc').value.trim();
       const pw = document.getElementById('regPw').value.trim();
-
       if(!soop || !fc || !pw) { alert("모든 항목을 입력해주세요."); return; }
-      
       db.pendingUsers.push({ soop, fc, pw });
       localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
-      alert("가입 승인 신청이 완료되었습니다. 관리자 승인을 기다려주세요!");
+      alert("가입 신청이 완료되었습니다.");
       closeModals();
     }
 
-    // 관리자 인증
     function verifyAdmin() {
-      const pw = document.getElementById('adminMasterPw').value;
-      if(pw === MASTER_PASSWORD) {
+      if(document.getElementById('adminMasterPw').value === MASTER_PASSWORD) {
         currentUser = { soop: "최고관리자", role: "admin" };
         localStorage.setItem('san_current_user', JSON.stringify(currentUser));
         showAdminDashboard();
         updateUIState();
-        alert("관리자 권한으로 인증되었습니다.");
+        alert("관리자 인증 완료");
       } else {
-        alert("마스터 비밀번호가 틀렸습니다.");
+        alert("비밀번호가 틀렸습니다.");
       }
     }
 
@@ -546,58 +537,46 @@
 
     function renderAdminLists() {
       const pContainer = document.getElementById('pendingList');
-      pContainer.innerHTML = db.pendingUsers.length === 0 ? '<p style="color:#777;">대기 중인 인원이 없습니다.</p>' : '';
+      pContainer.innerHTML = db.pendingUsers.length === 0 ? '<p style="color:#777;">대기 인원 없음</p>' : '';
       db.pendingUsers.forEach((u, idx) => {
         pContainer.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span><b>SOOP:</b> ${u.soop} | <b>FC:</b> ${u.fc}</span>
-            <div>
-              <button onclick="approveUser(${idx})">승인</button>
-              <button class="btn-danger" onclick="rejectUser(${idx})">거절</button>
-            </div>
-          </div>
-        `;
+            <span>${u.soop} (${u.fc})</span>
+            <div><button onclick="approveUser(${idx})">승인</button><button class="btn-danger" onclick="rejectUser(${idx})">거절</button></div>
+          </div>`;
       });
 
       const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = db.approvedUsers.length === 0 ? '<p style="color:#777;">등록된 클럽원이 없습니다.</p>' : '';
+      aContainer.innerHTML = db.approvedUsers.length === 0 ? '<p style="color:#777;">클럽원 없음</p>' : '';
       db.approvedUsers.forEach((u, idx) => {
         aContainer.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px;">
-            <span><b>SOOP:</b> ${u.soop} | <b>FC:</b> ${u.fc}</span>
+            <span>${u.soop} (${u.fc})</span>
             <button class="btn-danger" onclick="kickUser(${idx})">퇴출</button>
-          </div>
-        `;
+          </div>`;
       });
     }
 
     function approveUser(idx) {
-      const user = db.pendingUsers.splice(idx, 1)[0];
-      db.approvedUsers.push(user);
+      db.approvedUsers.push(db.pendingUsers.splice(idx, 1)[0]);
       localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
       localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
       renderAdminLists();
     }
-
     function rejectUser(idx) {
       db.pendingUsers.splice(idx, 1);
       localStorage.setItem('san_pending', JSON.stringify(db.pendingUsers));
       renderAdminLists();
     }
-
     function kickUser(idx) {
-      if(!confirm("정말 퇴출하시겠습니까?")) return;
+      if(!confirm("퇴출하시겠습니까?")) return;
       db.approvedUsers.splice(idx, 1);
       localStorage.setItem('san_approved', JSON.stringify(db.approvedUsers));
       renderAdminLists();
     }
 
-    // 로그인
     function login() {
-      const soop = document.getElementById('loginSoop').value.trim();
-      const pw = document.getElementById('loginPw').value.trim();
-
-      const found = db.approvedUsers.find(u => u.soop === soop && u.pw === pw);
+      const found = db.approvedUsers.find(u => u.soop === document.getElementById('loginSoop').value.trim() && u.pw === document.getElementById('loginPw').value.trim());
       if(found) {
         currentUser = { soop: found.soop, role: 'member' };
         localStorage.setItem('san_current_user', JSON.stringify(currentUser));
@@ -605,7 +584,7 @@
         closeModals();
         updateUIState();
       } else {
-        alert("정보가 일치하지 않거나 아직 승인되지 않은 계정입니다.");
+        alert("로그인 실패 (정보 불일치 또는 승인 대기중)");
       }
     }
 
@@ -617,68 +596,35 @@
     }
 
     function updateUIState() {
-      const display = document.getElementById('userInfoDisplay');
-      const authBtn = document.getElementById('authBtn');
-      const registerBtn = document.getElementById('registerBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      
-      const writeNoticeBtn = document.getElementById('writeNoticeBtn');
-      const writeSquadBtn = document.getElementById('writeSquadBtn');
-      const writeClipBtn = document.getElementById('writeClipBtn');
-      const writeStreamerBtn = document.getElementById('writeStreamerBtn');
+      const isAdmin = currentUser && currentUser.role === 'admin';
+      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '클럽원'})` : "비회원 (조회 전용)";
+      document.getElementById('authBtn').style.display = currentUser ? 'none' : 'inline-block';
+      document.getElementById('registerBtn').style.display = currentUser ? 'none' : 'inline-block';
+      document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
 
-      if(currentUser) {
-        display.innerText = `${currentUser.soop} (${currentUser.role === 'admin' ? '관리자' : '클럽원'})`;
-        authBtn.style.display = 'none';
-        registerBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-
-        if(currentUser.role === 'admin') {
-          writeNoticeBtn.style.display = 'inline-block';
-          writeSquadBtn.style.display = 'inline-block';
-          writeClipBtn.style.display = 'inline-block';
-          writeStreamerBtn.style.display = 'inline-block';
-        } else {
-          writeNoticeBtn.style.display = 'none';
-          writeSquadBtn.style.display = 'inline-block';
-          writeClipBtn.style.display = 'inline-block';
-          writeStreamerBtn.style.display = 'none';
-        }
-      } else {
-        display.innerText = "비회원 (조회 전용)";
-        authBtn.style.display = 'inline-block';
-        registerBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-
-        writeNoticeBtn.style.display = 'none';
-        writeSquadBtn.style.display = 'none';
-        writeClipBtn.style.display = 'none';
-        writeStreamerBtn.style.display = 'none';
-      }
+      document.getElementById('writeNoticeBtn').style.display = isAdmin ? 'inline-block' : 'none';
+      document.getElementById('writeSquadBtn').style.display = currentUser ? 'inline-block' : 'none';
+      document.getElementById('writeClipBtn').style.display = currentUser ? 'inline-block' : 'none';
+      document.getElementById('writeStreamerBtn').style.display = isAdmin ? 'inline-block' : 'none';
     }
 
-    // 게시글 작성 폼 열기/닫기 및 수정 모드 전환
     function openPostForm(tab, editIdx = null) {
       document.getElementById('form-' + tab).style.display = 'block';
       if(editIdx !== null) {
         document.getElementById(`form-title-${tab}`).innerText = "게시글 수정";
         document.getElementById(`editIndex-${tab}`).value = editIdx;
-        const post = db.posts[tab][editIdx];
-        document.getElementById(`${tab}Title`).value = post.title;
-        document.getElementById(`${tab}Content`).value = post.content;
+        document.getElementById(`${tab}Title`).value = db.posts[tab][editIdx].title;
+        document.getElementById(`${tab}Content`).value = db.posts[tab][editIdx].content;
       } else {
-        document.getElementById(`form-title-${tab}`).innerText = tab === 'notice' ? "새 공지사항 등록" : (tab === 'squad' ? "스쿼드 자랑 등록" : "산이봤? 게시글 등록");
+        document.getElementById(`form-title-${tab}`).innerText = "새 글 등록";
         document.getElementById(`editIndex-${tab}`).value = '';
         document.getElementById(`${tab}Title`).value = '';
         document.getElementById(`${tab}Content`).value = '';
       }
     }
 
-    function closePostForm(tab) { 
-      document.getElementById('form-' + tab).style.display = 'none'; 
-    }
+    function closePostForm(tab) { document.getElementById('form-' + tab).style.display = 'none'; }
 
-    // 게시글 저장 (등록 및 수정 처리)
     function savePost(tab) {
       const title = document.getElementById(`${tab}Title`).value.trim();
       const content = document.getElementById(`${tab}Content`).value.trim();
@@ -689,39 +635,25 @@
       if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
 
       let mediaHtml = "";
-      
-      const processFile = (file) => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if(file.type.startsWith('image/')) {
-              resolve(`<img src="${e.target.result}">`);
-            } else if(file.type.startsWith('video/')) {
-              resolve(`<video controls src="${e.target.result}"></video>`);
-            } else {
-              resolve('');
-            }
-          };
-          reader.readAsDataURL(file);
-        });
-      };
+      const readerFile = (file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if(file.type.startsWith('image/')) resolve(`<img src="${e.target.result}">`);
+          else if(file.type.startsWith('video/')) resolve(`<video controls src="${e.target.result}"></video>`);
+          else resolve('');
+        };
+        reader.readAsDataURL(file);
+      });
 
       (async () => {
-        if(fileInput && fileInput.files[0]) {
-          mediaHtml += await processFile(fileInput.files[0]);
-        } else if(editIdxVal !== "") {
-          mediaHtml = db.posts[tab][editIdxVal].media;
-        }
+        if(fileInput && fileInput.files[0]) mediaHtml += await readerFile(fileInput.files[0]);
+        else if(editIdxVal !== "") mediaHtml = db.posts[tab][editIdxVal].media;
 
         if(linkInput && linkInput.value.trim()) {
           let url = linkInput.value.trim();
-          if(url.includes('youtu.be/') || url.includes('youtube.com/watch?v=')) {
-            let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
-            if(videoId) videoId = videoId.split('&')[0];
-            mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-          } else {
-            mediaHtml += `<a href="${url}" target="_blank" style="color:var(--accent-color); display:block; margin-top:10px;">🔗 외부 링크 바로가기</a>`;
-          }
+          let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
+          if(videoId) videoId = videoId.split('&')[0];
+          mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
         }
 
         if(editIdxVal !== "") {
@@ -729,18 +661,8 @@
           db.posts[tab][idx].title = title;
           db.posts[tab][idx].content = content;
           if(mediaHtml) db.posts[tab][idx].media = mediaHtml;
-          alert("게시글이 수정되었습니다!");
         } else {
-          const newPost = {
-            id: Date.now(),
-            author: currentUser.soop,
-            title,
-            content,
-            media: mediaHtml,
-            date: new Date().toLocaleDateString()
-          };
-          db.posts[tab].unshift(newPost);
-          alert("게시글이 등록되었습니다!");
+          db.posts[tab].unshift({ id: Date.now(), author: currentUser.soop, title, content, media: mediaHtml, date: new Date().toLocaleDateString() });
         }
 
         localStorage.setItem('san_posts', JSON.stringify(db.posts));
@@ -750,32 +672,25 @@
       })();
     }
 
-    // 상세 보기 열기
     function viewDetail(tab, idx) {
       const p = db.posts[tab][idx];
-      const viewDiv = document.getElementById('view-' + tab);
+      document.getElementById('view-' + tab).style.display = 'none';
       const detailDiv = document.getElementById('detail-' + tab);
-
-      viewDiv.style.display = 'none';
       detailDiv.style.display = 'block';
-
       let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === p.author);
 
       detailDiv.innerHTML = `
         <div class="post-detail">
           <button class="btn-secondary" onclick="closeDetail('${tab}')" style="margin-bottom:10px;">목록으로</button>
           <h2 style="color:var(--accent-color); margin-top:0;">${escapeHtml(p.title)}</h2>
-          <div style="font-size:0.9em; color:#888; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            작성자: <b>${p.author}</b> | 작성일: ${p.date}
-          </div>
-          <div style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;">${escapeHtml(p.content)}</div>
+          <div style="font-size:0.9em; color:#888; margin-bottom:15px;">작성자: <b>${p.author}</b> | 날짜: ${p.date}</div>
+          <div style="white-space: pre-wrap; margin-bottom:15px;">${escapeHtml(p.content)}</div>
           ${p.media}
           <div style="margin-top:20px; display:flex; gap:10px;">
             ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button>` : ''}
             ${canModify ? `<button class="btn-danger" onclick="deletePost('${tab}', ${idx})">삭제</button>` : ''}
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
     function closeDetail(tab) {
@@ -784,68 +699,94 @@
     }
 
     function deletePost(tab, idx) {
-      if(!confirm("정말 삭제하시겠습니까?")) return;
+      if(!confirm("삭제하시겠습니까?")) return;
       db.posts[tab].splice(idx, 1);
       localStorage.setItem('san_posts', JSON.stringify(db.posts));
       closeDetail(tab);
       renderAll();
     }
 
-    // 스트리머 구단 정보 관리 기능
-    function openStreamerForm() {
+    // 스트리머 구단 정보 관리 (수정 및 사진 업로드 추가)
+    function openStreamerForm(id = null) {
       document.getElementById('form-streamer').style.display = 'block';
+      if(id !== null) {
+        document.getElementById('streamerFormTitle').innerText = "스트리머 정보 수정";
+        document.getElementById('editStreamerId').value = id;
+        const s = db.streamers.find(item => item.id === id);
+        document.getElementById('stName').value = s.name;
+        document.getElementById('stOwner').value = s.owner;
+        document.getElementById('stValue').value = s.value;
+        document.getElementById('stFormation').value = s.formation;
+        document.getElementById('stColor').value = s.color;
+        document.getElementById('stUrl').value = s.url;
+      } else {
+        document.getElementById('streamerFormTitle').innerText = "새 스트리머 구단 정보 등록";
+        document.getElementById('editStreamerId').value = '';
+        document.getElementById('stName').value = '';
+        document.getElementById('stOwner').value = '';
+        document.getElementById('stValue').value = '';
+        document.getElementById('stFormation').value = '';
+        document.getElementById('stColor').value = '';
+        document.getElementById('stUrl').value = '';
+        document.getElementById('stFile').value = '';
+      }
     }
 
     function closeStreamerForm() {
       document.getElementById('form-streamer').style.display = 'none';
-      document.getElementById('stName').value = '';
-      document.getElementById('stOwner').value = '';
-      document.getElementById('stValue').value = '';
-      document.getElementById('stFormation').value = '';
-      document.getElementById('stColor').value = '';
-      document.getElementById('stUrl').value = '';
     }
 
     function saveStreamer() {
+      const idVal = document.getElementById('editStreamerId').value;
       const name = document.getElementById('stName').value.trim();
       const owner = document.getElementById('stOwner').value.trim();
-      const value = document.getElementById('stValue').value.trim();
-      const formation = document.getElementById('stFormation').value.trim();
-      const color = document.getElementById('stColor').value.trim();
-      const url = document.getElementById('stUrl').value.trim();
+      const value = document.getElementById('stValue').value.trim() || '정보 없음';
+      const formation = document.getElementById('stFormation').value.trim() || '정보 없음';
+      const color = document.getElementById('stColor').value.trim() || '정보 없음';
+      const url = document.getElementById('stUrl').value.trim() || 'https://www.sooplive.co.kr';
+      const fileInput = document.getElementById('stFile');
 
-      if(!name || !owner) {
-        alert("스트리머 이름과 구단주명은 필수 입력 항목입니다!");
-        return;
-      }
+      if(!name || !owner) { alert("스트리머 이름과 구단주명은 필수입니다!"); return; }
 
-      const newStreamer = {
-        id: Date.now(),
-        name,
-        owner,
-        value: value || '정보 없음',
-        formation: formation || '정보 없음',
-        color: color || '정보 없음',
-        url: url || 'https://www.sooplive.co.kr'
-      };
+      const processImage = (file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
 
-      db.streamers.unshift(newStreamer);
-      localStorage.setItem('san_streamers', JSON.stringify(db.streamers));
-      alert("스트리머 정보가 등록되었습니다!");
-      closeStreamerForm();
-      renderStreamers();
-      renderMainDashboard();
+      (async () => {
+        let imageUrl = "";
+        if(fileInput && fileInput.files[0]) {
+          imageUrl = await processImage(fileInput.files[0]);
+        } else if(idVal !== "") {
+          const existing = db.streamers.find(s => s.id == idVal);
+          imageUrl = existing ? existing.image : "";
+        }
+
+        if(idVal !== "") {
+          let idx = db.streamers.findIndex(s => s.id == idVal);
+          db.streamers[idx] = { id: parseInt(idVal), name, owner, value, formation, color, url, image: imageUrl };
+          alert("수정되었습니다!");
+        } else {
+          db.streamers.unshift({ id: Date.now(), name, owner, value, formation, color, url, image: imageUrl });
+          alert("등록되었습니다!");
+        }
+
+        localStorage.setItem('san_streamers', JSON.stringify(db.streamers));
+        closeStreamerForm();
+        renderStreamers();
+        renderMainDashboard();
+      })();
     }
 
     function deleteStreamer(id) {
-      if(!confirm("정말 이 스트리머 정보를 삭제하시겠습니까?")) return;
+      if(!confirm("정말 삭제하시겠습니까?")) return;
       db.streamers = db.streamers.filter(s => s.id !== id);
       localStorage.setItem('san_streamers', JSON.stringify(db.streamers));
       renderStreamers();
       renderMainDashboard();
     }
 
-    // 렌더링 전체 함수
     function renderAll() {
       renderTable('notice');
       renderTable('squad');
@@ -856,85 +797,56 @@
 
     function renderTable(tab) {
       const tbody = document.getElementById('table-' + tab);
-      tbody.innerHTML = '';
-      const items = db.posts[tab];
-
-      if(items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">등록된 게시글이 없습니다.</td></tr>`;
-        return;
-      }
-
-      items.forEach((p, idx) => {
-        tbody.innerHTML += `
-          <tr onclick="viewDetail('${tab}', ${idx})">
-            <td>${items.length - idx}</td>
-            <td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td>
-            <td>${p.author}</td>
-            <td>${p.date}</td>
-          </tr>
-        `;
+      tbody.innerHTML = db.posts[tab].length === 0 ? `<tr><td colspan="4" style="text-align:center; color:#777;">게시글이 없습니다.</td></tr>` : '';
+      db.posts[tab].forEach((p, idx) => {
+        tbody.innerHTML += `<tr onclick="viewDetail('${tab}', ${idx})"><td>${db.posts[tab].length - idx}</td><td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td><td>${p.author}</td><td>${p.date}</td></tr>`;
       });
     }
 
     function renderStreamers() {
       const grid = document.getElementById('streamerGrid');
-      grid.innerHTML = '';
-
-      if(db.streamers.length === 0) {
-        grid.innerHTML = '<p style="color:#777;">등록된 스트리머 정보가 없습니다.</p>';
-        return;
-      }
-
+      grid.innerHTML = db.streamers.length === 0 ? '<p style="color:#777;">등록된 스트리머 없음</p>' : '';
       db.streamers.forEach(s => {
-        let deleteBtnHtml = (currentUser && currentUser.role === 'admin') ? `<button class="delete-streamer-btn" onclick="deleteStreamer(${s.id})">✕</button>` : '';
+        let adminBtns = (currentUser && currentUser.role === 'admin') ? `
+          <div class="streamer-action-btns">
+            <button onclick="openStreamerForm(${s.id})">수정</button>
+            <button class="del" onclick="deleteStreamer(${s.id})">✕</button>
+          </div>` : '';
+
+        let imgHtml = s.image ? `<img src="${s.image}" class="streamer-img">` : '';
+
         grid.innerHTML += `
           <div class="streamer-card">
-            ${deleteBtnHtml}
+            ${adminBtns}
+            ${imgHtml}
             <div class="streamer-name">${escapeHtml(s.name)}</div>
             <div class="streamer-owner">구단주: ${escapeHtml(s.owner)}</div>
             <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
             <div class="info-row">포메이션: <span>${escapeHtml(s.formation)}</span></div>
             <div class="info-row">팀컬러: <span>${escapeHtml(s.color)}</span></div>
             <a href="${escapeHtml(s.url)}" target="_blank" class="soop-btn">SOOP 방송국 바로가기</a>
-          </div>
-        `;
+          </div>`;
       });
     }
 
-    // 메인 대시보드 미리보기 렌더링
     function renderMainDashboard() {
-      const nList = document.getElementById('main-notice-list');
-      nList.innerHTML = db.posts.notice.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.notice.slice(0, 3).forEach((p, idx) => {
-        nList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('notice'); viewDetail('notice', ${idx});">${escapeHtml(p.title)}</div>`;
-      });
-
-      const sList = document.getElementById('main-squad-list');
-      sList.innerHTML = db.posts.squad.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.squad.slice(0, 3).forEach((p, idx) => {
-        sList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('squad'); viewDetail('squad', ${idx});">${escapeHtml(p.title)}</div>`;
-      });
-
-      const cList = document.getElementById('main-clip-list');
-      cList.innerHTML = db.posts.clip.length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
-      db.posts.clip.slice(0, 3).forEach((p, idx) => {
-        cList.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('clip'); viewDetail('clip', ${idx});">${escapeHtml(p.title)}</div>`;
+      ['notice', 'squad', 'clip'].forEach(tab => {
+        const list = document.getElementById(`main-${tab}-list`);
+        list.innerHTML = db.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.9em;">게시글 없음</p>' : '';
+        db.posts[tab].slice(0, 3).forEach((p, idx) => {
+          list.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.9em;" onclick="switchTab('${tab}'); viewDetail('${tab}', ${idx});">${escapeHtml(p.title)}</div>`;
+        });
       });
 
       const sp = document.getElementById('main-streamer-preview');
-      sp.innerHTML = '';
-      if(db.streamers.length === 0) {
-        sp.innerHTML = '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>';
-      } else {
-        db.streamers.slice(0, 2).forEach(s => {
-          sp.innerHTML += `
-            <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('streamer')">
-              <b style="color:var(--accent-color);">${escapeHtml(s.name)}</b> (구단주: ${escapeHtml(s.owner)})<br>
-              <span>가치: ${escapeHtml(s.value)} | 포메이션: ${escapeHtml(s.formation)}</span>
-            </div>
-          `;
-        });
-      }
+      sp.innerHTML = db.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
+      db.streamers.slice(0, 2).forEach(s => {
+        sp.innerHTML += `
+          <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('streamer')">
+            <b style="color:var(--accent-color);">${escapeHtml(s.name)}</b> (구단주: ${escapeHtml(s.owner)})<br>
+            <span>가치: ${escapeHtml(s.value)} | 포메이션: ${escapeHtml(s.formation)}</span>
+          </div>`;
+      });
     }
 
     function escapeHtml(text) {
