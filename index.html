@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>산해궁 - SOOP 스트리머 구단 정보</title>
+    <!-- 파이어베이스 SDK 추가 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <style>
@@ -172,6 +173,7 @@
             <button class="admin-toggle-btn" onclick="toggleAdminPanel()">관리자 모드 열기/닫기</button>
         </h2>
 
+        <!-- 관리자 등록 폼 -->
         <div id="adminPanel" class="admin-panel">
             <h3>🛠️ 스트리머 정보 등록</h3>
             <div class="form-group">
@@ -201,20 +203,21 @@
             <button class="submit-btn" onclick="addStreamer()">등록하기</button>
         </div>
 
+        <!-- 스트리머 목록이 출력되는 공간 -->
         <div id="streamerGrid" class="streamer-grid">
             <p style="color: #777;">데이터를 불러오는 중입니다...</p>
         </div>
     </div>
 
     <script>
-        // 파이어베이스 설정 (본인의 프로젝트 키를 입력해 주세요)
+        // 파이어베이스 프로젝트 설정 정보
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDummyKeyForSanhaegung...",
+            authDomain: "sanhaegung-dea90.firebaseapp.com",
+            projectId: "sanhaegung-dea90",
+            storageBucket: "sanhaegung-dea90.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:123456:web:abcd"
         };
         
         firebase.initializeApp(firebaseConfig);
