@@ -385,16 +385,16 @@
           <div id="main-notice-list"></div>
         </div>
         <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">🛡️ 스쿼드 자랑 최신글</h4>
-          <div id="main-squad-list"></div>
+          <h4 style="color:var(--accent-color); margin-top:0;">📺 스트리머 구단 요약</h4>
+          <div id="main-streamer-preview"></div>
         </div>
         <div class="card">
           <h4 style="color:var(--accent-color); margin-top:0;">🎬 산이봤? 최신글</h4>
           <div id="main-clip-list"></div>
         </div>
         <div class="card">
-          <h4 style="color:var(--accent-color); margin-top:0;">📺 스트리머 구단 요약</h4>
-          <div id="main-streamer-preview"></div>
+          <h4 style="color:var(--accent-color); margin-top:0;">🛡️ 스쿼드 자랑 최신글</h4>
+          <div id="main-squad-list"></div>
         </div>
       </div>
     </div>
@@ -1117,19 +1117,6 @@
         });
       });
 
-      // 스쿼드 자랑 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
-      const sqList = document.getElementById('main-squad-list');
-      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
-      store.squads.slice(0, 2).forEach(s => {
-        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:12px;">No Image</div>`;
-        sqList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('squad')">
-            ${thumbHtml}
-            <div style="font-size:0.95em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.title)}</div>
-            <div style="font-size:0.85em; color:#ccc;">구단주: ${escapeHtml(s.owner)} | 가치: ${escapeHtml(s.value)}</div>
-          </div>`;
-      });
-
       // 스트리머 구단 요약 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
       const sp = document.getElementById('main-streamer-preview');
       sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
@@ -1139,6 +1126,19 @@
           <div class="preview-card" onclick="switchTab('streamer')">
             ${thumbHtml}
             <div style="font-size:0.95em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.name)}</div>
+            <div style="font-size:0.85em; color:#ccc;">구단주: ${escapeHtml(s.owner)} | 가치: ${escapeHtml(s.value)}</div>
+          </div>`;
+      });
+
+      // 스쿼드 자랑 메인 프리뷰 (동일한 큰 사이즈의 썸네일 적용)
+      const sqList = document.getElementById('main-squad-list');
+      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
+      store.squads.slice(0, 2).forEach(s => {
+        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:12px;">No Image</div>`;
+        sqList.innerHTML += `
+          <div class="preview-card" onclick="switchTab('squad')">
+            ${thumbHtml}
+            <div style="font-size:0.95em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.title)}</div>
             <div style="font-size:0.85em; color:#ccc;">구단주: ${escapeHtml(s.owner)} | 가치: ${escapeHtml(s.value)}</div>
           </div>`;
       });
