@@ -297,6 +297,27 @@
       border-radius: 8px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
+
+    /* 메인 대시보드 미리보기 썸네일 스타일 */
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #2a2a2a;
+      cursor: pointer;
+    }
+    .preview-item:hover {
+      background-color: rgba(255,255,255,0.02);
+    }
+    .preview-thumb {
+      width: 50px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+      background-color: #121212;
+      flex-shrink: 0;
+    }
   </style>
 
   <!-- Firebase SDK 로드 -->
@@ -588,7 +609,8 @@
     }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
-    function openImageModal(imgSrc) {
+    function openImageModal(imgSrc, event) {
+      if(event) event.stopPropagation();
       document.getElementById('expandedImg').src = imgSrc;
       document.getElementById('imageModal').style.display = 'flex';
     }
@@ -823,7 +845,6 @@
       renderAll();
     }
 
-    // 스쿼드 자랑 카드 기능 (스트리머 형태와 동일, 링크 제외)
     function openSquadForm(firestoreId = null) {
       document.getElementById('form-squad-card').style.display = 'block';
       if(firestoreId !== null) {
@@ -918,7 +939,6 @@
       renderMainDashboard();
     }
 
-    // 스트리머 구단 정보 기능
     function openStreamerForm(firestoreId = null) {
       document.getElementById('form-streamer').style.display = 'block';
       if(firestoreId !== null) {
@@ -1045,7 +1065,7 @@
             <button class="del" onclick="deleteSquad('${s.firestoreId}')">✕</button>
           </div>` : '';
 
-        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}')" title="클릭해서 확대 보기">` : '';
+        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : '';
 
         grid.innerHTML += `
           <div class="custom-card">
@@ -1070,7 +1090,7 @@
             <button class="del" onclick="deleteStreamer('${s.firestoreId}')">✕</button>
           </div>` : '';
 
-        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}')" title="클릭해서 확대 보기">` : '';
+        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : '';
 
         grid.innerHTML += `
           <div class="custom-card">
@@ -1095,23 +1115,33 @@
         });
       });
 
+      // 스쿼드 자랑 메인 프리뷰 (사진 포함)
       const sqList = document.getElementById('main-squad-list');
       sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
       store.squads.slice(0, 3).forEach(s => {
+        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb" onclick="openImageModal('${s.image}', event)" title="확대해서 보기">` : `<div class="preview-thumb" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:10px;">No Image</div>`;
         sqList.innerHTML += `
-          <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('squad')">
-            <b style="color:var(--accent-color);">${escapeHtml(s.title)}</b> (구단주: ${escapeHtml(s.owner)})<br>
-            <span>가치: ${escapeHtml(s.value)} | 컬러: ${escapeHtml(s.color)}</span>
+          <div class="preview-item" onclick="switchTab('squad')">
+            ${thumbHtml}
+            <div style="font-size:0.9em; overflow:hidden;">
+              <b style="color:var(--accent-color);">${escapeHtml(s.title)}</b> (구단주: ${escapeHtml(s.owner)})<br>
+              <span style="color:#aaa; font-size:0.85em;">가치: ${escapeHtml(s.value)} | 컬러: ${escapeHtml(s.color)}</span>
+            </div>
           </div>`;
       });
 
+      // 스트리머 구단 요약 메인 프리뷰 (사진 포함)
       const sp = document.getElementById('main-streamer-preview');
       sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
-      store.streamers.slice(0, 2).forEach(s => {
+      store.streamers.slice(0, 3).forEach(s => {
+        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb" onclick="openImageModal('${s.image}', event)" title="확대해서 보기">` : `<div class="preview-thumb" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:10px;">No Image</div>`;
         sp.innerHTML += `
-          <div style="font-size:0.9em; cursor:pointer; margin-bottom:6px; border-bottom:1px solid #2a2a2a; padding-bottom:4px;" onclick="switchTab('streamer')">
-            <b style="color:var(--accent-color);">${escapeHtml(s.name)}</b> (구단주: ${escapeHtml(s.owner)})<br>
-            <span>가치: ${escapeHtml(s.value)} | 포메이션: ${escapeHtml(s.formation)}</span>
+          <div class="preview-item" onclick="switchTab('streamer')">
+            ${thumbHtml}
+            <div style="font-size:0.9em; overflow:hidden;">
+              <b style="color:var(--accent-color);">${escapeHtml(s.name)}</b> (구단주: ${escapeHtml(s.owner)})<br>
+              <span style="color:#aaa; font-size:0.85em;">가치: ${escapeHtml(s.value)} | 포메이션: ${escapeHtml(s.formation)}</span>
+            </div>
           </div>`;
       });
     }
