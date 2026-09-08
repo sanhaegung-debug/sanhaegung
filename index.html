@@ -240,7 +240,7 @@
     .tier-3 { background-color: #cd7f32; color: #fff; }
     .tier-4 { background-color: #4caf50; color: #fff; }
     .tier-5 { background-color: #ff9800; color: #fff; }
-    .tier-sashimi { background-color: #00bcd4; color: #000; } /* 횟집 티어 */
+    .tier-sashimi { background-color: #00bcd4; color: #000; }
     .tier-none { background-color: #555; color: #fff; }
 
     /* 티어별 하위 서브 탭 스타일 */
@@ -574,39 +574,8 @@
         <input type="text" id="streamerSearch" placeholder="스트리머 또는 구단 이름 검색..." oninput="filterStreamers()" style="margin-bottom: 0;">
       </div>
       
-      <div id="form-streamer" class="card" style="display:none;">
-        <h4 id="streamerFormTitle">새 스트리머 정보 등록</h4>
-        <input type="hidden" id="editStreamerId" value="">
-        <input type="text" id="stName" placeholder="스트리머 이름">
-        <input type="text" id="stOwner" placeholder="구단주명">
-        <input type="text" id="stValue" placeholder="구단 가치">
-        <input type="text" id="stFormation" placeholder="포메이션">
-        <input type="text" id="stColor" placeholder="팀컬러">
-        
-        <!-- 티어 선택 드롭다운 -->
-        <label style="font-size: 0.85em; color: #aaa;">티어 선택:</label>
-        <select id="stTier">
-          <option value="1티어">1티어</option>
-          <option value="2티어">2티어</option>
-          <option value="3티어">3티어</option>
-          <option value="4티어">4티어</option>
-          <option value="5티어">5티어</option>
-          <option value="횟집">횟집</option>
-          <option value="티어미정" selected>티어미정</option>
-        </select>
-
-        <input type="text" id="stUrl" placeholder="구단 정보 링크 (URL)">
-        
-        <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진 (파일 첨부 또는 영역에 Ctrl+V 복사붙여넣기):</label>
-        <input type="file" id="stFile" accept="image/*" style="margin-top:5px; margin-bottom:5px;">
-        <div id="pasteDropArea" tabindex="0" style="border: 2px dashed #444; padding: 15px; text-align: center; border-radius: 6px; background: #151515; color: #aaa; font-size: 0.85em; margin-bottom: 10px;">
-          📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!
-        </div>
-        <img id="stPastePreview" src="" style="display:none; max-height: 120px; border-radius: 4px; margin-bottom: 10px;">
-
-        <button onclick="saveStreamer()">저장하기</button>
-        <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
-      </div>
+      <!-- 상단 신규 등록 폼 전용 컨테이너 -->
+      <div id="form-streamer-container"></div>
 
       <div id="streamerGrid" class="grid-container"></div>
     </div>
@@ -677,11 +646,11 @@
       await loadAllData();
       updateUIState();
       renderAll();
-      initPasteListener();
     });
 
-    function initPasteListener() {
-      const pasteArea = document.getElementById('pasteDropArea');
+    function initPasteListener(prefix = 'st') {
+      const pasteArea = document.getElementById(prefix + 'PasteDropArea');
+      if(!pasteArea) return;
       pasteArea.addEventListener('paste', function(e) {
         const items = (e.clipboardData || e.originalEvent.clipboardData).items;
         for(let i = 0; i < items.length; i++) {
@@ -690,7 +659,7 @@
             const reader = new FileReader();
             reader.onload = function(event) {
               pastedImageBase64 = event.target.result;
-              const preview = document.getElementById('stPastePreview');
+              const preview = document.getElementById(prefix + 'PastePreview');
               preview.src = pastedImageBase64;
               preview.style.display = 'block';
               pasteArea.innerText = '✅ 이미지 붙여넣기 완료!';
@@ -1075,57 +1044,110 @@
       renderMainDashboard();
     }
 
-    function openStreamerForm(firestoreId = null) {
-      document.getElementById('form-streamer').style.display = 'block';
-      pastedImageBase64 = "";
-      document.getElementById('stPastePreview').style.display = 'none';
-      document.getElementById('pasteDropArea').innerText = '📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!';
+    function getStreamerFormHtml(prefix = 'st', isEdit = false) {
+      return `
+        <div id="${prefix}-form-card" class="card">
+          <h4 id="${prefix}FormTitle">${isEdit ? '스트리머 정보 수정' : '새 스트리머 구단 정보 등록'}</h4>
+          <input type="hidden" id="${prefix}EditId" value="">
+          <input type="text" id="${prefix}Name" placeholder="스트리머 이름">
+          <input type="text" id="${prefix}Owner" placeholder="구단주명">
+          <input type="text" id="${prefix}Value" placeholder="구단 가치">
+          <input type="text" id="${prefix}Formation" placeholder="포메이션">
+          <input type="text" id="${prefix}Color" placeholder="팀컬러">
+          
+          <label style="font-size: 0.85em; color: #aaa;">티어 선택:</label>
+          <select id="${prefix}Tier">
+            <option value="1티어">1티어</option>
+            <option value="2티어">2티어</option>
+            <option value="3티어">3티어</option>
+            <option value="4티어">4티어</option>
+            <option value="5티어">5티어</option>
+            <option value="횟집">횟집</option>
+            <option value="티어미정" selected>티어미정</option>
+          </select>
 
-      if(firestoreId !== null) {
-        document.getElementById('streamerFormTitle').innerText = "스트리머 정보 수정";
-        document.getElementById('editStreamerId').value = firestoreId;
-        const s = store.streamers.find(item => item.firestoreId === firestoreId);
-        document.getElementById('stName').value = s.name;
-        document.getElementById('stOwner').value = s.owner;
-        document.getElementById('stValue').value = s.value;
-        document.getElementById('stFormation').value = s.formation;
-        document.getElementById('stColor').value = s.color;
-        document.getElementById('stTier').value = s.tier || '티어미정';
-        document.getElementById('stUrl').value = s.url;
-        if(s.image) {
-          pastedImageBase64 = s.image;
-          const preview = document.getElementById('stPastePreview');
-          preview.src = s.image;
-          preview.style.display = 'block';
-        }
-      } else {
-        document.getElementById('streamerFormTitle').innerText = "새 스트리머 구단 정보 등록";
-        document.getElementById('editStreamerId').value = '';
-        document.getElementById('stName').value = '';
-        document.getElementById('stOwner').value = '';
-        document.getElementById('stValue').value = '';
-        document.getElementById('stFormation').value = '';
-        document.getElementById('stColor').value = '';
-        document.getElementById('stTier').value = '티어미정';
-        document.getElementById('stUrl').value = '';
-        document.getElementById('stFile').value = '';
+          <input type="text" id="${prefix}Url" placeholder="구단 정보 링크 (URL)">
+          
+          <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진 (파일 첨부 또는 영역에 Ctrl+V 복사붙여넣기):</label>
+          <input type="file" id="${prefix}File" accept="image/*" style="margin-top:5px; margin-bottom:5px;">
+          <div id="${prefix}PasteDropArea" tabindex="0" style="border: 2px dashed #444; padding: 15px; text-align: center; border-radius: 6px; background: #151515; color: #aaa; font-size: 0.85em; margin-bottom: 10px;">
+            📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!
+          </div>
+          <img id="${prefix}PastePreview" src="" style="display:none; max-height: 120px; border-radius: 4px; margin-bottom: 10px;">
+          
+          <div id="${prefix}DeleteImageOption" style="display:none; margin-bottom: 10px; font-size: 0.85em; color: #f44336;">
+            <label style="cursor: pointer;"><input type="checkbox" id="${prefix}DelImgCheck"> 기존 사진 삭제하기</label>
+          </div>
+
+          <button onclick="saveStreamer('${prefix}')">저장하기</button>
+          <button class="btn-secondary" onclick="closeStreamerForm('${prefix}')">취소</button>
+        </div>
+      `;
+    }
+
+    function openStreamerForm() {
+      const container = document.getElementById('form-streamer-container');
+      container.innerHTML = getStreamerFormHtml('st', false);
+      pastedImageBase64 = "";
+      initPasteListener('st');
+      
+      document.getElementById('stName').value = '';
+      document.getElementById('stOwner').value = '';
+      document.getElementById('stValue').value = '';
+      document.getElementById('stFormation').value = '';
+      document.getElementById('stColor').value = '';
+      document.getElementById('stTier').value = '티어미정';
+      document.getElementById('stUrl').value = '';
+      document.getElementById('stDeleteImageOption').style.display = 'none';
+    }
+
+    function openInlineStreamerForm(firestoreId) {
+      renderStreamers(); // 다른 열려있는 폼이나 카드를 원래대로 복구
+      const cardEl = document.getElementById('streamer-card-' + firestoreId);
+      if(!cardEl) return;
+
+      cardEl.innerHTML = getStreamerFormHtml('inline', true);
+      pastedImageBase64 = "";
+      initPasteListener('inline');
+
+      const s = store.streamers.find(item => item.firestoreId === firestoreId);
+      document.getElementById('inlineEditId').value = firestoreId;
+      document.getElementById('inlineName').value = s.name;
+      document.getElementById('inlineOwner').value = s.owner;
+      document.getElementById('inlineValue').value = s.value;
+      document.getElementById('inlineFormation').value = s.formation;
+      document.getElementById('inlineColor').value = s.color;
+      document.getElementById('inlineTier').value = s.tier || '티어미정';
+      document.getElementById('inlineUrl').value = s.url;
+
+      if(s.image) {
+        pastedImageBase64 = s.image;
+        const preview = document.getElementById('inlinePastePreview');
+        preview.src = s.image;
+        preview.style.display = 'block';
+        document.getElementById('inlineDeleteImageOption').style.display = 'block';
       }
     }
 
-    function closeStreamerForm() {
-      document.getElementById('form-streamer').style.display = 'none';
+    function closeStreamerForm(prefix = 'st') {
+      if(prefix === 'st') {
+        document.getElementById('form-streamer-container').innerHTML = '';
+      } else {
+        renderStreamers();
+      }
     }
 
-    async function saveStreamer() {
-      const firestoreIdVal = document.getElementById('editStreamerId').value;
-      const name = document.getElementById('stName').value.trim();
-      const owner = document.getElementById('stOwner').value.trim();
-      const value = document.getElementById('stValue').value.trim() || '정보 없음';
-      const formation = document.getElementById('stFormation').value.trim() || '정보 없음';
-      const color = document.getElementById('stColor').value.trim() || '정보 없음';
-      const tier = document.getElementById('stTier').value;
-      const url = document.getElementById('stUrl').value.trim() || '#';
-      const fileInput = document.getElementById('stFile');
+    async function saveStreamer(prefix = 'st') {
+      const firestoreIdVal = document.getElementById(prefix + 'EditId').value;
+      const name = document.getElementById(prefix + 'Name').value.trim();
+      const owner = document.getElementById(prefix + 'Owner').value.trim();
+      const value = document.getElementById(prefix + 'Value').value.trim() || '정보 없음';
+      const formation = document.getElementById(prefix + 'Formation').value.trim() || '정보 없음';
+      const color = document.getElementById(prefix + 'Color').value.trim() || '정보 없음';
+      const tier = document.getElementById(prefix + 'Tier').value;
+      const url = document.getElementById(prefix + 'Url').value.trim() || '#';
+      const fileInput = document.getElementById(prefix + 'File');
+      const delImgChecked = prefix === 'inline' ? document.getElementById('inlineDelImgCheck').checked : false;
 
       if(!name || !owner) { alert("스트리머 이름과 구단주명은 필수입니다!"); return; }
 
@@ -1138,6 +1160,8 @@
       let imageUrl = pastedImageBase64;
       if(fileInput && fileInput.files[0]) {
         imageUrl = await processImage(fileInput.files[0]);
+      } else if(delImgChecked) {
+        imageUrl = "";
       } else if(!imageUrl && firestoreIdVal !== "") {
         const existing = store.streamers.find(s => s.firestoreId === firestoreIdVal);
         imageUrl = existing ? existing.image : "";
@@ -1176,7 +1200,9 @@
         alert("등록되었습니다!");
       }
 
-      closeStreamerForm();
+      if(prefix === 'st') {
+        document.getElementById('form-streamer-container').innerHTML = '';
+      }
       renderStreamers();
       renderMainDashboard();
     }
@@ -1262,7 +1288,7 @@
       store.streamers.forEach(s => {
         let adminBtns = (currentUser && currentUser.role === 'admin') ? `
           <div class="card-action-btns">
-            <button onclick="openStreamerForm('${s.firestoreId}')">수정</button>
+            <button onclick="openInlineStreamerForm('${s.firestoreId}')">수정</button>
             <button class="del" onclick="deleteStreamer('${s.firestoreId}')">✕</button>
           </div>` : '';
 
@@ -1278,7 +1304,7 @@
         else if(t === '횟집') tierClass = 'tier-sashimi';
 
         grid.innerHTML += `
-          <div class="custom-card streamer-card" data-tier="${t}">
+          <div id="streamer-card-${s.firestoreId}" class="custom-card streamer-card" data-tier="${t}">
             ${adminBtns}
             ${imgHtml}
             <div class="tier-badge ${tierClass}">${t}</div>
