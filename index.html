@@ -395,7 +395,7 @@
     }
   </style>
 
-  <!-- Firebase SDK 로드 -->
+  <!-- Firebase SDK 로드 (Firestore 전용) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -639,36 +639,35 @@
     };
 
     let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
-    let pastedImageBase64 = "";
     let currentTierFilter = 'all';
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
+      
+      // 최초 실행 시 기존에 무겁게 저장되어 있던 스트리머 사진들을 자동으로 싹 비워주는 마이그레이션 처리
+      await cleanOldStreamerImages();
+
       updateUIState();
       renderAll();
     });
 
-    function initPasteListener(prefix = 'st') {
-      const pasteArea = document.getElementById(prefix + 'PasteDropArea');
-      if(!pasteArea) return;
-      pasteArea.addEventListener('paste', function(e) {
-        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-        for(let i = 0; i < items.length; i++) {
-          if(items[i].type.indexOf('image') !== -1) {
-            const blob = items[i].getAsFile();
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              pastedImageBase64 = event.target.result;
-              const preview = document.getElementById(prefix + 'PastePreview');
-              preview.src = pastedImageBase64;
-              preview.style.display = 'block';
-              pasteArea.innerText = '✅ 이미지 붙여넣기 완료!';
-            };
-            reader.readAsDataURL(blob);
-            e.preventDefault();
+    async function cleanOldStreamerImages() {
+      let needsUpdate = false;
+      for(let s of store.streamers) {
+        // 이미지가 Base64 데이터 형식이거나 너무 길면(주소가 아닌 경우) 비워줌
+        if(s.image && (s.image.startsWith('data:') || s.image.length > 500)) {
+          s.image = "";
+          needsUpdate = true;
+          try {
+            await updateDoc(doc(window.db, "streamers", s.firestoreId), { image: "" });
+          } catch(e) {
+            console.error("이미지 초기화 오류:", e);
           }
         }
-      });
+      }
+      if(needsUpdate) {
+        console.log("기존 무거운 스트리머 이미지 데이터가 깔끔하게 정리되었습니다.");
+      }
     }
 
     async function loadAllData() {
@@ -852,7 +851,7 @@
 
     function closePostForm(tab) { document.getElementById('form-' + tab).style.display = 'none'; }
 
-    function savePost(tab) {
+    async function savePost(tab) {
       const title = document.getElementById(`${tab}Title`).value.trim();
       const content = document.getElementById(`${tab}Content`).value.trim();
       const fileInput = document.getElementById(`${tab}File`);
@@ -862,56 +861,45 @@
       if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
 
       let mediaHtml = "";
-      const readerFile = (file) => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if(file.type.startsWith('image/')) resolve(`<img src="${e.target.result}">`);
-          else if(file.type.startsWith('video/')) resolve(`<video controls src="${e.target.result}"></video>`);
-          else resolve('');
+      const colName = tab === 'notice' ? 'notices' : 'clips';
+
+      if(editIdxVal !== "") {
+        mediaHtml = store.posts[tab][editIdxVal].media;
+      }
+
+      if(linkInput && linkInput.value.trim()) {
+        let url = linkInput.value.trim();
+        let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
+        if(videoId) videoId = videoId.split('&')[0];
+        mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+      }
+
+      if(editIdxVal !== "") {
+        let idx = parseInt(editIdxVal);
+        let target = store.posts[tab][idx];
+        target.title = title;
+        target.content = content;
+        if(mediaHtml) target.media = mediaHtml;
+
+        await updateDoc(doc(window.db, colName, target.firestoreId), {
+          title, content, media: target.media
+        });
+      } else {
+        const newPost = {
+          id: Date.now(),
+          author: currentUser.soop,
+          title,
+          content,
+          media: mediaHtml,
+          date: new Date().toLocaleDateString()
         };
-        reader.readAsDataURL(file);
-      });
+        const docRef = await addDoc(collection(window.db, colName), newPost);
+        store.posts[tab].unshift({ firestoreId: docRef.id, ...newPost });
+      }
 
-      (async () => {
-        if(fileInput && fileInput.files[0]) mediaHtml += await readerFile(fileInput.files[0]);
-        else if(editIdxVal !== "") mediaHtml = store.posts[tab][editIdxVal].media;
-
-        if(linkInput && linkInput.value.trim()) {
-          let url = linkInput.value.trim();
-          let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
-          if(videoId) videoId = videoId.split('&')[0];
-          mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-        }
-
-        const colName = tab === 'notice' ? 'notices' : 'clips';
-
-        if(editIdxVal !== "") {
-          let idx = parseInt(editIdxVal);
-          let target = store.posts[tab][idx];
-          target.title = title;
-          target.content = content;
-          if(mediaHtml) target.media = mediaHtml;
-
-          await updateDoc(doc(window.db, colName, target.firestoreId), {
-            title, content, media: target.media
-          });
-        } else {
-          const newPost = {
-            id: Date.now(),
-            author: currentUser.soop,
-            title,
-            content,
-            media: mediaHtml,
-            date: new Date().toLocaleDateString()
-          };
-          const docRef = await addDoc(collection(window.db, colName), newPost);
-          store.posts[tab].unshift({ firestoreId: docRef.id, ...newPost });
-        }
-
-        closePostForm(tab);
-        renderAll();
-        if(editIdxVal !== "") viewDetail(tab, parseInt(editIdxVal));
-      })();
+      closePostForm(tab);
+      renderAll();
+      if(editIdxVal !== "") viewDetail(tab, parseInt(editIdxVal));
     }
 
     function viewDetail(tab, idx) {
@@ -984,20 +972,11 @@
       const value = document.getElementById('sqValue').value.trim() || '정보 없음';
       const formation = document.getElementById('sqFormation').value.trim() || '정보 없음';
       const color = document.getElementById('sqColor').value.trim() || '정보 없음';
-      const fileInput = document.getElementById('sqFile');
 
       if(!title || !owner) { alert("제목과 구단주명은 필수입니다!"); return; }
 
-      const processImage = (file) => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-
       let imageUrl = "";
-      if(fileInput && fileInput.files[0]) {
-        imageUrl = await processImage(fileInput.files[0]);
-      } else if(firestoreIdVal !== "") {
+      if(firestoreIdVal !== "") {
         const existing = store.squads.find(s => s.firestoreId === firestoreIdVal);
         imageUrl = existing ? existing.image : "";
       }
@@ -1067,17 +1046,7 @@
           </select>
 
           <input type="text" id="${prefix}Url" placeholder="구단 정보 링크 (URL)">
-          
-          <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진 (파일 첨부 또는 영역에 Ctrl+V 복사붙여넣기):</label>
-          <input type="file" id="${prefix}File" accept="image/*" style="margin-top:5px; margin-bottom:5px;">
-          <div id="${prefix}PasteDropArea" tabindex="0" style="border: 2px dashed #444; padding: 15px; text-align: center; border-radius: 6px; background: #151515; color: #aaa; font-size: 0.85em; margin-bottom: 10px;">
-            📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!
-          </div>
-          <img id="${prefix}PastePreview" src="" style="display:none; max-height: 120px; border-radius: 4px; margin-bottom: 10px;">
-          
-          <div id="${prefix}DeleteImageOption" style="display:none; margin-bottom: 10px; font-size: 0.85em; color: #f44336;">
-            <label style="cursor: pointer;"><input type="checkbox" id="${prefix}DelImgCheck"> 기존 사진 삭제하기</label>
-          </div>
+          <input type="text" id="${prefix}Image" placeholder="이미지 주소 (URL 복사해서 붙여넣기)" style="margin-top:5px;">
 
           <button onclick="saveStreamer('${prefix}')">저장하기</button>
           <button class="btn-secondary" onclick="closeStreamerForm('${prefix}')">취소</button>
@@ -1088,8 +1057,6 @@
     function openStreamerForm() {
       const container = document.getElementById('form-streamer-container');
       container.innerHTML = getStreamerFormHtml('st', false);
-      pastedImageBase64 = "";
-      initPasteListener('st');
       
       document.getElementById('stName').value = '';
       document.getElementById('stOwner').value = '';
@@ -1098,17 +1065,15 @@
       document.getElementById('stColor').value = '';
       document.getElementById('stTier').value = '티어미정';
       document.getElementById('stUrl').value = '';
-      document.getElementById('stDeleteImageOption').style.display = 'none';
+      document.getElementById('stImage').value = '';
     }
 
     function openInlineStreamerForm(firestoreId) {
-      renderStreamers(); // 다른 열려있는 폼이나 카드를 원래대로 복구
+      renderStreamers();
       const cardEl = document.getElementById('streamer-card-' + firestoreId);
       if(!cardEl) return;
 
       cardEl.innerHTML = getStreamerFormHtml('inline', true);
-      pastedImageBase64 = "";
-      initPasteListener('inline');
 
       const s = store.streamers.find(item => item.firestoreId === firestoreId);
       document.getElementById('inlineEditId').value = firestoreId;
@@ -1119,14 +1084,7 @@
       document.getElementById('inlineColor').value = s.color;
       document.getElementById('inlineTier').value = s.tier || '티어미정';
       document.getElementById('inlineUrl').value = s.url;
-
-      if(s.image) {
-        pastedImageBase64 = s.image;
-        const preview = document.getElementById('inlinePastePreview');
-        preview.src = s.image;
-        preview.style.display = 'block';
-        document.getElementById('inlineDeleteImageOption').style.display = 'block';
-      }
+      document.getElementById('inlineImage').value = s.image || '';
     }
 
     function closeStreamerForm(prefix = 'st') {
@@ -1146,26 +1104,9 @@
       const color = document.getElementById(prefix + 'Color').value.trim() || '정보 없음';
       const tier = document.getElementById(prefix + 'Tier').value;
       const url = document.getElementById(prefix + 'Url').value.trim() || '#';
-      const fileInput = document.getElementById(prefix + 'File');
-      const delImgChecked = prefix === 'inline' ? document.getElementById('inlineDelImgCheck').checked : false;
+      const imageUrl = document.getElementById(prefix + 'Image').value.trim();
 
       if(!name || !owner) { alert("스트리머 이름과 구단주명은 필수입니다!"); return; }
-
-      const processImage = (file) => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-
-      let imageUrl = pastedImageBase64;
-      if(fileInput && fileInput.files[0]) {
-        imageUrl = await processImage(fileInput.files[0]);
-      } else if(delImgChecked) {
-        imageUrl = "";
-      } else if(!imageUrl && firestoreIdVal !== "") {
-        const existing = store.streamers.find(s => s.firestoreId === firestoreIdVal);
-        imageUrl = existing ? existing.image : "";
-      }
 
       if(firestoreIdVal !== "") {
         let idx = store.streamers.findIndex(s => s.firestoreId === firestoreIdVal);
