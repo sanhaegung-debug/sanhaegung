@@ -60,7 +60,7 @@
     }
 
     .tab-menu::-webkit-scrollbar {
-      display: none; /* 스크롤바 숨기기 (모바일 깔끔함 유지) */
+      display: none;
     }
 
     .tab-btn {
@@ -106,7 +106,7 @@
       color: var(--text-color);
       border-radius: 4px;
       box-sizing: border-box;
-      font-size: 14px; /* 모바일 입력 시 자동 줌 방지 */
+      font-size: 14px;
     }
 
     button {
@@ -222,8 +222,52 @@
     .card-subtitle {
       font-size: 12px;
       color: var(--accent-color);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-weight: bold;
+    }
+
+    /* 티어 뱃지 스타일 */
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .tier-1 { background-color: #ffd700; color: #000; }
+    .tier-2 { background-color: #c0c0c0; color: #000; }
+    .tier-3 { background-color: #cd7f32; color: #fff; }
+    .tier-4 { background-color: #4caf50; color: #fff; }
+    .tier-5 { background-color: #ff9800; color: #fff; }
+    .tier-sashimi { background-color: #00bcd4; color: #000; } /* 횟집 티어 */
+    .tier-none { background-color: #555; color: #fff; }
+
+    /* 티어별 하위 서브 탭 스타일 */
+    .tier-sub-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 5px;
+    }
+    .tier-sub-btn {
+      background-color: #181818;
+      color: #aaa;
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: bold;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .tier-sub-btn.active {
+      background-color: var(--accent-color);
+      color: #000;
+      border-color: var(--accent-color);
     }
 
     .info-row {
@@ -240,8 +284,8 @@
     .soop-btn {
       display: block;
       text-align: center;
-      background-color: #333;
-      color: white;
+      background-color: var(--accent-color);
+      color: #000;
       text-decoration: none;
       padding: 8px;
       border-radius: 5px;
@@ -251,8 +295,7 @@
     }
 
     .soop-btn:hover {
-      background-color: var(--accent-color);
-      color: #000;
+      opacity: 0.9;
     }
 
     .card-action-btns {
@@ -342,28 +385,13 @@
       background-color: #121212;
     }
 
-    /* 모바일 반응형 대시보드 2단 레이아웃 -> 1단 전환 */
     @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-      .header h1 {
-        font-size: 20px;
-      }
-      .user-bar {
-        font-size: 0.8em;
-        justify-content: center;
-      }
-      #tab-main > div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important;
-      }
-      .grid-container {
-        grid-template-columns: 1fr;
-      }
-      .board-table th, .board-table td {
-        padding: 8px 6px;
-        font-size: 0.8em;
-      }
+      body { padding: 10px; }
+      .header h1 { font-size: 20px; }
+      .user-bar { font-size: 0.8em; justify-content: center; }
+      #tab-main > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+      .grid-container { grid-template-columns: 1fr; }
+      .board-table th, .board-table td { padding: 8px 6px; font-size: 0.8em; }
     }
   </style>
 
@@ -525,8 +553,25 @@
     <!-- 4. 스트리머 구단정보 탭 -->
     <div id="tab-streamer" class="tab-content">
       <div class="action-bar">
-        <h3>SOOP 스트리머 구단</h3>
+        <h3>스트리머 구단 정보</h3>
         <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">스트리머 등록</button>
+      </div>
+
+      <!-- 티어별 분리 보기 서브 탭 -->
+      <div class="tier-sub-tabs">
+        <button class="tier-sub-btn active" onclick="setTierFilter('all', this)">전체 보기</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('1티어', this)">⭐ 1티어</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('2티어', this)">⭐ 2티어</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('3티어', this)">⭐ 3티어</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('4티어', this)">⭐ 4티어</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('5티어', this)">⭐ 5티어</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('횟집', this)">🐟 횟집</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('티어미정', this)">❓ 미정</button>
+      </div>
+
+      <!-- 검색 바 -->
+      <div style="margin-bottom: 15px;">
+        <input type="text" id="streamerSearch" placeholder="스트리머 또는 구단 이름 검색..." oninput="filterStreamers()" style="margin-bottom: 0;">
       </div>
       
       <div id="form-streamer" class="card" style="display:none;">
@@ -537,9 +582,28 @@
         <input type="text" id="stValue" placeholder="구단 가치">
         <input type="text" id="stFormation" placeholder="포메이션">
         <input type="text" id="stColor" placeholder="팀컬러">
+        
+        <!-- 티어 선택 드롭다운 -->
+        <label style="font-size: 0.85em; color: #aaa;">티어 선택:</label>
+        <select id="stTier">
+          <option value="1티어">1티어</option>
+          <option value="2티어">2티어</option>
+          <option value="3티어">3티어</option>
+          <option value="4티어">4티어</option>
+          <option value="5티어">5티어</option>
+          <option value="횟집">횟집</option>
+          <option value="티어미정" selected>티어미정</option>
+        </select>
+
         <input type="text" id="stUrl" placeholder="구단 정보 링크 (URL)">
-        <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진:</label>
-        <input type="file" id="stFile" accept="image/*" style="margin-top:5px;">
+        
+        <label style="font-size: 0.85em; color: #aaa;">프로필/구단 사진 (파일 첨부 또는 영역에 Ctrl+V 복사붙여넣기):</label>
+        <input type="file" id="stFile" accept="image/*" style="margin-top:5px; margin-bottom:5px;">
+        <div id="pasteDropArea" tabindex="0" style="border: 2px dashed #444; padding: 15px; text-align: center; border-radius: 6px; background: #151515; color: #aaa; font-size: 0.85em; margin-bottom: 10px;">
+          📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!
+        </div>
+        <img id="stPastePreview" src="" style="display:none; max-height: 120px; border-radius: 4px; margin-bottom: 10px;">
+
         <button onclick="saveStreamer()">저장하기</button>
         <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
       </div>
@@ -595,7 +659,7 @@
   </div>
 
   <script>
-    const MASTER_PASSWORD = "6827";
+    const MASTER_PASSWORD = "1234";
 
     let store = {
       pendingUsers: [],
@@ -606,12 +670,37 @@
     };
 
     let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
+    let pastedImageBase64 = "";
+    let currentTierFilter = 'all';
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
       updateUIState();
       renderAll();
+      initPasteListener();
     });
+
+    function initPasteListener() {
+      const pasteArea = document.getElementById('pasteDropArea');
+      pasteArea.addEventListener('paste', function(e) {
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for(let i = 0; i < items.length; i++) {
+          if(items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              pastedImageBase64 = event.target.result;
+              const preview = document.getElementById('stPastePreview');
+              preview.src = pastedImageBase64;
+              preview.style.display = 'block';
+              pasteArea.innerText = '✅ 이미지 붙여넣기 완료!';
+            };
+            reader.readAsDataURL(blob);
+            e.preventDefault();
+          }
+        }
+      });
+    }
 
     async function loadAllData() {
       try {
@@ -988,6 +1077,10 @@
 
     function openStreamerForm(firestoreId = null) {
       document.getElementById('form-streamer').style.display = 'block';
+      pastedImageBase64 = "";
+      document.getElementById('stPastePreview').style.display = 'none';
+      document.getElementById('pasteDropArea').innerText = '📋 여기에 커서를 두고 이미지를 복사(Ctrl+V) 하세요!';
+
       if(firestoreId !== null) {
         document.getElementById('streamerFormTitle').innerText = "스트리머 정보 수정";
         document.getElementById('editStreamerId').value = firestoreId;
@@ -997,7 +1090,14 @@
         document.getElementById('stValue').value = s.value;
         document.getElementById('stFormation').value = s.formation;
         document.getElementById('stColor').value = s.color;
+        document.getElementById('stTier').value = s.tier || '티어미정';
         document.getElementById('stUrl').value = s.url;
+        if(s.image) {
+          pastedImageBase64 = s.image;
+          const preview = document.getElementById('stPastePreview');
+          preview.src = s.image;
+          preview.style.display = 'block';
+        }
       } else {
         document.getElementById('streamerFormTitle').innerText = "새 스트리머 구단 정보 등록";
         document.getElementById('editStreamerId').value = '';
@@ -1006,6 +1106,7 @@
         document.getElementById('stValue').value = '';
         document.getElementById('stFormation').value = '';
         document.getElementById('stColor').value = '';
+        document.getElementById('stTier').value = '티어미정';
         document.getElementById('stUrl').value = '';
         document.getElementById('stFile').value = '';
       }
@@ -1022,7 +1123,8 @@
       const value = document.getElementById('stValue').value.trim() || '정보 없음';
       const formation = document.getElementById('stFormation').value.trim() || '정보 없음';
       const color = document.getElementById('stColor').value.trim() || '정보 없음';
-      const url = document.getElementById('stUrl').value.trim() || 'https://www.sooplive.co.kr';
+      const tier = document.getElementById('stTier').value;
+      const url = document.getElementById('stUrl').value.trim() || '#';
       const fileInput = document.getElementById('stFile');
 
       if(!name || !owner) { alert("스트리머 이름과 구단주명은 필수입니다!"); return; }
@@ -1033,10 +1135,10 @@
         reader.readAsDataURL(file);
       });
 
-      let imageUrl = "";
+      let imageUrl = pastedImageBase64;
       if(fileInput && fileInput.files[0]) {
         imageUrl = await processImage(fileInput.files[0]);
-      } else if(firestoreIdVal !== "") {
+      } else if(!imageUrl && firestoreIdVal !== "") {
         const existing = store.streamers.find(s => s.firestoreId === firestoreIdVal);
         imageUrl = existing ? existing.image : "";
       }
@@ -1049,11 +1151,12 @@
         target.value = value;
         target.formation = formation;
         target.color = color;
+        target.tier = tier;
         target.url = url;
         target.image = imageUrl;
 
         await updateDoc(doc(window.db, "streamers", firestoreIdVal), {
-          name, owner, value, formation, color, url, image: imageUrl
+          name, owner, value, formation, color, tier, url, image: imageUrl
         });
         alert("수정되었습니다!");
       } else {
@@ -1064,6 +1167,7 @@
           value,
           formation,
           color,
+          tier,
           url,
           image: imageUrl
         };
@@ -1083,6 +1187,31 @@
       store.streamers = store.streamers.filter(s => s.firestoreId !== firestoreId);
       renderStreamers();
       renderMainDashboard();
+    }
+
+    function setTierFilter(tier, btnElement) {
+      currentTierFilter = tier;
+      document.querySelectorAll('.tier-sub-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      filterStreamers();
+    }
+
+    function filterStreamers() {
+      const keyword = document.getElementById('streamerSearch').value.toLowerCase();
+      const cards = document.querySelectorAll('.streamer-card');
+
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        const tier = card.getAttribute('data-tier');
+        const matchesKeyword = text.includes(keyword);
+        const matchesTier = (currentTierFilter === 'all' || tier === currentTierFilter);
+
+        if(matchesKeyword && matchesTier) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      });
     }
 
     function renderAll() {
@@ -1138,11 +1267,21 @@
           </div>` : '';
 
         let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : '';
+        
+        let tierClass = 'tier-none';
+        let t = s.tier || '티어미정';
+        if(t === '1티어') tierClass = 'tier-1';
+        else if(t === '2티어') tierClass = 'tier-2';
+        else if(t === '3티어') tierClass = 'tier-3';
+        else if(t === '4티어') tierClass = 'tier-4';
+        else if(t === '5티어') tierClass = 'tier-5';
+        else if(t === '횟집') tierClass = 'tier-sashimi';
 
         grid.innerHTML += `
-          <div class="custom-card">
+          <div class="custom-card streamer-card" data-tier="${t}">
             ${adminBtns}
             ${imgHtml}
+            <div class="tier-badge ${tierClass}">${t}</div>
             <div class="card-title-lg">${escapeHtml(s.name)}</div>
             <div class="card-subtitle">구단주: ${escapeHtml(s.owner)}</div>
             <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
@@ -1151,6 +1290,7 @@
             <a href="${escapeHtml(s.url)}" target="_blank" class="soop-btn">구단 정보 바로가기</a>
           </div>`;
       });
+      filterStreamers();
     }
 
     function renderMainDashboard() {
