@@ -8,7 +8,7 @@
     :root {
       --bg-color: #0f1115;
       --card-bg: #181c24;
-      --accent-color: #8a2be2; /* 마법 느낌의 보라색 포인트 */
+      --accent-color: #8a2be2;
       --accent-hover: #9c3eee;
       --text-color: #e2e8f0;
       --border-color: #2d3748;
@@ -282,11 +282,8 @@
     </div>
 
     <div class="user-bar">
-      <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #a0aec0;">비회원 (조회 전용)</span>
-      <button id="authBtn" onclick="openLoginModal()">로그인</button>
-      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">기숙사원 승인신청</button>
-      <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자</button>
-      <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
+      <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #a0aec0;">전체 시청자 모드 (조회 전용)</span>
+      <button onclick="openMagicForm()">+ 해금 정보 등록 (스트리머 전용)</button>
     </div>
 
     <div class="tab-menu">
@@ -298,22 +295,22 @@
     <div id="tab-magic" class="tab-content active">
       <div class="action-bar">
         <h3>아르케온 마법 해금 리스트</h3>
-        <button id="writeMagicBtn" style="display:none;" onclick="openMagicForm()">+ 해금 정보 등록</button>
       </div>
 
       <!-- 등록/수정 폼 -->
       <div id="form-magic-card" class="card" style="display:none;">
         <h4 id="magicFormTitle" style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
         <input type="hidden" id="editMagicId" value="">
-        <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계, 텔레포트 마법)">
-        <input type="text" id="magAuthor" placeholder="작성자 닉네임">
-        <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개, 네더와이어 2개)">
-        <input type="text" id="magLocation" placeholder="해금 위치 / 조건 (예: 네더 요새 숨겨진 제단)">
+        <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
+        <input type="text" id="magAuthor" placeholder="스트리머 닉네임">
+        <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
+        <input type="text" id="magLocation" placeholder="해금 위치 / 조건">
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
         <label style="font-size: 0.85em; color: #a0aec0;">해금 위치/재료 인증 사진:</label>
         <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
+        <input type="password" id="magSecretPw" placeholder="스트리머 비밀번호 입력">
         <div style="display:flex; gap:8px; margin-top:10px;">
-          <button onclick="saveMagic()">저장하기</button>
+          <button onclick="saveMagic()">확인 및 저장</button>
           <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
@@ -325,17 +322,7 @@
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
         <h3>기숙사 공지사항</h3>
-        <button id="writeNoticeBtn" style="display:none;" onclick="openNoticeForm()">공지 작성</button>
       </div>
-
-      <div id="form-notice" class="card" style="display:none;">
-        <h4 style="color:var(--accent-color); margin-top:0;">새 공지사항 등록</h4>
-        <input type="text" id="noticeTitle" placeholder="제목">
-        <textarea id="noticeContent" rows="4" placeholder="내용"></textarea>
-        <button onclick="saveNotice()">등록</button>
-        <button class="btn-secondary" onclick="closeNoticeForm()">취소</button>
-      </div>
-
       <div id="noticeList"></div>
     </div>
   </div>
@@ -345,73 +332,35 @@
     <img id="expandedImg" src="">
   </div>
 
-  <!-- 모달 창들 -->
-  <div id="registerModal" class="modal">
+  <!-- 스트리머 비밀번호 확인 모달 (수정/삭제용) -->
+  <div id="authModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0;">기숙사원 승인 신청</h3>
-      <input type="text" id="regSoop" placeholder="SOOP 닉네임">
-      <input type="text" id="regMc" placeholder="마인크래프트 닉네임">
-      <input type="password" id="regPw" placeholder="개별 비밀번호">
-      <button onclick="submitRegister()" style="width:100%; margin-top:5px;">신청하기</button>
+      <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 확인</h3>
+      <p style="font-size:0.85em; color:#a0aec0;">해당 정보를 수정/삭제하려면 스트리머 비밀번호를 입력하세요.</p>
+      <input type="hidden" id="targetActionId" value="">
+      <input type="hidden" id="targetActionType" value="">
+      <input type="password" id="checkSecretPw" placeholder="스트리머 비밀번호">
+      <button onclick="verifyAndExecute()" style="width:100%; margin-top:5px;">확인</button>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
-    </div>
-  </div>
-
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-top:0;">기숙사원 로그인</h3>
-      <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
-      <input type="password" id="loginPw" placeholder="개별 비밀번호">
-      <button onclick="login()" style="width:100%; margin-top:5px;">로그인</button>
-      <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
-    </div>
-  </div>
-
-  <div id="adminModal" class="modal">
-    <div class="modal-content" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
-      <h3 style="margin-top:0;">관리자 제어판</h3>
-      <div id="adminAuthSection">
-        <input type="password" id="adminMasterPw" placeholder="마스터 관리자 비밀번호">
-        <button onclick="verifyAdmin()" style="width:100%; margin-top:5px;">관리자 인증</button>
-      </div>
-      <div id="adminDashboard" style="display:none; margin-top:15px;">
-        <hr style="border-color:var(--border-color);">
-        <h4 style="font-size:0.95em; color:var(--accent-color);">⏳ 가입 승인 대기 목록</h4>
-        <div id="pendingList"></div>
-        <hr style="border-color:var(--border-color); margin-top:15px;">
-        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 기숙사원 명단</h4>
-        <div id="approvedList"></div>
-      </div>
-      <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:15px;">닫기</button>
     </div>
   </div>
 
   <script>
-    const MASTER_PASSWORD = "1234";
+    // 🔑 스트리머 공용 비밀번호 (원하시는 비밀번호로 자유롭게 변경 가능합니다!)
+    const STREAMER_PASSWORD = "archeonsu"; 
 
     let store = {
-      pendingUsers: [],
-      approvedUsers: [],
       magics: [],
       notices: []
     };
 
-    let currentUser = JSON.parse(localStorage.getItem('archeon_user') || 'null');
-
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
-      updateUIState();
       renderAll();
     });
 
     async function loadAllData() {
       try {
-        const pSnap = await getDocs(collection(window.db, "archeon_pending"));
-        store.pendingUsers = pSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
-
-        const aSnap = await getDocs(collection(window.db, "archeon_approved"));
-        store.approvedUsers = aSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
-
         const mSnap = await getDocs(collection(window.db, "archeon_magics"));
         store.magics = mSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
 
@@ -429,12 +378,6 @@
       event.currentTarget.classList.add('active');
     }
 
-    function openRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
-    function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
-    function openAdminModal() { 
-      document.getElementById('adminModal').style.display = 'flex'; 
-      if(currentUser && currentUser.role === 'admin') showAdminDashboard();
-    }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
     function openImageModal(imgSrc, event) {
@@ -445,118 +388,10 @@
 
     function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
-    async function submitRegister() {
-      const soop = document.getElementById('regSoop').value.trim();
-      const mc = document.getElementById('regMc').value.trim();
-      const pw = document.getElementById('regPw').value.trim();
-      if(!soop || !mc || !pw) { alert("모든 항목을 입력해주세요."); return; }
-      
-      const newUser = { soop, mc, pw };
-      const docRef = await addDoc(collection(window.db, "archeon_pending"), newUser);
-      store.pendingUsers.push({ firestoreId: docRef.id, ...newUser });
-      
-      alert("가입 신청이 완료되었습니다.");
-      closeModals();
-    }
-
-    function verifyAdmin() {
-      if(document.getElementById('adminMasterPw').value === MASTER_PASSWORD) {
-        currentUser = { soop: "최고관리자", role: "admin" };
-        localStorage.setItem('archeon_user', JSON.stringify(currentUser));
-        showAdminDashboard();
-        updateUIState();
-        alert("관리자 인증 완료");
-      } else {
-        alert("비밀번호가 틀렸습니다.");
-      }
-    }
-
-    function showAdminDashboard() {
-      document.getElementById('adminAuthSection').style.display = 'none';
-      document.getElementById('adminDashboard').style.display = 'block';
-      renderAdminLists();
-    }
-
-    function renderAdminLists() {
-      const pContainer = document.getElementById('pendingList');
-      pContainer.innerHTML = store.pendingUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">대기 인원 없음</p>' : '';
-      store.pendingUsers.forEach((u, idx) => {
-        pContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#0f1115; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
-            <span>${u.soop} (${u.mc})</span>
-            <div style="display:flex; gap:4px;"><button onclick="approveUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">거절</button></div>
-          </div>`;
-      });
-
-      const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">원생 없음</p>' : '';
-      store.approvedUsers.forEach((u, idx) => {
-        aContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#0f1115; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
-            <span>${u.soop} (${u.mc})</span>
-            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">추방</button>
-          </div>`;
-      });
-    }
-
-    async function approveUser(firestoreId, idx) {
-      const target = store.pendingUsers[idx];
-      await addDoc(collection(window.db, "archeon_approved"), target);
-      await deleteDoc(doc(window.db, "archeon_pending", firestoreId));
-      store.approvedUsers.push(target);
-      store.pendingUsers.splice(idx, 1);
-      renderAdminLists();
-    }
-
-    async function rejectUser(firestoreId, idx) {
-      await deleteDoc(doc(window.db, "archeon_pending", firestoreId));
-      store.pendingUsers.splice(idx, 1);
-      renderAdminLists();
-    }
-
-    async function kickUser(firestoreId, idx) {
-      if(!confirm("추방하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "archeon_approved", firestoreId));
-      store.approvedUsers.splice(idx, 1);
-      renderAdminLists();
-    }
-
-    function login() {
-      const soopInput = document.getElementById('loginSoop').value.trim();
-      const pwInput = document.getElementById('loginPw').value.trim();
-      const found = store.approvedUsers.find(u => u.soop === soopInput && u.pw === pwInput);
-      if(found) {
-        currentUser = { soop: found.soop, role: 'member' };
-        localStorage.setItem('archeon_user', JSON.stringify(currentUser));
-        alert(`${found.soop}님 환영합니다!`);
-        closeModals();
-        updateUIState();
-      } else {
-        alert("로그인 실패 (정보 불일치 또는 승인 대기중)");
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      localStorage.removeItem('archeon_user');
-      updateUIState();
-      alert("로그아웃 되었습니다.");
-    }
-
-    function updateUIState() {
-      const isAdmin = currentUser && currentUser.role === 'admin';
-      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '아르케온 원생'})` : "비회원";
-      document.getElementById('authBtn').style.display = currentUser ? 'none' : 'inline-block';
-      document.getElementById('registerBtn').style.display = currentUser ? 'none' : 'inline-block';
-      document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
-
-      document.getElementById('writeMagicBtn').style.display = currentUser ? 'inline-block' : 'none';
-      document.getElementById('writeNoticeBtn').style.display = isAdmin ? 'inline-block' : 'none';
-    }
-
-    // --- 마법해금 관리 ---
+    // --- 마법해금 등록/수정 폼 제어 ---
     function openMagicForm(editId = null) {
       document.getElementById('form-magic-card').style.display = 'block';
+      document.getElementById('magSecretPw').value = '';
       if(editId) {
         document.getElementById('magicFormTitle').innerText = "마법해금 정보 수정";
         document.getElementById('editMagicId').value = editId;
@@ -572,7 +407,7 @@
         document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
         document.getElementById('editMagicId').value = '';
         document.getElementById('magTitle').value = '';
-        document.getElementById('magAuthor').value = currentUser ? currentUser.soop : '';
+        document.getElementById('magAuthor').value = '';
         document.getElementById('magMaterials').value = '';
         document.getElementById('magLocation').value = '';
         document.getElementById('magDesc').value = '';
@@ -583,6 +418,12 @@
     function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
 
     async function saveMagic() {
+      const pwInput = document.getElementById('magSecretPw').value.trim();
+      if(pwInput !== STREAMER_PASSWORD) {
+        alert("스트리머 비밀번호가 틀렸습니다! 시청자는 등록할 수 없습니다.");
+        return;
+      }
+
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
       const materials = document.getElementById('magMaterials').value.trim();
@@ -591,7 +432,7 @@
       const fileInput = document.getElementById('magFile');
       const editId = document.getElementById('editMagicId').value;
 
-      if(!title || !author) { alert("마법 이름과 작성자는 필수입니다."); return; }
+      if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
 
       let imageUrl = "";
       if(editId) {
@@ -630,41 +471,37 @@
 
       closeMagicForm();
       renderMagics();
+      alert("성공적으로 저장되었습니다!");
     }
 
-    async function deleteMagic(firestoreId) {
-      if(!confirm("해당 마법 정보를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
-      store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
-      renderMagics();
+    // --- 수정/삭제 권한 인증 모달 ---
+    function requestAuth(actionType, firestoreId) {
+      document.getElementById('targetActionType').value = actionType;
+      document.getElementById('targetActionId').value = firestoreId;
+      document.getElementById('checkSecretPw').value = '';
+      document.getElementById('authModal').style.display = 'flex';
     }
 
-    // --- 공지사항 관리 ---
-    function openNoticeForm() { document.getElementById('form-notice').style.display = 'block'; }
-    function closeNoticeForm() { document.getElementById('form-notice').style.display = 'none'; }
+    async function verifyAndExecute() {
+      const pwInput = document.getElementById('checkSecretPw').value.trim();
+      if(pwInput !== STREAMER_PASSWORD) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+      }
 
-    async function saveNotice() {
-      const title = document.getElementById('noticeTitle').value.trim();
-      const content = document.getElementById('noticeContent').value.trim();
-      if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
+      const actionType = document.getElementById('targetActionType').value;
+      const firestoreId = document.getElementById('targetActionId').value;
+      closeModals();
 
-      const newNotice = {
-        id: Date.now(),
-        title, content,
-        date: new Date().toLocaleDateString()
-      };
-      const docRef = await addDoc(collection(window.db, "archeon_notices"), newNotice);
-      store.notices.unshift({ firestoreId: docRef.id, ...newNotice });
-
-      closeNoticeForm();
-      renderNotices();
-    }
-
-    async function deleteNotice(firestoreId) {
-      if(!confirm("공지를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "archeon_notices", firestoreId));
-      store.notices = store.notices.filter(n => n.firestoreId !== firestoreId);
-      renderNotices();
+      if(actionType === 'edit') {
+        openMagicForm(firestoreId);
+      } else if(actionType === 'delete') {
+        if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
+        await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
+        store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
+        renderMagics();
+        alert("삭제되었습니다.");
+      }
     }
 
     // 이미지 압축 헬퍼
@@ -715,17 +552,15 @@
       }
 
       store.magics.forEach(m => {
-        const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.soop === m.author);
         grid.innerHTML += `
           <div class="magic-card">
-            ${canEdit ? `
-              <div class="card-action-btns">
-                <button onclick="openMagicForm('${m.firestoreId}')">수정</button>
-                <button class="btn-danger" onclick="deleteMagic('${m.firestoreId}')" style="background:none; color:#e53e3e;">삭제</button>
-              </div>` : ''}
+            <div class="card-action-btns">
+              <button onclick="requestAuth('edit', '${m.firestoreId}')">수정</button>
+              <button onclick="requestAuth('delete', '${m.firestoreId}')" style="color:#e53e3e;">삭제</button>
+            </div>
             <span class="badge">아르케온 마법</span>
-            <div class="card-title" style="margin-right: ${canEdit ? '60px' : '0'};">${escapeHtml(m.title)}</div>
-            <div class="card-subtitle">작성자: ${escapeHtml(m.author)} (${m.date})</div>
+            <div class="card-title" style="margin-right: 70px;">${escapeHtml(m.title)}</div>
+            <div class="card-subtitle">스트리머: ${escapeHtml(m.author)} (${m.date})</div>
             ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
             <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
             <div class="info-row">해금 위치: <span>${escapeHtml(m.location || '미입력')}</span></div>
@@ -737,19 +572,11 @@
 
     function renderNotices() {
       const nList = document.getElementById('noticeList');
-      nList.innerHTML = '';
-      if(store.notices.length === 0) {
-        nList.innerHTML = `<p style="color:#777; text-align:center;">등록된 공지사항이 없습니다.</p>`;
-        return;
-      }
+      nList.innerHTML = store.notices.length === 0 ? `<p style="color:#777; text-align:center;">등록된 공지사항이 없습니다.</p>` : '';
       store.notices.forEach(n => {
-        const isAdmin = currentUser && currentUser.role === 'admin';
         nList.innerHTML += `
           <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="margin:0 0 5px 0; color:var(--accent-color);">${escapeHtml(n.title)}</h4>
-              ${isAdmin ? `<button class="btn-danger" onclick="deleteNotice('${n.firestoreId}')" style="padding:2px 6px; font-size:11px;">삭제</button>` : ''}
-            </div>
+            <h4 style="margin:0 0 5px 0; color:var(--accent-color);">${escapeHtml(n.title)}</h4>
             <div style="font-size:11px; color:#a0aec0; margin-bottom:8px;">${n.date}</div>
             <div style="font-size:14px; white-space:pre-wrap;">${escapeHtml(n.content)}</div>
           </div>
