@@ -198,7 +198,6 @@
       transform: translateY(-2px);
     }
 
-    /* 🖼️ 빈공간(검은 박스)을 완전히 없애고 이미지 비율에 맞게 자연스럽게 출력 */
     .magic-img {
       width: 100%;
       max-height: 240px;
@@ -262,7 +261,6 @@
       text-align: right;
     }
 
-    /* 페이지네이션 버튼 스타일 */
     .pagination {
       display: flex;
       justify-content: center;
@@ -488,7 +486,7 @@
 
     let currentElementFilter = 'all';
     let currentPage = 1;
-    const itemsPerPage = 12; // 한 페이지에 보여줄 카드 수 (렉 방지)
+    const itemsPerPage = 12; 
     let pendingAction = null;
 
     window.addEventListener('firebase-ready', async () => {
@@ -530,7 +528,7 @@
 
     function setElementFilter(element, btnEl) {
       currentElementFilter = element;
-      currentPage = 1; // 속성 변경 시 첫 페이지로 이동
+      currentPage = 1; 
       document.querySelectorAll('.element-sub-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
       renderMagics();
@@ -598,205 +596,3 @@
         }
       } else {
         document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
-        document.getElementById('editMagicId').value = '';
-        document.getElementById('magTitle').value = '';
-        document.getElementById('magAuthor').value = '';
-        document.getElementById('magElement').value = '바람';
-        document.getElementById('magMaterials').value = '';
-        document.getElementById('magLocation').value = '';
-        document.getElementById('magDesc').value = '';
-        document.getElementById('magFile').value = '';
-        document.getElementById('magImageUrl').value = '';
-      }
-    }
-
-    function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
-
-    async function saveMagic() {
-      const title = document.getElementById('magTitle').value.trim();
-      const author = document.getElementById('magAuthor').value.trim();
-      const element = document.getElementById('magElement').value;
-      const materials = document.getElementById('magMaterials').value.trim();
-      const location = document.getElementById('magLocation').value.trim();
-      const description = document.getElementById('magDesc').value.trim();
-      const fileInput = document.getElementById('magFile');
-      const imageUrlInput = document.getElementById('magImageUrl').value.trim();
-      const editId = document.getElementById('editMagicId').value;
-
-      if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
-
-      let imageUrl = "";
-      if(editId) {
-        const existing = store.magics.find(m => m.firestoreId === editId);
-        if(existing) imageUrl = existing.image || "";
-      }
-
-      // 1. 링크 주소가 입력되어 있으면 링크 우선 사용
-      if(imageUrlInput) {
-        imageUrl = imageUrlInput;
-      }
-      // 2. 파일이 업로드되었으면 압축해서 변환
-      else if(fileInput.files && fileInput.files[0]) {
-        imageUrl = await compressImage(fileInput.files[0]);
-      }
-
-      if(editId) {
-        const target = store.magics.find(m => m.firestoreId === editId);
-        if(target) {
-          target.title = title;
-          target.author = author;
-          target.element = element;
-          target.materials = materials;
-          target.location = location;
-          target.description = description;
-          target.image = imageUrl;
-
-          await updateDoc(doc(window.db, "archeon_magics", editId), {
-            title, author, element, materials, location, description, image: imageUrl
-          });
-        }
-      } else {
-        const newMagic = {
-          id: Date.now(),
-          title, author, element, materials, location, description,
-          image: imageUrl,
-          date: new Date().toLocaleDateString()
-        };
-        const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
-        store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
-      }
-
-      closeMagicForm();
-      renderMagics();
-      alert("성공적으로 저장되었습니다!");
-    }
-
-    async function deleteMagic(firestoreId) {
-      if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
-      store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
-      renderMagics();
-      alert("삭제되었습니다.");
-    }
-
-    function compressImage(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800;
-            const MAX_HEIGHT = 800;
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-            } else {
-              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.7));
-          };
-        };
-      });
-    }
-
-    function escapeHtml(str) {
-      if(!str) return '';
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-
-    function renderAll() {
-      renderMagics();
-      renderNotices();
-    }
-
-    function renderMagics() {
-      const grid = document.getElementById('magicGrid');
-      const paginationContainer = document.getElementById('paginationContainer');
-      const searchInput = document.getElementById('magicSearchInput');
-      const searchKeyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
-      grid.innerHTML = '';
-      paginationContainer.innerHTML = '';
-
-      let filtered = store.magics.filter(m => {
-        const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
-        const matchSearch = (!searchKeyword || 
-          (m.title && m.title.toLowerCase().includes(searchKeyword)) || 
-          (m.author && m.author.toLowerCase().includes(searchKeyword)) || 
-          (m.materials && m.materials.toLowerCase().includes(searchKeyword)) ||
-          (m.location && m.location.toLowerCase().includes(searchKeyword))
-        );
-        return matchElement && matchSearch;
-      });
-
-      if(filtered.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 마법 해금 조건이 없습니다.</p>";
-        return;
-      }
-
-      // 페이지네이션 계산
-      const totalPages = Math.ceil(filtered.length / itemsPerPage);
-      if (currentPage > totalPages) currentPage = totalPages;
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const currentItems = filtered.slice(startIndex, startIndex + itemsPerPage);
-
-      currentItems.forEach(m => {
-        const elType = m.element || '바람';
-        grid.innerHTML += `
-          <div class="magic-card">
-            <div class="card-action-btns">
-              <button onclick="tryAction(() => openMagicForm('${m.firestoreId}'))">수정</button>
-              <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
-            </div>
-            <span class="badge badge-${elType}">${elType} 속성</span>
-            <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
-            <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
-            ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
-            <div class="info-box">
-              <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
-              <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
-            </div>
-            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
-          </div>
-        `;
-      });
-
-      // 페이지네이션 버튼 생성
-      if (totalPages > 1) {
-        for (let i = 1; i <= totalPages; i++) {
-          paginationContainer.innerHTML += `
-            <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
-          `;
-        }
-      }
-    }
-
-    function changePage(page) {
-      currentPage = page;
-      renderMagics();
-      window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 이동 시 상단으로 부드럽게 스크롤
-    }
-
-    function renderNotices() {
-      const nList = document.getElementById('noticeList');
-      nList.innerHTML = store.notices.length === 0 ? `<p style="color:#777; text-align:center;">등록된 공지사항이 없습니다.</p>` : '';
-      store.notices.forEach(n => {
-        nList.innerHTML += `
-          <div class="card">
-            <h4 style="margin:0 0 5px 0; color:var(--accent-color);">${escapeHtml(n.title)}</h4>
-            <div style="font-size:11px; color:#a0aec0; margin-bottom:8px;">${n.date}</div>
-            <div style="font-size:14px; white-space:pre-wrap;">${escapeHtml(n.content)}</div>
-          </div>
-        `;
-      });
-    }
-  </script>
-</body>
-</html>
