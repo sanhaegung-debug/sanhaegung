@@ -85,6 +85,33 @@
       display: block;
     }
 
+    /* 속성별 서브 탭 스타일 */
+    .element-sub-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 5px;
+    }
+    .element-sub-btn {
+      background-color: #181818;
+      color: #aaa;
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: bold;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .element-sub-btn.active {
+      background-color: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
+    }
+
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -297,12 +324,31 @@
         <h3>아르케온 마법 해금 리스트</h3>
       </div>
 
+      <!-- 속성별 서브 탭 -->
+      <div class="element-sub-tabs">
+        <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체 보기</button>
+        <button class="element-sub-btn" onclick="setElementFilter('바람', this)">💨 바람</button>
+        <button class="element-sub-btn" onclick="setElementFilter('화염', this)">🔥 화염</button>
+        <button class="element-sub-btn" onclick="setElementFilter('물', this)">💧 물</button>
+        <button class="element-sub-btn" onclick="setElementFilter('대지', this)">🌍 대지</button>
+        <button class="element-sub-btn" onclick="setElementFilter('빛', this)">✨ 빛</button>
+        <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
+      </div>
+
       <!-- 등록/수정 폼 -->
       <div id="form-magic-card" class="card" style="display:none;">
         <h4 id="magicFormTitle" style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
         <input type="hidden" id="editMagicId" value="">
         <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
         <input type="text" id="magAuthor" placeholder="스트리머 닉네임">
+        <select id="magElement">
+          <option value="바람">💨 바람 속성</option>
+          <option value="화염">🔥 화염 속성</option>
+          <option value="물">💧 물 속성</option>
+          <option value="대지">🌍 대지 속성</option>
+          <option value="빛">✨ 빛 속성</option>
+          <option value="어둠">🌑 어둠 속성</option>
+        </select>
         <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
         <input type="text" id="magLocation" placeholder="해금 위치 / 조건">
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
@@ -332,7 +378,7 @@
     <img id="expandedImg" src="">
   </div>
 
-  <!-- 스트리머 비밀번호 확인 모달 (수정/삭제용) -->
+  <!-- 스트리머 비밀번호 확인 모달 -->
   <div id="authModal" class="modal">
     <div class="modal-content">
       <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 확인</h3>
@@ -346,13 +392,14 @@
   </div>
 
   <script>
-    // 🔑 스트리머 공용 비밀번호 (원하시는 비밀번호로 자유롭게 변경 가능합니다!)
     const STREAMER_PASSWORD = "archeonsu"; 
 
     let store = {
       magics: [],
       notices: []
     };
+
+    let currentElementFilter = 'all';
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -378,6 +425,13 @@
       event.currentTarget.classList.add('active');
     }
 
+    function setElementFilter(element, btnEl) {
+      currentElementFilter = element;
+      document.querySelectorAll('.element-sub-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      renderMagics();
+    }
+
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
     function openImageModal(imgSrc, event) {
@@ -388,7 +442,6 @@
 
     function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
-    // --- 마법해금 등록/수정 폼 제어 ---
     function openMagicForm(editId = null) {
       document.getElementById('form-magic-card').style.display = 'block';
       document.getElementById('magSecretPw').value = '';
@@ -399,6 +452,7 @@
         if(target) {
           document.getElementById('magTitle').value = target.title || '';
           document.getElementById('magAuthor').value = target.author || '';
+          document.getElementById('magElement').value = target.element || '바람';
           document.getElementById('magMaterials').value = target.materials || '';
           document.getElementById('magLocation').value = target.location || '';
           document.getElementById('magDesc').value = target.description || '';
@@ -408,6 +462,7 @@
         document.getElementById('editMagicId').value = '';
         document.getElementById('magTitle').value = '';
         document.getElementById('magAuthor').value = '';
+        document.getElementById('magElement').value = '바람';
         document.getElementById('magMaterials').value = '';
         document.getElementById('magLocation').value = '';
         document.getElementById('magDesc').value = '';
@@ -426,6 +481,7 @@
 
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
+      const element = document.getElementById('magElement').value;
       const materials = document.getElementById('magMaterials').value.trim();
       const location = document.getElementById('magLocation').value.trim();
       const description = document.getElementById('magDesc').value.trim();
@@ -449,19 +505,20 @@
         if(target) {
           target.title = title;
           target.author = author;
+          target.element = element;
           target.materials = materials;
           target.location = location;
           target.description = description;
           target.image = imageUrl;
 
           await updateDoc(doc(window.db, "archeon_magics", editId), {
-            title, author, materials, location, description, image: imageUrl
+            title, author, element, materials, location, description, image: imageUrl
           });
         }
       } else {
         const newMagic = {
           id: Date.now(),
-          title, author, materials, location, description,
+          title, author, element, materials, location, description,
           image: imageUrl,
           date: new Date().toLocaleDateString()
         };
@@ -474,7 +531,6 @@
       alert("성공적으로 저장되었습니다!");
     }
 
-    // --- 수정/삭제 권한 인증 모달 ---
     function requestAuth(actionType, firestoreId) {
       document.getElementById('targetActionType').value = actionType;
       document.getElementById('targetActionId').value = firestoreId;
@@ -504,7 +560,6 @@
       }
     }
 
-    // 이미지 압축 헬퍼
     function compressImage(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -546,19 +601,25 @@
     function renderMagics() {
       const grid = document.getElementById('magicGrid');
       grid.innerHTML = '';
-      if(store.magics.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">등록된 아르케온 마법 해금 조건이 없습니다.</p>`;
+
+      let filtered = store.magics.filter(m => {
+        if(currentElementFilter === 'all') return true;
+        return m.element === currentElementFilter;
+      });
+
+      if(filtered.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">해당 속성에 등록된 마법 해금 조건이 없습니다.</p>`;
         return;
       }
 
-      store.magics.forEach(m => {
+      filtered.forEach(m => {
         grid.innerHTML += `
           <div class="magic-card">
             <div class="card-action-btns">
               <button onclick="requestAuth('edit', '${m.firestoreId}')">수정</button>
               <button onclick="requestAuth('delete', '${m.firestoreId}')" style="color:#e53e3e;">삭제</button>
             </div>
-            <span class="badge">아르케온 마법</span>
+            <span class="badge">${m.element || '바람'} 속성</span>
             <div class="card-title" style="margin-right: 70px;">${escapeHtml(m.title)}</div>
             <div class="card-subtitle">스트리머: ${escapeHtml(m.author)} (${m.date})</div>
             ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
