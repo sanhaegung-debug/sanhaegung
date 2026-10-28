@@ -85,7 +85,6 @@
       display: block;
     }
 
-    /* 서브 탭 & 검색바 영역 */
     .filter-search-bar {
       display: flex;
       gap: 10px;
@@ -193,6 +192,7 @@
       flex-direction: column;
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
       transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
     }
     .magic-card:hover {
       border-color: var(--accent-color);
@@ -206,7 +206,6 @@
       border-radius: 8px;
       margin: 12px 0;
       background-color: #0f1115;
-      cursor: pointer;
       transition: opacity 0.2s;
     }
     .magic-img:hover { opacity: 0.85; }
@@ -263,7 +262,6 @@
       text-align: right;
     }
 
-    /* 연금술 재료 그리드 입력 전용 스타일 */
     .ingredients-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -301,10 +299,13 @@
     .modal-content {
       background: var(--card-bg);
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 12px;
       width: 100%;
-      max-width: 400px;
+      max-width: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
       border: 1px solid var(--border-color);
+      position: relative;
     }
 
     #imageModal {
@@ -330,6 +331,7 @@
       right: 15px;
       display: flex;
       gap: 5px;
+      z-index: 10;
     }
 
     .card-action-btns button {
@@ -507,7 +509,15 @@
     <img id="expandedImg" src="">
   </div>
 
-  <!-- 최초 1회 비밀번호 입력 모달 -->
+  <!-- 상세보기 모달 -->
+  <div id="detailModal" class="modal" onclick="closeDetailModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div id="detailModalBody"></div>
+      <button class="btn-secondary" onclick="closeDetailModal()" style="width:100%; margin-top:15px;">닫기</button>
+    </div>
+  </div>
+
+  <!-- 비밀번호 입력 모달 -->
   <div id="authModal" class="modal">
     <div class="modal-content">
       <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 인증</h3>
@@ -602,6 +612,65 @@
 
     function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
+    // 카드 상세 보기 모달 함수
+    function openDetailModal(type, firestoreId, event) {
+      if(event) event.stopPropagation();
+      const modalBody = document.getElementById('detailModalBody');
+      modalBody.innerHTML = '';
+
+      if (type === 'magic') {
+        const item = store.magics.find(m => m.firestoreId === firestoreId);
+        if(!item) return;
+        const elType = item.element || '바람';
+        modalBody.innerHTML = `
+          <span class="badge badge-${elType}">${elType} 속성</span>
+          <h2 style="margin: 5px 0 10px 0; color:#fff;">${escapeHtml(item.title)}</h2>
+          <div style="font-size:12px; color:#a0aec0; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+            등록자: ${escapeHtml(item.author)} | 등록일: ${item.date}
+          </div>
+          ${item.image ? `<img src="${escapeHtml(item.image)}" style="width:100%; max-height:350px; object-fit:contain; border-radius:8px; margin-bottom:15px; cursor:pointer;" onclick="openImageModal('${escapeHtml(item.image)}', event)">` : ''}
+          <div class="info-box" style="font-size:14px; margin-bottom:15px;">
+            <div class="info-row" style="margin-bottom:8px;">필요 재료: <span style="font-size:14px;">${escapeHtml(item.materials || '미입력')}</span></div>
+            <div class="info-row">해금 조건: <span style="font-size:14px;">${escapeHtml(item.location || '미입력')}</span></div>
+          </div>
+          ${item.description ? `
+            <div style="font-size:14px; color:#e2e8f0; line-height:1.6; white-space:pre-wrap; background:#0f1115; padding:12px; border-radius:6px; border:1px solid var(--border-color);">
+              <strong style="color:var(--accent-color); display:block; margin-bottom:5px;">💡 상세 공략 및 주의사항:</strong>
+              ${escapeHtml(item.description)}
+            </div>` : ''}
+        `;
+      } else if (type === 'alchemy') {
+        const item = store.alchemys.find(a => a.firestoreId === firestoreId);
+        if(!item) return;
+        const matList = Array.isArray(item.materials) ? item.materials : [];
+        const tagsHtml = matList.map(m => `<span class="ingredient-tag" style="font-size:13px; padding:4px 10px;">🧪 ${escapeHtml(m)}</span>`).join('');
+
+        modalBody.innerHTML = `
+          <span class="badge badge-연금술">🧪 연금술</span>
+          <h2 style="margin: 5px 0 10px 0; color:#fff;">${escapeHtml(item.title)}</h2>
+          <div style="font-size:12px; color:#a0aec0; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+            등록자: ${escapeHtml(item.author)} | 등록일: ${item.date}
+          </div>
+          ${item.image ? `<img src="${escapeHtml(item.image)}" style="width:100%; max-height:350px; object-fit:contain; border-radius:8px; margin-bottom:15px; cursor:pointer;" onclick="openImageModal('${escapeHtml(item.image)}', event)">` : ''}
+          <div style="background:#0f1115; padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:15px;">
+            <div style="font-size:13px; color:#a0aec0; margin-bottom:8px;">조합 재료 (총 ${matList.length}개):</div>
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">${tagsHtml || '<span style="color:#777;">등록된 재료가 없습니다.</span>'}</div>
+          </div>
+          ${item.description ? `
+            <div style="font-size:14px; color:#e2e8f0; line-height:1.6; white-space:pre-wrap; background:#0f1115; padding:12px; border-radius:6px; border:1px solid var(--border-color);">
+              <strong style="color:var(--accent-color); display:block; margin-bottom:5px;">💡 효과 및 제조 팁:</strong>
+              ${escapeHtml(item.description)}
+            </div>` : ''}
+        `;
+      }
+
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
     function requireAuth(actionCallback) {
       const isAuthed = sessionStorage.getItem('archeon_authed') === 'true';
       if (isAuthed) {
@@ -664,9 +733,11 @@
     function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
     function closeAlcForm() { document.getElementById('form-alc-card').style.display = 'none'; }
 
-    function tryAction(callback) { requireAuth(callback); }
+    function tryAction(callback, event) {
+      if(event) event.stopPropagation();
+      requireAuth(callback);
+    }
 
-    // 마법 신규 등록
     async function saveNewMagic() {
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
@@ -695,7 +766,6 @@
       alert("성공적으로 등록되었습니다!");
     }
 
-    // 연금술 신규 등록
     async function saveNewAlchemy() {
       const title = document.getElementById('alcTitle').value.trim();
       const author = document.getElementById('alcAuthor').value.trim();
@@ -727,11 +797,17 @@
       alert("연금술 조합법이 등록되었습니다!");
     }
 
-    // 마법 인라인 수정
-    function startInlineEdit(firestoreId) { closeMagicForm(); editingId = firestoreId; renderMagics(); }
-    function cancelInlineEdit() { editingId = null; renderMagics(); }
+    function startInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
+      closeMagicForm(); editingId = firestoreId; renderMagics();
+    }
+    function cancelInlineEdit(event) {
+      if(event) event.stopPropagation();
+      editingId = null; renderMagics();
+    }
 
-    async function saveInlineEdit(firestoreId) {
+    async function saveInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
       const title = document.getElementById(`edit_title_${firestoreId}`).value.trim();
       const author = document.getElementById(`edit_author_${firestoreId}`).value.trim();
       const element = document.getElementById(`edit_element_${firestoreId}`).value;
@@ -760,11 +836,17 @@
       alert("수정 완료되었습니다!");
     }
 
-    // 연금술 인라인 수정
-    function startAlcInlineEdit(firestoreId) { closeAlcForm(); editingAlcId = firestoreId; renderAlchemys(); }
-    function cancelAlcInlineEdit() { editingAlcId = null; renderAlchemys(); }
+    function startAlcInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
+      closeAlcForm(); editingAlcId = firestoreId; renderAlchemys();
+    }
+    function cancelAlcInlineEdit(event) {
+      if(event) event.stopPropagation();
+      editingAlcId = null; renderAlchemys();
+    }
 
-    async function saveAlcInlineEdit(firestoreId) {
+    async function saveAlcInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
       const title = document.getElementById(`edit_alc_title_${firestoreId}`).value.trim();
       const author = document.getElementById(`edit_alc_author_${firestoreId}`).value.trim();
       const description = document.getElementById(`edit_alc_desc_${firestoreId}`).value.trim();
@@ -796,7 +878,8 @@
       alert("연금술 정보가 수정되었습니다!");
     }
 
-    async function deleteMagic(firestoreId) {
+    async function deleteMagic(firestoreId, event) {
+      if(event) event.stopPropagation();
       if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
       await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
       store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
@@ -804,7 +887,8 @@
       alert("삭제되었습니다.");
     }
 
-    async function deleteAlchemy(firestoreId) {
+    async function deleteAlchemy(firestoreId, event) {
+      if(event) event.stopPropagation();
       if(!confirm("정말 이 연금술 정보를 삭제하시겠습니까?")) return;
       await deleteDoc(doc(window.db, "archeon_alchemys", firestoreId));
       store.alchemys = store.alchemys.filter(a => a.firestoreId !== firestoreId);
@@ -875,7 +959,7 @@
 
         if (isEditing) {
           grid.innerHTML += `
-            <div class="magic-card" style="border-color: var(--accent-color);">
+            <div class="magic-card" style="border-color: var(--accent-color); cursor:default;" onclick="event.stopPropagation()">
               <div style="font-weight: bold; margin-bottom: 10px; color: var(--accent-color);">✨ 마법해금 정보 수정</div>
               <input type="text" id="edit_title_${m.firestoreId}" value="${escapeHtml(m.title)}" placeholder="마법 이름">
               <input type="text" id="edit_author_${m.firestoreId}" value="${escapeHtml(m.author)}" placeholder="스트리머 닉네임">
@@ -892,17 +976,17 @@
               <textarea id="edit_desc_${m.firestoreId}" rows="3" placeholder="상세 공략">${escapeHtml(m.description)}</textarea>
               <input type="text" id="edit_imgUrl_${m.firestoreId}" value="${escapeHtml(m.image && m.image.startsWith('http') ? m.image : '')}" placeholder="인증 이미지 URL 링크">
               <div style="display:flex; gap:8px; margin-top:10px;">
-                <button onclick="saveInlineEdit('${m.firestoreId}')">저장</button>
-                <button class="btn-secondary" onclick="cancelInlineEdit()">취소</button>
+                <button onclick="saveInlineEdit('${m.firestoreId}', event)">저장</button>
+                <button class="btn-secondary" onclick="cancelInlineEdit(event)">취소</button>
               </div>
             </div>
           `;
         } else {
           grid.innerHTML += `
-            <div class="magic-card">
+            <div class="magic-card" onclick="openDetailModal('magic', '${m.firestoreId}', event)">
               <div class="card-action-btns">
-                <button onclick="tryAction(() => startInlineEdit('${m.firestoreId}'))">수정</button>
-                <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
+                <button onclick="tryAction((e) => startInlineEdit('${m.firestoreId}', e), event)">수정</button>
+                <button onclick="tryAction((e) => deleteMagic('${m.firestoreId}', e), event)" style="color:#fc8181;">삭제</button>
               </div>
               <span class="badge badge-${elType}">${elType} 속성</span>
               <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
@@ -912,7 +996,8 @@
                 <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
                 <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
               </div>
-              ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
+              ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4; max-height:60px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(m.description)}</div>` : ''}
+              <div style="font-size:11px; color:var(--accent-color); margin-top:8px; text-align:right;">🔍 클릭하여 자세히 보기</div>
             </div>
           `;
         }
@@ -950,7 +1035,7 @@
           }
 
           grid.innerHTML += `
-            <div class="magic-card" style="border-color: var(--accent-color);">
+            <div class="magic-card" style="border-color: var(--accent-color); cursor:default;" onclick="event.stopPropagation()">
               <div style="font-weight: bold; margin-bottom: 10px; color: var(--accent-color);">🧪 연금술 조합법 수정</div>
               <input type="text" id="edit_alc_title_${a.firestoreId}" value="${escapeHtml(a.title)}" placeholder="완성품 이름">
               <input type="text" id="edit_alc_author_${a.firestoreId}" value="${escapeHtml(a.author)}" placeholder="스트리머 닉네임">
@@ -959,8 +1044,8 @@
               <textarea id="edit_alc_desc_${a.firestoreId}" rows="3" placeholder="효과 및 팁">${escapeHtml(a.description)}</textarea>
               <input type="text" id="edit_alc_imgUrl_${a.firestoreId}" value="${escapeHtml(a.image && a.image.startsWith('http') ? a.image : '')}" placeholder="인증 이미지 URL 링크">
               <div style="display:flex; gap:8px; margin-top:10px;">
-                <button onclick="saveAlcInlineEdit('${a.firestoreId}')">저장</button>
-                <button class="btn-secondary" onclick="cancelAlcInlineEdit()">취소</button>
+                <button onclick="saveAlcInlineEdit('${a.firestoreId}', event)">저장</button>
+                <button class="btn-secondary" onclick="cancelAlcInlineEdit(event)">취소</button>
               </div>
             </div>
           `;
@@ -969,10 +1054,10 @@
           if(!tagsHtml) tagsHtml = `<span style="color:#777; font-size:12px;">등록된 재료 없음</span>`;
 
           grid.innerHTML += `
-            <div class="magic-card">
+            <div class="magic-card" onclick="openDetailModal('alchemy', '${a.firestoreId}', event)">
               <div class="card-action-btns">
-                <button onclick="tryAction(() => startAlcInlineEdit('${a.firestoreId}'))">수정</button>
-                <button onclick="tryAction(() => deleteAlchemy('${a.firestoreId}'))" style="color:#fc8181;">삭제</button>
+                <button onclick="tryAction((e) => startAlcInlineEdit('${a.firestoreId}', e), event)">수정</button>
+                <button onclick="tryAction((e) => deleteAlchemy('${a.firestoreId}', e), event)" style="color:#fc8181;">삭제</button>
               </div>
               <span class="badge badge-연금술">🧪 연금술</span>
               <div class="card-title" style="margin-right: 80px;">${escapeHtml(a.title)}</div>
@@ -984,7 +1069,8 @@
                 <div style="display: flex; flex-wrap: wrap; gap: 2px;">${tagsHtml}</div>
               </div>
 
-              ${a.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(a.description)}</div>` : ''}
+              ${a.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap; line-height: 1.4; max-height:60px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(a.description)}</div>` : ''}
+              <div style="font-size:11px; color:var(--accent-color); margin-top:8px; text-align:right;">🔍 클릭하여 자세히 보기</div>
             </div>
           `;
         }
