@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>아르케온 기숙사 - 마법해금 연구소</title>
+  <title>아르케온 기숙사 - 마법해금 & 연금술 연구소</title>
   <style>
     :root {
       --bg-color: #0f1115;
@@ -85,7 +85,7 @@
       display: block;
     }
 
-    /* 속성별 서브 탭 & 검색바 영역 */
+    /* 서브 탭 & 검색바 영역 */
     .filter-search-bar {
       display: flex;
       gap: 10px;
@@ -241,6 +241,7 @@
     .badge-대지 { background-color: #276749; color: #fff; }
     .badge-빛 { background-color: #d69e2e; color: #000; }
     .badge-어둠 { background-color: #4a5568; color: #fff; }
+    .badge-연금술 { background-color: #d69e2e; color: #000; }
 
     .info-box {
       background-color: rgba(15, 17, 21, 0.6);
@@ -260,6 +261,29 @@
       color: #fff;
       font-weight: bold;
       text-align: right;
+    }
+
+    /* 연금술 재료 그리드 입력 전용 스타일 */
+    .ingredients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .ingredients-grid input {
+      margin-bottom: 0;
+      font-size: 12px;
+      padding: 6px;
+    }
+
+    .ingredient-tag {
+      display: inline-block;
+      background: #2d3748;
+      color: #e2e8f0;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin: 2px;
     }
 
     .modal {
@@ -353,17 +377,18 @@
 
   <div class="container">
     <div class="header">
-      <h1>✨ 아르케온 기숙사 마법해금 연구소</h1>
+      <h1>✨ 아르케온 기숙사 연구소</h1>
       <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #a0aec0;">SOOP 마인크래프트 서버 '차카데미' 아르케온 기숙사 전용 공유소</p>
     </div>
 
     <div class="user-bar">
       <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #a0aec0;">전체 시청자 모드 (조회 전용)</span>
-      <button onclick="tryOpenRegisterForm()">+ 해금 정보 등록 (스트리머 전용)</button>
+      <button id="btnOpenRegister" onclick="tryOpenRegisterForm()">+ 해금 정보 등록 (스트리머 전용)</button>
     </div>
 
     <div class="tab-menu">
       <button class="tab-btn active" onclick="switchTab('magic', event)">🔮 마법해금 조건 공유</button>
+      <button class="tab-btn" onclick="switchTab('alchemy', event)">🧪 연금술 조합법 공유</button>
       <button class="tab-btn" onclick="switchTab('notice', event)">📢 공지사항</button>
     </div>
 
@@ -373,7 +398,6 @@
         <h3>아르케온 마법 해금 리스트</h3>
       </div>
 
-      <!-- 속성별 서브 탭 & 실시간 검색 바 통합 영역 -->
       <div class="filter-search-bar">
         <div class="element-sub-tabs">
           <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체</button>
@@ -389,7 +413,7 @@
         </div>
       </div>
 
-      <!-- 신규 등록 폼 (상단) -->
+      <!-- 마법 신규 등록 폼 -->
       <div id="form-magic-card" class="card" style="display:none;">
         <h4 style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
         <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
@@ -407,7 +431,7 @@
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
         
         <label style="font-size: 0.85em; color: #a0aec0; display: block; margin-top: 5px;">인증 이미지 URL 링크 직접 입력:</label>
-        <input type="text" id="magImgUrl" placeholder="https://example.com/image.jpg (이미지 주소 붙여넣기)">
+        <input type="text" id="magImgUrl" placeholder="https://example.com/image.jpg">
 
         <label style="font-size: 0.85em; color: #a0aec0; display: block; margin-top: 5px;">또는 파일 선택 (직접 업로드):</label>
         <input type="file" id="magFile" accept="image/*" style="margin-top:2px;">
@@ -421,7 +445,55 @@
       <div id="magicGrid" class="grid-container"></div>
     </div>
 
-    <!-- 2. 공지사항 탭 -->
+    <!-- 2. 연금술 조합법 공유 탭 -->
+    <div id="tab-alchemy" class="tab-content">
+      <div class="action-bar">
+        <h3>아르케온 연금술 조합법 리스트</h3>
+      </div>
+
+      <div class="filter-search-bar">
+        <div class="search-input-box" style="flex:1;">
+          <input type="text" id="alcSearchInput" placeholder="🔍 연금술 완성품, 스트리머, 필요 재료 검색..." oninput="renderAlchemys()">
+        </div>
+      </div>
+
+      <!-- 연금술 신규 등록 폼 -->
+      <div id="form-alc-card" class="card" style="display:none;">
+        <h4 style="color:var(--accent-color); margin-top:0;">새 연금술 조합법 등록</h4>
+        <input type="text" id="alcTitle" placeholder="완성품 / 포션 이름 (예: 상급 체력 포션)">
+        <input type="text" id="alcAuthor" placeholder="스트리머 닉네임">
+        
+        <label style="font-size: 0.85em; color: #a0aec0; display: block; margin-top: 5px;">조합 재료 (최대 9가지):</label>
+        <div class="ingredients-grid">
+          <input type="text" id="alcMat1" placeholder="재료 1">
+          <input type="text" id="alcMat2" placeholder="재료 2">
+          <input type="text" id="alcMat3" placeholder="재료 3">
+          <input type="text" id="alcMat4" placeholder="재료 4">
+          <input type="text" id="alcMat5" placeholder="재료 5">
+          <input type="text" id="alcMat6" placeholder="재료 6">
+          <input type="text" id="alcMat7" placeholder="재료 7">
+          <input type="text" id="alcMat8" placeholder="재료 8">
+          <input type="text" id="alcMat9" placeholder="재료 9">
+        </div>
+
+        <textarea id="alcDesc" rows="3" placeholder="효과 및 제작 팁 / 주의사항 (선택사항)"></textarea>
+        
+        <label style="font-size: 0.85em; color: #a0aec0; display: block; margin-top: 5px;">인증 이미지 URL 링크 직접 입력:</label>
+        <input type="text" id="alcImgUrl" placeholder="https://example.com/image.jpg">
+
+        <label style="font-size: 0.85em; color: #a0aec0; display: block; margin-top: 5px;">또는 파일 선택 (직접 업로드):</label>
+        <input type="file" id="alcFile" accept="image/*" style="margin-top:2px;">
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button onclick="saveNewAlchemy()">등록하기</button>
+          <button class="btn-secondary" onclick="closeAlcForm()">취소</button>
+        </div>
+      </div>
+
+      <div id="alcGrid" class="grid-container"></div>
+    </div>
+
+    <!-- 3. 공지사항 탭 -->
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
         <h3>기숙사 공지사항</h3>
@@ -439,7 +511,7 @@
   <div id="authModal" class="modal">
     <div class="modal-content">
       <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 인증</h3>
-      <p style="font-size:0.85em; color:#a0aec0;">마법 해금 정보를 등록/수정/삭제하려면 스트리머 비밀번호를 입력하세요. (한 번 입력하면 세션 동안 유지됩니다)</p>
+      <p style="font-size:0.85em; color:#a0aec0;">정보를 등록/수정/삭제하려면 스트리머 비밀번호를 입력하세요.</p>
       <input type="password" id="checkSecretPw" placeholder="비밀번호 입력">
       <button onclick="verifyPassword()" style="width:100%; margin-top:5px;">인증하기</button>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
@@ -451,12 +523,15 @@
 
     let store = {
       magics: [],
+      alchemys: [],
       notices: []
     };
 
+    let currentTab = 'magic';
     let currentElementFilter = 'all';
     let pendingAction = null;
-    let editingId = null;
+    let editingId = null; 
+    let editingAlcId = null;
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -468,6 +543,9 @@
       try {
         const mSnap = await getDocs(collection(window.db, "archeon_magics"));
         store.magics = mSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+
+        const aSnap = await getDocs(collection(window.db, "archeon_alchemys"));
+        store.alchemys = aSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
 
         const nSnap = await getDocs(collection(window.db, "archeon_notices"));
         store.notices = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
@@ -489,11 +567,21 @@
     }
 
     function switchTab(tabName, event) {
+      currentTab = tabName;
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       if(event && event.currentTarget) {
         event.currentTarget.classList.add('active');
+      }
+
+      const btnReg = document.getElementById('btnOpenRegister');
+      if(tabName === 'magic') {
+        btnReg.innerText = "+ 마법해금 정보 등록";
+      } else if(tabName === 'alchemy') {
+        btnReg.innerText = "+ 연금술 조합법 등록";
+      } else {
+        btnReg.innerText = "+ 등록하기";
       }
     }
 
@@ -531,7 +619,7 @@
         sessionStorage.setItem('archeon_authed', 'true');
         closeModals();
         checkAuthStatus();
-        alert("인증되었습니다! 이제 자유롭게 등록/수정/삭제가 가능합니다.");
+        alert("인증되었습니다! 자유롭게 등록/수정/삭제가 가능합니다.");
         if (pendingAction) {
           pendingAction();
           pendingAction = null;
@@ -543,30 +631,42 @@
 
     function tryOpenRegisterForm() {
       requireAuth(() => {
-        editingId = null;
-        renderMagics();
-        const formCard = document.getElementById('form-magic-card');
-        formCard.style.display = 'block';
-        document.getElementById('magTitle').value = '';
-        document.getElementById('magAuthor').value = '';
-        document.getElementById('magElement').value = '바람';
-        document.getElementById('magMaterials').value = '';
-        document.getElementById('magLocation').value = '';
-        document.getElementById('magDesc').value = '';
-        document.getElementById('magImgUrl').value = '';
-        document.getElementById('magFile').value = '';
-        formCard.scrollIntoView({ behavior: 'smooth' });
+        if(currentTab === 'alchemy') {
+          editingAlcId = null;
+          renderAlchemys();
+          const formCard = document.getElementById('form-alc-card');
+          formCard.style.display = 'block';
+          document.getElementById('alcTitle').value = '';
+          document.getElementById('alcAuthor').value = '';
+          for(let i=1; i<=9; i++) document.getElementById(`alcMat${i}`).value = '';
+          document.getElementById('alcDesc').value = '';
+          document.getElementById('alcImgUrl').value = '';
+          document.getElementById('alcFile').value = '';
+          formCard.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          editingId = null;
+          renderMagics();
+          const formCard = document.getElementById('form-magic-card');
+          formCard.style.display = 'block';
+          document.getElementById('magTitle').value = '';
+          document.getElementById('magAuthor').value = '';
+          document.getElementById('magElement').value = '바람';
+          document.getElementById('magMaterials').value = '';
+          document.getElementById('magLocation').value = '';
+          document.getElementById('magDesc').value = '';
+          document.getElementById('magImgUrl').value = '';
+          document.getElementById('magFile').value = '';
+          formCard.scrollIntoView({ behavior: 'smooth' });
+        }
       });
     }
 
-    function closeMagicForm() { 
-      document.getElementById('form-magic-card').style.display = 'none'; 
-    }
+    function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
+    function closeAlcForm() { document.getElementById('form-alc-card').style.display = 'none'; }
 
-    function tryAction(callback) {
-      requireAuth(callback);
-    }
+    function tryAction(callback) { requireAuth(callback); }
 
+    // 마법 신규 등록
     async function saveNewMagic() {
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
@@ -580,17 +680,12 @@
       if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
 
       let imageUrl = "";
-      if(imgUrlInput) {
-        imageUrl = imgUrlInput;
-      } else if(fileInput && fileInput.files && fileInput.files[0]) {
-        imageUrl = await compressImage(fileInput.files[0]);
-      }
+      if(imgUrlInput) imageUrl = imgUrlInput;
+      else if(fileInput && fileInput.files && fileInput.files[0]) imageUrl = await compressImage(fileInput.files[0]);
 
       const newMagic = {
-        id: Date.now(),
-        title, author, element, materials, location, description,
-        image: imageUrl,
-        date: new Date().toLocaleDateString()
+        id: Date.now(), title, author, element, materials, location, description,
+        image: imageUrl, date: new Date().toLocaleDateString()
       };
       const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
       store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
@@ -600,16 +695,41 @@
       alert("성공적으로 등록되었습니다!");
     }
 
-    function startInlineEdit(firestoreId) {
-      closeMagicForm();
-      editingId = firestoreId;
-      renderMagics();
+    // 연금술 신규 등록
+    async function saveNewAlchemy() {
+      const title = document.getElementById('alcTitle').value.trim();
+      const author = document.getElementById('alcAuthor').value.trim();
+      const description = document.getElementById('alcDesc').value.trim();
+      const imgUrlInput = document.getElementById('alcImgUrl') ? document.getElementById('alcImgUrl').value.trim() : '';
+      const fileInput = document.getElementById('alcFile');
+
+      const materials = [];
+      for(let i=1; i<=9; i++) {
+        const val = document.getElementById(`alcMat${i}`).value.trim();
+        if(val) materials.push(val);
+      }
+
+      if(!title || !author) { alert("완성품 이름과 스트리머 닉네임은 필수입니다."); return; }
+
+      let imageUrl = "";
+      if(imgUrlInput) imageUrl = imgUrlInput;
+      else if(fileInput && fileInput.files && fileInput.files[0]) imageUrl = await compressImage(fileInput.files[0]);
+
+      const newAlc = {
+        id: Date.now(), title, author, materials, description,
+        image: imageUrl, date: new Date().toLocaleDateString()
+      };
+      const docRef = await addDoc(collection(window.db, "archeon_alchemys"), newAlc);
+      store.alchemys.unshift({ firestoreId: docRef.id, ...newAlc });
+
+      closeAlcForm();
+      renderAlchemys();
+      alert("연금술 조합법이 등록되었습니다!");
     }
 
-    function cancelInlineEdit() {
-      editingId = null;
-      renderMagics();
-    }
+    // 마법 인라인 수정
+    function startInlineEdit(firestoreId) { closeMagicForm(); editingId = firestoreId; renderMagics(); }
+    function cancelInlineEdit() { editingId = null; renderMagics(); }
 
     async function saveInlineEdit(firestoreId) {
       const title = document.getElementById(`edit_title_${firestoreId}`).value.trim();
@@ -624,18 +744,11 @@
 
       const target = store.magics.find(m => m.firestoreId === firestoreId);
       let imageUrl = target ? target.image : "";
-      if(imgUrl) {
-        imageUrl = imgUrl;
-      }
+      if(imgUrl) imageUrl = imgUrl;
 
       if(target) {
-        target.title = title;
-        target.author = author;
-        target.element = element;
-        target.materials = materials;
-        target.location = location;
-        target.description = description;
-        target.image = imageUrl;
+        target.title = title; target.author = author; target.element = element;
+        target.materials = materials; target.location = location; target.description = description; target.image = imageUrl;
 
         await updateDoc(doc(window.db, "archeon_magics", firestoreId), {
           title, author, element, materials, location, description, image: imageUrl
@@ -647,11 +760,55 @@
       alert("수정 완료되었습니다!");
     }
 
+    // 연금술 인라인 수정
+    function startAlcInlineEdit(firestoreId) { closeAlcForm(); editingAlcId = firestoreId; renderAlchemys(); }
+    function cancelAlcInlineEdit() { editingAlcId = null; renderAlchemys(); }
+
+    async function saveAlcInlineEdit(firestoreId) {
+      const title = document.getElementById(`edit_alc_title_${firestoreId}`).value.trim();
+      const author = document.getElementById(`edit_alc_author_${firestoreId}`).value.trim();
+      const description = document.getElementById(`edit_alc_desc_${firestoreId}`).value.trim();
+      const imgUrl = document.getElementById(`edit_alc_imgUrl_${firestoreId}`).value.trim();
+
+      const materials = [];
+      for(let i=1; i<=9; i++) {
+        const val = document.getElementById(`edit_alc_mat_${firestoreId}_${i}`).value.trim();
+        if(val) materials.push(val);
+      }
+
+      if(!title || !author) { alert("완성품 이름과 스트리머 닉네임은 필수입니다."); return; }
+
+      const target = store.alchemys.find(a => a.firestoreId === firestoreId);
+      let imageUrl = target ? target.image : "";
+      if(imgUrl) imageUrl = imgUrl;
+
+      if(target) {
+        target.title = title; target.author = author; target.materials = materials;
+        target.description = description; target.image = imageUrl;
+
+        await updateDoc(doc(window.db, "archeon_alchemys", firestoreId), {
+          title, author, materials, description, image: imageUrl
+        });
+      }
+
+      editingAlcId = null;
+      renderAlchemys();
+      alert("연금술 정보가 수정되었습니다!");
+    }
+
     async function deleteMagic(firestoreId) {
       if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
       await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
       store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
       renderMagics();
+      alert("삭제되었습니다.");
+    }
+
+    async function deleteAlchemy(firestoreId) {
+      if(!confirm("정말 이 연금술 정보를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_alchemys", firestoreId));
+      store.alchemys = store.alchemys.filter(a => a.firestoreId !== firestoreId);
+      renderAlchemys();
       alert("삭제되었습니다.");
     }
 
@@ -664,17 +821,14 @@
           img.src = event.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800;
-            const MAX_HEIGHT = 800;
-            let width = img.width;
-            let height = img.height;
+            const MAX_WIDTH = 800; const MAX_HEIGHT = 800;
+            let width = img.width; let height = img.height;
             if (width > height) {
               if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
             } else {
               if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
             }
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             resolve(canvas.toDataURL('image/jpeg', 0.7));
@@ -690,6 +844,7 @@
 
     function renderAll() {
       renderMagics();
+      renderAlchemys();
       renderNotices();
     }
 
@@ -758,6 +913,78 @@
                 <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
               </div>
               ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
+            </div>
+          `;
+        }
+      });
+    }
+
+    function renderAlchemys() {
+      const grid = document.getElementById('alcGrid');
+      const searchKeyword = document.getElementById('alcSearchInput') ? document.getElementById('alcSearchInput').value.toLowerCase().trim() : '';
+      grid.innerHTML = '';
+
+      let filtered = store.alchemys.filter(a => {
+        const matString = Array.isArray(a.materials) ? a.materials.join(' ') : (a.materials || '');
+        return (!searchKeyword || 
+          (a.title && a.title.toLowerCase().includes(searchKeyword)) || 
+          (a.author && a.author.toLowerCase().includes(searchKeyword)) || 
+          (matString.toLowerCase().includes(searchKeyword))
+        );
+      });
+
+      if(filtered.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 연금술 조합법이 없습니다.</p>`;
+        return;
+      }
+
+      filtered.forEach(a => {
+        const isEditing = (editingAlcId === a.firestoreId);
+        const matList = Array.isArray(a.materials) ? a.materials : [];
+
+        if (isEditing) {
+          let inputsHtml = '';
+          for(let i=1; i<=9; i++) {
+            const val = matList[i-1] || '';
+            inputsHtml += `<input type="text" id="edit_alc_mat_${a.firestoreId}_${i}" value="${escapeHtml(val)}" placeholder="재료 ${i}">`;
+          }
+
+          grid.innerHTML += `
+            <div class="magic-card" style="border-color: var(--accent-color);">
+              <div style="font-weight: bold; margin-bottom: 10px; color: var(--accent-color);">🧪 연금술 조합법 수정</div>
+              <input type="text" id="edit_alc_title_${a.firestoreId}" value="${escapeHtml(a.title)}" placeholder="완성품 이름">
+              <input type="text" id="edit_alc_author_${a.firestoreId}" value="${escapeHtml(a.author)}" placeholder="스트리머 닉네임">
+              <label style="font-size: 0.8em; color: #a0aec0;">조합 재료 (최대 9개):</label>
+              <div class="ingredients-grid">${inputsHtml}</div>
+              <textarea id="edit_alc_desc_${a.firestoreId}" rows="3" placeholder="효과 및 팁">${escapeHtml(a.description)}</textarea>
+              <input type="text" id="edit_alc_imgUrl_${a.firestoreId}" value="${escapeHtml(a.image && a.image.startsWith('http') ? a.image : '')}" placeholder="인증 이미지 URL 링크">
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button onclick="saveAlcInlineEdit('${a.firestoreId}')">저장</button>
+                <button class="btn-secondary" onclick="cancelAlcInlineEdit()">취소</button>
+              </div>
+            </div>
+          `;
+        } else {
+          let tagsHtml = matList.map(m => `<span class="ingredient-tag">🧪 ${escapeHtml(m)}</span>`).join('');
+          if(!tagsHtml) tagsHtml = `<span style="color:#777; font-size:12px;">등록된 재료 없음</span>`;
+
+          grid.innerHTML += `
+            <div class="magic-card">
+              <div class="card-action-btns">
+                <button onclick="tryAction(() => startAlcInlineEdit('${a.firestoreId}'))">수정</button>
+                <button onclick="tryAction(() => deleteAlchemy('${a.firestoreId}'))" style="color:#fc8181;">삭제</button>
+              </div>
+              <span class="badge badge-연금술">🧪 연금술</span>
+              <div class="card-title" style="margin-right: 80px;">${escapeHtml(a.title)}</div>
+              <div class="card-subtitle">등록자: ${escapeHtml(a.author)} | ${a.date}</div>
+              ${a.image ? `<img src="${escapeHtml(a.image)}" class="magic-img" onclick="openImageModal('${escapeHtml(a.image)}', event)" alt="연금술 인증샷">` : ''}
+              
+              <div style="margin-top: 8px; margin-bottom: 8px;">
+                <div style="font-size: 12px; color: #a0aec0; margin-bottom: 4px;">조합 재료 (총 ${matList.length}개):</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 2px;">${tagsHtml}</div>
+              </div>
+
+              ${a.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(a.description)}</div>` : ''}
             </div>
           `;
         }
