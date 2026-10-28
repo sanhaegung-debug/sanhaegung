@@ -201,7 +201,7 @@
 
     .magic-img {
       width: 100%;
-      height: 160px;
+      max-height: 250px;
       object-fit: contain;
       border-radius: 8px;
       margin: 12px 0;
@@ -389,10 +389,9 @@
         </div>
       </div>
 
-      <!-- 등록/수정 폼 -->
+      <!-- 신규 등록 폼 (상단) -->
       <div id="form-magic-card" class="card" style="display:none;">
-        <h4 id="magicFormTitle" style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
-        <input type="hidden" id="editMagicId" value="">
+        <h4 style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
         <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
         <input type="text" id="magAuthor" placeholder="스트리머 닉네임">
         <select id="magElement">
@@ -414,7 +413,7 @@
         <input type="file" id="magFile" accept="image/*" style="margin-top:2px;">
 
         <div style="display:flex; gap:8px; margin-top:10px;">
-          <button onclick="saveMagic()">저장하기</button>
+          <button onclick="saveNewMagic()">등록하기</button>
           <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
@@ -457,6 +456,7 @@
 
     let currentElementFilter = 'all';
     let pendingAction = null;
+    let editingId = null;
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -542,55 +542,32 @@
     }
 
     function tryOpenRegisterForm() {
-      requireAuth(() => { openMagicForm(); });
-    }
-
-    function tryAction(callback) {
-      requireAuth(callback);
-    }
-
-    function openMagicForm(editId = null) {
-      document.getElementById('form-magic-card').style.display = 'block';
-      const urlInput = document.getElementById('magImgUrl');
-      const fileInput = document.getElementById('magFile');
-
-      if(editId) {
-        document.getElementById('magicFormTitle').innerText = "마법해금 정보 수정";
-        document.getElementById('editMagicId').value = editId;
-        const target = store.magics.find(m => m.firestoreId === editId);
-        if(target) {
-          document.getElementById('magTitle').value = target.title || '';
-          document.getElementById('magAuthor').value = target.author || '';
-          document.getElementById('magElement').value = target.element || '바람';
-          document.getElementById('magMaterials').value = target.materials || '';
-          document.getElementById('magLocation').value = target.location || '';
-          document.getElementById('magDesc').value = target.description || '';
-          
-          if(target.image && target.image.startsWith('http')) {
-            if(urlInput) urlInput.value = target.image;
-            if(fileInput) fileInput.value = '';
-          } else {
-            if(urlInput) urlInput.value = '';
-            if(fileInput) fileInput.value = '';
-          }
-        }
-      } else {
-        document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
-        document.getElementById('editMagicId').value = '';
+      requireAuth(() => {
+        editingId = null;
+        renderMagics();
+        const formCard = document.getElementById('form-magic-card');
+        formCard.style.display = 'block';
         document.getElementById('magTitle').value = '';
         document.getElementById('magAuthor').value = '';
         document.getElementById('magElement').value = '바람';
         document.getElementById('magMaterials').value = '';
         document.getElementById('magLocation').value = '';
         document.getElementById('magDesc').value = '';
-        if(urlInput) urlInput.value = '';
-        if(fileInput) fileInput.value = '';
-      }
+        document.getElementById('magImgUrl').value = '';
+        document.getElementById('magFile').value = '';
+        formCard.scrollIntoView({ behavior: 'smooth' });
+      });
     }
 
-    function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
+    function closeMagicForm() { 
+      document.getElementById('form-magic-card').style.display = 'none'; 
+    }
 
-    async function saveMagic() {
+    function tryAction(callback) {
+      requireAuth(callback);
+    }
+
+    async function saveNewMagic() {
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
       const element = document.getElementById('magElement').value;
@@ -599,51 +576,75 @@
       const description = document.getElementById('magDesc').value.trim();
       const imgUrlInput = document.getElementById('magImgUrl') ? document.getElementById('magImgUrl').value.trim() : '';
       const fileInput = document.getElementById('magFile');
-      const editId = document.getElementById('editMagicId').value;
 
       if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
 
       let imageUrl = "";
-      if(editId) {
-        const existing = store.magics.find(m => m.firestoreId === editId);
-        if(existing) imageUrl = existing.image || "";
-      }
-
       if(imgUrlInput) {
         imageUrl = imgUrlInput;
       } else if(fileInput && fileInput.files && fileInput.files[0]) {
         imageUrl = await compressImage(fileInput.files[0]);
       }
 
-      if(editId) {
-        const target = store.magics.find(m => m.firestoreId === editId);
-        if(target) {
-          target.title = title;
-          target.author = author;
-          target.element = element;
-          target.materials = materials;
-          target.location = location;
-          target.description = description;
-          target.image = imageUrl;
-
-          await updateDoc(doc(window.db, "archeon_magics", editId), {
-            title, author, element, materials, location, description, image: imageUrl
-          });
-        }
-      } else {
-        const newMagic = {
-          id: Date.now(),
-          title, author, element, materials, location, description,
-          image: imageUrl,
-          date: new Date().toLocaleDateString()
-        };
-        const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
-        store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
-      }
+      const newMagic = {
+        id: Date.now(),
+        title, author, element, materials, location, description,
+        image: imageUrl,
+        date: new Date().toLocaleDateString()
+      };
+      const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
+      store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
 
       closeMagicForm();
       renderMagics();
-      alert("성공적으로 저장되었습니다!");
+      alert("성공적으로 등록되었습니다!");
+    }
+
+    function startInlineEdit(firestoreId) {
+      closeMagicForm();
+      editingId = firestoreId;
+      renderMagics();
+    }
+
+    function cancelInlineEdit() {
+      editingId = null;
+      renderMagics();
+    }
+
+    async function saveInlineEdit(firestoreId) {
+      const title = document.getElementById(`edit_title_${firestoreId}`).value.trim();
+      const author = document.getElementById(`edit_author_${firestoreId}`).value.trim();
+      const element = document.getElementById(`edit_element_${firestoreId}`).value;
+      const materials = document.getElementById(`edit_materials_${firestoreId}`).value.trim();
+      const location = document.getElementById(`edit_location_${firestoreId}`).value.trim();
+      const description = document.getElementById(`edit_desc_${firestoreId}`).value.trim();
+      const imgUrl = document.getElementById(`edit_imgUrl_${firestoreId}`).value.trim();
+
+      if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
+
+      const target = store.magics.find(m => m.firestoreId === firestoreId);
+      let imageUrl = target ? target.image : "";
+      if(imgUrl) {
+        imageUrl = imgUrl;
+      }
+
+      if(target) {
+        target.title = title;
+        target.author = author;
+        target.element = element;
+        target.materials = materials;
+        target.location = location;
+        target.description = description;
+        target.image = imageUrl;
+
+        await updateDoc(doc(window.db, "archeon_magics", firestoreId), {
+          title, author, element, materials, location, description, image: imageUrl
+        });
+      }
+
+      editingId = null;
+      renderMagics();
+      alert("수정 완료되었습니다!");
     }
 
     async function deleteMagic(firestoreId) {
@@ -715,23 +716,51 @@
 
       filtered.forEach(m => {
         const elType = m.element || '바람';
-        grid.innerHTML += `
-          <div class="magic-card">
-            <div class="card-action-btns">
-              <button onclick="tryAction(() => openMagicForm('${m.firestoreId}'))">수정</button>
-              <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
+        const isEditing = (editingId === m.firestoreId);
+
+        if (isEditing) {
+          grid.innerHTML += `
+            <div class="magic-card" style="border-color: var(--accent-color);">
+              <div style="font-weight: bold; margin-bottom: 10px; color: var(--accent-color);">✨ 마법해금 정보 수정</div>
+              <input type="text" id="edit_title_${m.firestoreId}" value="${escapeHtml(m.title)}" placeholder="마법 이름">
+              <input type="text" id="edit_author_${m.firestoreId}" value="${escapeHtml(m.author)}" placeholder="스트리머 닉네임">
+              <select id="edit_element_${m.firestoreId}">
+                <option value="바람" ${m.element==='바람'?'selected':''}>💨 바람 속성</option>
+                <option value="화염" ${m.element==='화염'?'selected':''}>🔥 화염 속성</option>
+                <option value="물" ${m.element==='물'?'selected':''}>💧 물 속성</option>
+                <option value="대지" ${m.element==='대지'?'selected':''}>🌍 대지 속성</option>
+                <option value="빛" ${m.element==='빛'?'selected':''}>✨ 빛 속성</option>
+                <option value="어둠" ${m.element==='어둠'?'selected':''}>🌑 어둠 속성</option>
+              </select>
+              <input type="text" id="edit_materials_${m.firestoreId}" value="${escapeHtml(m.materials)}" placeholder="필요 재료">
+              <input type="text" id="edit_location_${m.firestoreId}" value="${escapeHtml(m.location)}" placeholder="해금 조건">
+              <textarea id="edit_desc_${m.firestoreId}" rows="3" placeholder="상세 공략">${escapeHtml(m.description)}</textarea>
+              <input type="text" id="edit_imgUrl_${m.firestoreId}" value="${escapeHtml(m.image && m.image.startsWith('http') ? m.image : '')}" placeholder="인증 이미지 URL 링크">
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button onclick="saveInlineEdit('${m.firestoreId}')">저장</button>
+                <button class="btn-secondary" onclick="cancelInlineEdit()">취소</button>
+              </div>
             </div>
-            <span class="badge badge-${elType}">${elType} 속성</span>
-            <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
-            <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
-            ${m.image ? `<img src="${escapeHtml(m.image)}" class="magic-img" onclick="openImageModal('${escapeHtml(m.image)}', event)" alt="마법 인증샷">` : ''}
-            <div class="info-box">
-              <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
-              <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
+          `;
+        } else {
+          grid.innerHTML += `
+            <div class="magic-card">
+              <div class="card-action-btns">
+                <button onclick="tryAction(() => startInlineEdit('${m.firestoreId}'))">수정</button>
+                <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
+              </div>
+              <span class="badge badge-${elType}">${elType} 속성</span>
+              <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
+              <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
+              ${m.image ? `<img src="${escapeHtml(m.image)}" class="magic-img" onclick="openImageModal('${escapeHtml(m.image)}', event)" alt="마법 인증샷">` : ''}
+              <div class="info-box">
+                <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
+                <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
+              </div>
+              ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
             </div>
-            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
-          </div>
-        `;
+          `;
+        }
       });
     }
 
