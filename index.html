@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>차카데미 마법해금 연구소 [산해궁]</title>
+  <title>아르케온 기숙사 - 마법해금 연구소</title>
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-color: #00e676;
-      --text-color: #ffffff;
-      --border-color: #333333;
+      --bg-color: #0f1115;
+      --card-bg: #181c24;
+      --accent-color: #8a2be2; /* 마법 느낌의 보라색 포인트 */
+      --accent-hover: #9c3eee;
+      --text-color: #e2e8f0;
+      --border-color: #2d3748;
     }
 
     body {
@@ -36,7 +37,7 @@
     .header h1 {
       color: var(--accent-color);
       margin: 0 0 5px 0;
-      font-size: 24px;
+      font-size: 26px;
     }
 
     .user-bar {
@@ -56,18 +57,13 @@
       padding-bottom: 10px;
       overflow-x: auto;
       white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .tab-menu::-webkit-scrollbar {
-      display: none;
     }
 
     .tab-btn {
       background-color: var(--card-bg);
       color: var(--text-color);
       border: 1px solid var(--border-color);
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
@@ -77,7 +73,7 @@
 
     .tab-btn.active {
       background-color: var(--accent-color);
-      color: #000;
+      color: #fff;
       border-color: var(--accent-color);
     }
 
@@ -101,7 +97,7 @@
       width: 100%;
       padding: 10px;
       margin-bottom: 10px;
-      background-color: #121212;
+      background-color: #0f1115;
       border: 1px solid var(--border-color);
       color: var(--text-color);
       border-radius: 4px;
@@ -111,7 +107,7 @@
 
     button {
       background-color: var(--accent-color);
-      color: #000;
+      color: #fff;
       border: none;
       padding: 8px 16px;
       border-radius: 4px;
@@ -120,9 +116,9 @@
       font-size: 0.9em;
     }
 
-    button:hover { opacity: 0.9; }
-    .btn-secondary { background-color: #444; color: #fff; }
-    .btn-danger { background-color: #f44336; color: #fff; }
+    button:hover { background-color: var(--accent-hover); }
+    .btn-secondary { background-color: #4a5568; color: #fff; }
+    .btn-danger { background-color: #e53e3e; color: #fff; }
 
     .action-bar {
       margin-bottom: 15px;
@@ -133,63 +129,13 @@
       gap: 10px;
     }
 
-    .action-bar h3 {
-      margin: 0;
-      font-size: 1.1em;
-    }
-
-    .board-table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-
-    .board-table th, .board-table td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 0.9em;
-    }
-
-    .board-table th {
-      background-color: #181818;
-      color: var(--accent-color);
-    }
-
-    .board-table tr:hover {
-      background-color: rgba(255, 255, 255, 0.03);
-      cursor: pointer;
-    }
-
-    .post-detail {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 15px;
-    }
-
-    img, video, iframe {
-      max-width: 100%;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-
-    iframe {
-      height: 250px;
-      width: 100%;
-    }
-
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 15px;
     }
 
-    .custom-card {
+    .magic-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
@@ -197,22 +143,17 @@
       position: relative;
     }
 
-    .custom-img {
+    .magic-img {
       width: 100%;
       height: 180px;
       object-fit: cover;
       border-radius: 6px;
       margin-bottom: 10px;
-      background-color: #121212;
+      background-color: #0f1115;
       cursor: pointer;
-      transition: opacity 0.2s;
     }
 
-    .custom-img:hover {
-      opacity: 0.85;
-    }
-
-    .card-title-lg {
+    .card-title {
       font-size: 18px;
       font-weight: bold;
       margin-bottom: 5px;
@@ -221,105 +162,30 @@
 
     .card-subtitle {
       font-size: 12px;
-      color: var(--accent-color);
-      margin-bottom: 8px;
-      font-weight: bold;
+      color: #a0aec0;
+      margin-bottom: 10px;
     }
 
-    /* 티어/상태 뱃지 스타일 */
-    .tier-badge {
+    .badge {
       display: inline-block;
       padding: 2px 8px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: bold;
       margin-bottom: 8px;
-    }
-    .tier-1 { background-color: #ffd700; color: #000; }
-    .tier-2 { background-color: #c0c0c0; color: #000; }
-    .tier-3 { background-color: #cd7f32; color: #fff; }
-    .tier-4 { background-color: #4caf50; color: #fff; }
-    .tier-5 { background-color: #ff9800; color: #fff; }
-    .tier-sashimi { background-color: #00bcd4; color: #000; }
-    .tier-none { background-color: #555; color: #fff; }
-
-    .tier-sub-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 15px;
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-bottom: 5px;
-    }
-    .tier-sub-btn {
-      background-color: #181818;
-      color: #aaa;
-      border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.85em;
-      font-weight: bold;
-      flex-shrink: 0;
-      transition: all 0.2s;
-    }
-    .tier-sub-btn.active {
-      background-color: var(--accent-color);
-      color: #000;
-      border-color: var(--accent-color);
+      background-color: #2b6cb0;
+      color: #fff;
     }
 
     .info-row {
       font-size: 13px;
-      color: #ccc;
+      color: #a0aec0;
       margin-bottom: 5px;
     }
 
     .info-row span {
       color: #fff;
       font-weight: bold;
-    }
-
-    .soop-btn {
-      display: block;
-      text-align: center;
-      background-color: var(--accent-color);
-      color: #000;
-      text-decoration: none;
-      padding: 8px;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 12px;
-      margin-top: 12px;
-    }
-
-    .soop-btn:hover {
-      opacity: 0.9;
-    }
-
-    .card-action-btns {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      display: flex;
-      gap: 5px;
-    }
-
-    .card-action-btns button {
-      background: none;
-      border: none;
-      color: #777;
-      cursor: pointer;
-      font-size: 13px;
-      padding: 2px 5px;
-    }
-
-    .card-action-btns button:hover {
-      color: var(--accent-color);
-    }
-
-    .card-action-btns button.del:hover {
-      color: #f44336;
     }
 
     .modal {
@@ -341,7 +207,6 @@
       width: 100%;
       max-width: 400px;
       border: 1px solid var(--border-color);
-      box-sizing: border-box;
     }
 
     #imageModal {
@@ -353,40 +218,33 @@
       align-items: center;
       z-index: 2000;
       cursor: pointer;
-      padding: 10px;
     }
 
     #expandedImg {
       max-width: 95%;
       max-height: 85vh;
       border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
-    .preview-card {
-      background-color: #151515;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
+    .card-action-btns {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .card-action-btns button {
+      background: none;
+      border: none;
+      color: #a0aec0;
       cursor: pointer;
-      transition: border-color 0.2s;
-    }
-    .preview-card:hover {
-      border-color: var(--accent-color);
-    }
-
-    @media (max-width: 768px) {
-      body { padding: 10px; }
-      .header h1 { font-size: 20px; }
-      .user-bar { font-size: 0.8em; justify-content: center; }
-      #tab-main > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
-      .grid-container { grid-template-columns: 1fr; }
-      .board-table th, .board-table td { padding: 8px 6px; font-size: 0.8em; }
+      font-size: 13px;
+      padding: 2px 5px;
     }
   </style>
 
-  <!-- Firebase SDK 로드 (Firestore 전용) -->
+  <!-- Firebase SDK 로드 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -419,151 +277,66 @@
 
   <div class="container">
     <div class="header">
-      <h1>🪄 차카데미 마법해금 연구소 [산해궁]</h1>
-      <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #aaa;">SOOP 마인크래프트 서버 기숙사별 마법 해금 조건 공유소</p>
+      <h1>✨ 아르케온 기숙사 마법해금 연구소</h1>
+      <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #a0aec0;">SOOP 마인크래프트 서버 '차카데미' 아르케온 기숙사 전용 공유소</p>
     </div>
 
     <div class="user-bar">
-      <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #aaa;">비회원 (조회 전용)</span>
+      <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #a0aec0;">비회원 (조회 전용)</span>
       <button id="authBtn" onclick="openLoginModal()">로그인</button>
-      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">참가 승인</button>
+      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">기숙사원 승인신청</button>
       <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자</button>
       <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
     </div>
 
     <div class="tab-menu">
-      <button class="tab-btn active" onclick="switchTab('main')">🏠 메인</button>
-      <button class="tab-btn" onclick="switchTab('notice')">📢 공지</button>
-      <button class="tab-btn" onclick="switchTab('squad')">🔮 마법해금 조건</button>
-      <button class="tab-btn" onclick="switchTab('clip')">🎬 서버 클립/밈</button>
-      <button class="tab-btn" onclick="switchTab('streamer')">🏫 기숙사별 현황</button>
+      <button class="tab-btn active" onclick="switchTab('magic')">🔮 마법해금 조건 공유</button>
+      <button class="tab-btn" onclick="switchTab('notice')">📢 공지사항</button>
     </div>
 
-    <!-- 0. 메인 대시보드 -->
-    <div id="tab-main" class="tab-content active">
-      <h3 style="font-size: 1.1em; color: var(--accent-color); margin-bottom: 12px;">🔥 실시간 서버 & 마법 연구 소식</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">📢 공지사항 최신글</h4>
-          <div id="main-notice-list"></div>
-        </div>
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🏫 기숙사 요약 현황</h4>
-          <div id="main-streamer-preview"></div>
-        </div>
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🎬 서버 클립 최신글</h4>
-          <div id="main-clip-list"></div>
-        </div>
-        <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🔮 최신 마법해금 공유</h4>
-          <div id="main-squad-list"></div>
+    <!-- 1. 마법해금 조건 공유 탭 -->
+    <div id="tab-magic" class="tab-content active">
+      <div class="action-bar">
+        <h3>아르케온 마법 해금 리스트</h3>
+        <button id="writeMagicBtn" style="display:none;" onclick="openMagicForm()">+ 해금 정보 등록</button>
+      </div>
+
+      <!-- 등록/수정 폼 -->
+      <div id="form-magic-card" class="card" style="display:none;">
+        <h4 id="magicFormTitle" style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
+        <input type="hidden" id="editMagicId" value="">
+        <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계, 텔레포트 마법)">
+        <input type="text" id="magAuthor" placeholder="작성자 닉네임">
+        <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개, 네더와이어 2개)">
+        <input type="text" id="magLocation" placeholder="해금 위치 / 조건 (예: 네더 요새 숨겨진 제단)">
+        <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
+        <label style="font-size: 0.85em; color: #a0aec0;">해금 위치/재료 인증 사진:</label>
+        <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button onclick="saveMagic()">저장하기</button>
+          <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
+
+      <div id="magicGrid" class="grid-container"></div>
     </div>
 
-    <!-- 1. 공지사항 탭 -->
+    <!-- 2. 공지사항 탭 -->
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
-        <h3>서버 공지사항</h3>
-        <button id="writeNoticeBtn" style="display:none;" onclick="openPostForm('notice')">공지 작성</button>
+        <h3>기숙사 공지사항</h3>
+        <button id="writeNoticeBtn" style="display:none;" onclick="openNoticeForm()">공지 작성</button>
       </div>
+
       <div id="form-notice" class="card" style="display:none;">
-        <h4 id="form-title-notice">새 공지사항 등록</h4>
-        <input type="hidden" id="editIndex-notice" value="">
+        <h4 style="color:var(--accent-color); margin-top:0;">새 공지사항 등록</h4>
         <input type="text" id="noticeTitle" placeholder="제목">
         <textarea id="noticeContent" rows="4" placeholder="내용"></textarea>
-        <input type="file" id="noticeFile" accept="image/*">
-        <button onclick="savePost('notice')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('notice')">취소</button>
-      </div>
-      <div id="view-notice">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 12%;">번호</th><th style="width: 58%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-notice"></tbody>
-        </table>
-      </div>
-      <div id="detail-notice" style="display:none;"></div>
-    </div>
-
-    <!-- 2. 마법해금 조건 탭 (기존 스쿼드 탭) -->
-    <div id="tab-squad" class="tab-content">
-      <div class="action-bar">
-        <h3>마법 해금 조건 & 재료 공유</h3>
-        <button id="writeSquadBtn" style="display:none;" onclick="openSquadForm()">해금정보 등록</button>
-      </div>
-      
-      <div id="form-squad-card" class="card" style="display:none;">
-        <h4 id="squadFormTitle">새 마법해금 정보 등록</h4>
-        <input type="hidden" id="editSquadId" value="">
-        <input type="text" id="sqTitle" placeholder="마법 이름 (예: 파이어볼 3단계 해금)">
-        <input type="text" id="sqOwner" placeholder="작성자/기숙사명">
-        <input type="text" id="sqValue" placeholder="필요 재료 (예: 마력의 결정 10개, 다이아 5개)">
-        <input type="text" id="sqFormation" placeholder="획득처 / 위치 (예: 네더 요새 지하 몹 드랍)">
-        <input type="text" id="sqColor" placeholder="소속 기숙사 (예: 그리핀도르 / 아카데미 A반)">
-        <label style="font-size: 0.85em; color: #aaa;">해금 위치/조건 인증 사진:</label>
-        <input type="file" id="sqFile" accept="image/*" style="margin-top:5px;">
-        <button onclick="saveSquad()">저장하기</button>
-        <button class="btn-secondary" onclick="closeSquadForm()">취소</button>
+        <button onclick="saveNotice()">등록</button>
+        <button class="btn-secondary" onclick="closeNoticeForm()">취소</button>
       </div>
 
-      <div id="squadGrid" class="grid-container"></div>
-    </div>
-
-    <!-- 3. 서버 클립/밈 탭 -->
-    <div id="tab-clip" class="tab-content">
-      <div class="action-bar">
-        <h3>서버 클립 (유머/클립/사건사고)</h3>
-        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">클립 올리기</button>
-      </div>
-      <div id="form-clip" class="card" style="display:none;">
-        <h4 id="form-title-clip">서버 클립 게시글 등록</h4>
-        <input type="hidden" id="editIndex-clip" value="">
-        <input type="text" id="clipTitle" placeholder="제목">
-        <textarea id="clipContent" rows="4" placeholder="내용"></textarea>
-        <label style="font-size: 0.85em; color: #aaa;">파일 첨부:</label>
-        <input type="file" id="clipFile" accept="image/*,video/*" style="margin-top:5px;">
-        <input type="text" id="clipLink" placeholder="유튜브 링크">
-        <button onclick="savePost('clip')">등록</button>
-        <button class="btn-secondary" onclick="closePostForm('clip')">취소</button>
-      </div>
-      <div id="view-clip">
-        <table class="board-table">
-          <thead>
-            <tr><th style="width: 12%;">번호</th><th style="width: 58%;">제목</th><th style="width: 15%;">작성자</th><th style="width: 15%;">날짜</th></tr>
-          </thead>
-          <tbody id="table-clip"></tbody>
-        </table>
-      </div>
-      <div id="detail-clip" style="display:none;"></div>
-    </div>
-
-    <!-- 4. 기숙사별 현황 탭 -->
-    <div id="tab-streamer" class="tab-content">
-      <div class="action-bar">
-        <h3>기숙사별 연구 현황 & 방송국</h3>
-        <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">기숙사 등록</button>
-      </div>
-
-      <div class="tier-sub-tabs">
-        <button class="tier-sub-btn active" onclick="setTierFilter('all', this)">전체 보기</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('1기숙사', this)">🏰 1기숙사</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('2기숙사', this)">🏰 2기숙사</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('3기숙사', this)">🏰 3기숙사</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('4기숙사', this)">🏰 4기숙사</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('교수진', this)">🧙 교수진</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('미정', this)">❓ 미정</button>
-      </div>
-
-      <div style="margin-bottom: 15px;">
-        <input type="text" id="streamerSearch" placeholder="기숙사 이름 또는 대표 마법사 검색..." oninput="filterStreamers()" style="margin-bottom: 0;">
-      </div>
-      
-      <div id="form-streamer-container"></div>
-
-      <div id="streamerGrid" class="grid-container"></div>
+      <div id="noticeList"></div>
     </div>
   </div>
 
@@ -575,9 +348,9 @@
   <!-- 모달 창들 -->
   <div id="registerModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0;">참가 가입 승인 신청</h3>
+      <h3 style="margin-top:0;">기숙사원 승인 신청</h3>
       <input type="text" id="regSoop" placeholder="SOOP 닉네임">
-      <input type="text" id="regFc" placeholder="마인크래프트 닉네임">
+      <input type="text" id="regMc" placeholder="마인크래프트 닉네임">
       <input type="password" id="regPw" placeholder="개별 비밀번호">
       <button onclick="submitRegister()" style="width:100%; margin-top:5px;">신청하기</button>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
@@ -586,7 +359,7 @@
 
   <div id="loginModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0;">연구원 로그인</h3>
+      <h3 style="margin-top:0;">기숙사원 로그인</h3>
       <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
       <input type="password" id="loginPw" placeholder="개별 비밀번호">
       <button onclick="login()" style="width:100%; margin-top:5px;">로그인</button>
@@ -606,7 +379,7 @@
         <h4 style="font-size:0.95em; color:var(--accent-color);">⏳ 가입 승인 대기 목록</h4>
         <div id="pendingList"></div>
         <hr style="border-color:var(--border-color); margin-top:15px;">
-        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 연구원 명단</h4>
+        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 기숙사원 명단</h4>
         <div id="approvedList"></div>
       </div>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:15px;">닫기</button>
@@ -619,13 +392,11 @@
     let store = {
       pendingUsers: [],
       approvedUsers: [],
-      posts: { notice: [], clip: [] },
-      squads: [],
-      streamers: []
+      magics: [],
+      notices: []
     };
 
-    let currentUser = JSON.parse(localStorage.getItem('chacademi_user') || 'null');
-    let currentTierFilter = 'all';
+    let currentUser = JSON.parse(localStorage.getItem('archeon_user') || 'null');
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -635,23 +406,17 @@
 
     async function loadAllData() {
       try {
-        const pSnap = await getDocs(collection(window.db, "pendingUsers"));
+        const pSnap = await getDocs(collection(window.db, "archeon_pending"));
         store.pendingUsers = pSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
 
-        const aSnap = await getDocs(collection(window.db, "approvedUsers"));
+        const aSnap = await getDocs(collection(window.db, "archeon_approved"));
         store.approvedUsers = aSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
 
-        const nSnap = await getDocs(collection(window.db, "notices"));
-        store.posts.notice = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+        const mSnap = await getDocs(collection(window.db, "archeon_magics"));
+        store.magics = mSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
 
-        const cSnap = await getDocs(collection(window.db, "clips"));
-        store.posts.clip = cSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
-
-        const sqSnap = await getDocs(collection(window.db, "squads"));
-        store.squads = sqSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
-
-        const stSnap = await getDocs(collection(window.db, "streamers"));
-        store.streamers = stSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+        const nSnap = await getDocs(collection(window.db, "archeon_notices"));
+        store.notices = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
       } catch (e) {
         console.error("데이터 로딩 실패:", e);
       }
@@ -662,10 +427,6 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       event.currentTarget.classList.add('active');
-
-      ['notice', 'clip'].forEach(t => {
-        if(t !== tabName) closeDetail(t);
-      });
     }
 
     function openRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
@@ -682,18 +443,16 @@
       document.getElementById('imageModal').style.display = 'flex';
     }
 
-    function closeImageModal() {
-      document.getElementById('imageModal').style.display = 'none';
-    }
+    function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
     async function submitRegister() {
       const soop = document.getElementById('regSoop').value.trim();
-      const fc = document.getElementById('regFc').value.trim();
+      const mc = document.getElementById('regMc').value.trim();
       const pw = document.getElementById('regPw').value.trim();
-      if(!soop || !fc || !pw) { alert("모든 항목을 입력해주세요."); return; }
+      if(!soop || !mc || !pw) { alert("모든 항목을 입력해주세요."); return; }
       
-      const newUser = { soop, fc, pw };
-      const docRef = await addDoc(collection(window.db, "pendingUsers"), newUser);
+      const newUser = { soop, mc, pw };
+      const docRef = await addDoc(collection(window.db, "archeon_pending"), newUser);
       store.pendingUsers.push({ firestoreId: docRef.id, ...newUser });
       
       alert("가입 신청이 완료되었습니다.");
@@ -703,7 +462,7 @@
     function verifyAdmin() {
       if(document.getElementById('adminMasterPw').value === MASTER_PASSWORD) {
         currentUser = { soop: "최고관리자", role: "admin" };
-        localStorage.setItem('chacademi_user', JSON.stringify(currentUser));
+        localStorage.setItem('archeon_user', JSON.stringify(currentUser));
         showAdminDashboard();
         updateUIState();
         alert("관리자 인증 완료");
@@ -723,41 +482,41 @@
       pContainer.innerHTML = store.pendingUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">대기 인원 없음</p>' : '';
       store.pendingUsers.forEach((u, idx) => {
         pContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:5px;">${u.soop} (${u.fc})</span>
-            <div style="display:flex; gap:4px; flex-shrink:0;"><button onclick="approveUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">거절</button></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#0f1115; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
+            <span>${u.soop} (${u.mc})</span>
+            <div style="display:flex; gap:4px;"><button onclick="approveUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">승인</button><button class="btn-danger" onclick="rejectUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">거절</button></div>
           </div>`;
       });
 
       const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">연구원 없음</p>' : '';
+      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">원생 없음</p>' : '';
       store.approvedUsers.forEach((u, idx) => {
         aContainer.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:5px;">${u.soop} (${u.fc})</span>
-            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em; flex-shrink:0;">퇴출</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#0f1115; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
+            <span>${u.soop} (${u.mc})</span>
+            <button class="btn-danger" onclick="kickUser('${u.firestoreId}', ${idx})" style="padding:4px 8px; font-size:0.8em;">추방</button>
           </div>`;
       });
     }
 
     async function approveUser(firestoreId, idx) {
       const target = store.pendingUsers[idx];
-      await addDoc(collection(window.db, "approvedUsers"), target);
-      await deleteDoc(doc(window.db, "pendingUsers", firestoreId));
+      await addDoc(collection(window.db, "archeon_approved"), target);
+      await deleteDoc(doc(window.db, "archeon_pending", firestoreId));
       store.approvedUsers.push(target);
       store.pendingUsers.splice(idx, 1);
       renderAdminLists();
     }
 
     async function rejectUser(firestoreId, idx) {
-      await deleteDoc(doc(window.db, "pendingUsers", firestoreId));
+      await deleteDoc(doc(window.db, "archeon_pending", firestoreId));
       store.pendingUsers.splice(idx, 1);
       renderAdminLists();
     }
 
     async function kickUser(firestoreId, idx) {
-      if(!confirm("퇴출하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "approvedUsers", firestoreId));
+      if(!confirm("추방하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_approved", firestoreId));
       store.approvedUsers.splice(idx, 1);
       renderAdminLists();
     }
@@ -768,7 +527,7 @@
       const found = store.approvedUsers.find(u => u.soop === soopInput && u.pw === pwInput);
       if(found) {
         currentUser = { soop: found.soop, role: 'member' };
-        localStorage.setItem('chacademi_user', JSON.stringify(currentUser));
+        localStorage.setItem('archeon_user', JSON.stringify(currentUser));
         alert(`${found.soop}님 환영합니다!`);
         closeModals();
         updateUIState();
@@ -779,171 +538,64 @@
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem('chacademi_user');
+      localStorage.removeItem('archeon_user');
       updateUIState();
       alert("로그아웃 되었습니다.");
     }
 
     function updateUIState() {
       const isAdmin = currentUser && currentUser.role === 'admin';
-      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '연구원'})` : "비회원";
+      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '아르케온 원생'})` : "비회원";
       document.getElementById('authBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('registerBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
 
+      document.getElementById('writeMagicBtn').style.display = currentUser ? 'inline-block' : 'none';
       document.getElementById('writeNoticeBtn').style.display = isAdmin ? 'inline-block' : 'none';
-      document.getElementById('writeSquadBtn').style.display = currentUser ? 'inline-block' : 'none';
-      document.getElementById('writeClipBtn').style.display = currentUser ? 'inline-block' : 'none';
-      document.getElementById('writeStreamerBtn').style.display = isAdmin ? 'inline-block' : 'none';
     }
 
-    function openPostForm(tab, editIdx = null) {
-      document.getElementById('form-' + tab).style.display = 'block';
-      if(editIdx !== null) {
-        document.getElementById(`form-title-${tab}`).innerText = "게시글 수정";
-        document.getElementById(`editIndex-${tab}`).value = editIdx;
-        document.getElementById(`${tab}Title`).value = store.posts[tab][editIdx].title;
-        document.getElementById(`${tab}Content`).value = store.posts[tab][editIdx].content;
-      } else {
-        document.getElementById(`form-title-${tab}`).innerText = "새 글 등록";
-        document.getElementById(`editIndex-${tab}`).value = '';
-        document.getElementById(`${tab}Title`).value = '';
-        document.getElementById(`${tab}Content`).value = '';
-      }
-    }
-
-    function closePostForm(tab) { document.getElementById('form-' + tab).style.display = 'none'; }
-
-    async function savePost(tab) {
-      const title = document.getElementById(`${tab}Title`).value.trim();
-      const content = document.getElementById(`${tab}Content`).value.trim();
-      const linkInput = document.getElementById(`${tab}Link`);
-      const editIdxVal = document.getElementById(`editIndex-${tab}`).value;
-
-      if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
-
-      let mediaHtml = "";
-      const colName = tab === 'notice' ? 'notices' : 'clips';
-
-      if(editIdxVal !== "") {
-        mediaHtml = store.posts[tab][editIdxVal].media;
-      }
-
-      if(linkInput && linkInput.value.trim()) {
-        let url = linkInput.value.trim();
-        let videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
-        if(videoId) videoId = videoId.split('&')[0];
-        mediaHtml += `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-      }
-
-      if(editIdxVal !== "") {
-        let idx = parseInt(editIdxVal);
-        let target = store.posts[tab][idx];
-        target.title = title;
-        target.content = content;
-        if(mediaHtml) target.media = mediaHtml;
-
-        await updateDoc(doc(window.db, colName, target.firestoreId), {
-          title, content, media: target.media
-        });
-      } else {
-        const newPost = {
-          id: Date.now(),
-          author: currentUser.soop,
-          title,
-          content,
-          media: mediaHtml,
-          date: new Date().toLocaleDateString()
-        };
-        const docRef = await addDoc(collection(window.db, colName), newPost);
-        store.posts[tab].unshift({ firestoreId: docRef.id, ...newPost });
-      }
-
-      closePostForm(tab);
-      renderAll();
-      if(editIdxVal !== "") viewDetail(tab, parseInt(editIdxVal));
-    }
-
-    function viewDetail(tab, idx) {
-      const p = store.posts[tab][idx];
-      document.getElementById('view-' + tab).style.display = 'none';
-      const detailDiv = document.getElementById('detail-' + tab);
-      detailDiv.style.display = 'block';
-      let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === p.author);
-
-      detailDiv.innerHTML = `
-        <div class="post-detail">
-          <button class="btn-secondary" onclick="closeDetail('${tab}')" style="margin-bottom:10px;">목록으로</button>
-          <h2 style="color:var(--accent-color); margin-top:0; font-size:1.2em;">${escapeHtml(p.title)}</h2>
-          <div style="font-size:0.85em; color:#888; margin-bottom:15px;">작성자: <b>${p.author}</b> | 날짜: ${p.date}</div>
-          <div style="white-space: pre-wrap; margin-bottom:15px; font-size:0.95em;">${escapeHtml(p.content)}</div>
-          ${p.media}
-          <div style="margin-top:20px; display:flex; gap:10px;">
-            ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button><button class="btn-danger" onclick="deletePost('${tab}', ${idx})">삭제</button>` : ''}
-          </div>
-        </div>
-      `;
-    }
-
-    function closeDetail(tab) {
-      document.getElementById('detail-' + tab).style.display = 'none';
-      document.getElementById('view-' + tab).style.display = 'block';
-    }
-
-    async function deletePost(tab, idx) {
-      if(!confirm("정말 삭제하시겠습니까?")) return;
-      const target = store.posts[tab][idx];
-      const colName = tab === 'notice' ? 'notices' : 'clips';
-      await deleteDoc(doc(window.db, colName, target.firestoreId));
-      store.posts[tab].splice(idx, 1);
-      closeDetail(tab);
-      renderAll();
-    }
-
-    // --- 마법해금 정보 관련 함수 (스쿼드 기능 재활용) ---
-    function openSquadForm(editId = null) {
-      document.getElementById('form-squad-card').style.display = 'block';
+    // --- 마법해금 관리 ---
+    function openMagicForm(editId = null) {
+      document.getElementById('form-magic-card').style.display = 'block';
       if(editId) {
-        document.getElementById('squadFormTitle').innerText = "마법해금 정보 수정";
-        document.getElementById('editSquadId').value = editId;
-        const target = store.squads.find(s => s.firestoreId === editId);
+        document.getElementById('magicFormTitle').innerText = "마법해금 정보 수정";
+        document.getElementById('editMagicId').value = editId;
+        const target = store.magics.find(m => m.firestoreId === editId);
         if(target) {
-          document.getElementById('sqTitle').value = target.title || '';
-          document.getElementById('sqOwner').value = target.owner || '';
-          document.getElementById('sqValue').value = target.value || '';
-          document.getElementById('sqFormation').value = target.formation || '';
-          document.getElementById('sqColor').value = target.color || '';
+          document.getElementById('magTitle').value = target.title || '';
+          document.getElementById('magAuthor').value = target.author || '';
+          document.getElementById('magMaterials').value = target.materials || '';
+          document.getElementById('magLocation').value = target.location || '';
+          document.getElementById('magDesc').value = target.description || '';
         }
       } else {
-        document.getElementById('squadFormTitle').innerText = "새 마법해금 정보 등록";
-        document.getElementById('editSquadId').value = '';
-        document.getElementById('sqTitle').value = '';
-        document.getElementById('sqOwner').value = currentUser ? currentUser.soop : '';
-        document.getElementById('sqValue').value = '';
-        document.getElementById('sqFormation').value = '';
-        document.getElementById('sqColor').value = '';
-        document.getElementById('sqFile').value = '';
+        document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
+        document.getElementById('editMagicId').value = '';
+        document.getElementById('magTitle').value = '';
+        document.getElementById('magAuthor').value = currentUser ? currentUser.soop : '';
+        document.getElementById('magMaterials').value = '';
+        document.getElementById('magLocation').value = '';
+        document.getElementById('magDesc').value = '';
+        document.getElementById('magFile').value = '';
       }
     }
 
-    function closeSquadForm() {
-      document.getElementById('form-squad-card').style.display = 'none';
-    }
+    function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
 
-    async function saveSquad() {
-      const title = document.getElementById('sqTitle').value.trim();
-      const owner = document.getElementById('sqOwner').value.trim();
-      const value = document.getElementById('sqValue').value.trim();
-      const formation = document.getElementById('sqFormation').value.trim();
-      const color = document.getElementById('sqColor').value.trim();
-      const fileInput = document.getElementById('sqFile');
-      const editId = document.getElementById('editSquadId').value;
+    async function saveMagic() {
+      const title = document.getElementById('magTitle').value.trim();
+      const author = document.getElementById('magAuthor').value.trim();
+      const materials = document.getElementById('magMaterials').value.trim();
+      const location = document.getElementById('magLocation').value.trim();
+      const description = document.getElementById('magDesc').value.trim();
+      const fileInput = document.getElementById('magFile');
+      const editId = document.getElementById('editMagicId').value;
 
-      if(!title || !owner) { alert("마법 이름과 작성자는 필수입니다."); return; }
+      if(!title || !author) { alert("마법 이름과 작성자는 필수입니다."); return; }
 
       let imageUrl = "";
       if(editId) {
-        const existing = store.squads.find(s => s.firestoreId === editId);
+        const existing = store.magics.find(m => m.firestoreId === editId);
         if(existing) imageUrl = existing.image || "";
       }
 
@@ -952,154 +604,67 @@
       }
 
       if(editId) {
-        const target = store.squads.find(s => s.firestoreId === editId);
+        const target = store.magics.find(m => m.firestoreId === editId);
         if(target) {
           target.title = title;
-          target.owner = owner;
-          target.value = value;
-          target.formation = formation;
-          target.color = color;
+          target.author = author;
+          target.materials = materials;
+          target.location = location;
+          target.description = description;
           target.image = imageUrl;
 
-          await updateDoc(doc(window.db, "squads", editId), {
-            title, owner, value, formation, color, image: imageUrl
+          await updateDoc(doc(window.db, "archeon_magics", editId), {
+            title, author, materials, location, description, image: imageUrl
           });
         }
       } else {
-        const newSquad = {
+        const newMagic = {
           id: Date.now(),
-          title, owner, value, formation, color,
+          title, author, materials, location, description,
           image: imageUrl,
           date: new Date().toLocaleDateString()
         };
-        const docRef = await addDoc(collection(window.db, "squads"), newSquad);
-        store.squads.unshift({ firestoreId: docRef.id, ...newSquad });
+        const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
+        store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
       }
 
-      closeSquadForm();
-      renderSquads();
-      renderMain();
+      closeMagicForm();
+      renderMagics();
     }
 
-    async function deleteSquad(firestoreId) {
-      if(!confirm("해금 정보를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "squads", firestoreId));
-      store.squads = store.squads.filter(s => s.firestoreId !== firestoreId);
-      renderSquads();
-      renderMain();
+    async function deleteMagic(firestoreId) {
+      if(!confirm("해당 마법 정보를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
+      store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
+      renderMagics();
     }
 
-    // --- 기숙사별 정보 함수 ---
-    function openStreamerForm(editId = null) {
-      const container = document.getElementById('form-streamer-container');
-      container.innerHTML = `
-        <div class="card" style="border-color: var(--accent-color);">
-          <h4 id="streamerFormTitle" style="color:var(--accent-color); margin-top:0;">${editId ? '기숙사 정보 수정' : '신규 기숙사 등록'}</h4>
-          <input type="hidden" id="editStreamerId" value="${editId || ''}">
-          <input type="text" id="stName" placeholder="기숙사 이름 (예: 1기숙사 / 그리핀도르)">
-          <input type="text" id="stClub" placeholder="대표 인물 / 방장 (예: 킴성태)">
-          <input type="text" id="stValue" placeholder="현재 마법 해금 단계 (예: 3단계 진행 중)">
-          <select id="stTier">
-            <option value="1기숙사">🏰 1기숙사</option>
-            <option value="2기숙사">🏰 2기숙사</option>
-            <option value="3기숙사">🏰 3기숙사</option>
-            <option value="4기숙사">🏰 4기숙사</option>
-            <option value="교수진">🧙 교수진</option>
-            <option value="미정" selected>❓ 미정</option>
-          </select>
-          <input type="text" id="stSoopUrl" placeholder="SOOP 방송국 링크 (https://bj.afreecatv.com/...)">
-          <label style="font-size: 0.85em; color: #aaa;">기숙사 대표 사진:</label>
-          <input type="file" id="stFile" accept="image/*" style="margin-top:5px;">
-          <div style="display:flex; gap:8px; margin-top:10px;">
-            <button onclick="saveStreamer()">저장하기</button>
-            <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
-          </div>
-        </div>
-      `;
+    // --- 공지사항 관리 ---
+    function openNoticeForm() { document.getElementById('form-notice').style.display = 'block'; }
+    function closeNoticeForm() { document.getElementById('form-notice').style.display = 'none'; }
 
-      if(editId) {
-        const target = store.streamers.find(s => s.firestoreId === editId);
-        if(target) {
-          document.getElementById('stName').value = target.name || '';
-          document.getElementById('stClub').value = target.club || '';
-          document.getElementById('stValue').value = target.value || '';
-          document.getElementById('stTier').value = target.tier || '미정';
-          document.getElementById('stSoopUrl').value = target.soopUrl || '';
-        }
-      }
+    async function saveNotice() {
+      const title = document.getElementById('noticeTitle').value.trim();
+      const content = document.getElementById('noticeContent').value.trim();
+      if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
+
+      const newNotice = {
+        id: Date.now(),
+        title, content,
+        date: new Date().toLocaleDateString()
+      };
+      const docRef = await addDoc(collection(window.db, "archeon_notices"), newNotice);
+      store.notices.unshift({ firestoreId: docRef.id, ...newNotice });
+
+      closeNoticeForm();
+      renderNotices();
     }
 
-    function closeStreamerForm() {
-      document.getElementById('form-streamer-container').innerHTML = '';
-    }
-
-    async function saveStreamer() {
-      const name = document.getElementById('stName').value.trim();
-      const club = document.getElementById('stClub').value.trim();
-      const value = document.getElementById('stValue').value.trim();
-      const tier = document.getElementById('stTier').value;
-      const soopUrl = document.getElementById('stSoopUrl').value.trim();
-      const fileInput = document.getElementById('stFile');
-      const editId = document.getElementById('editStreamerId').value;
-
-      if(!name || !club) { alert("기숙사 이름과 대표 인물은 필수입니다."); return; }
-
-      let imageUrl = "";
-      if(editId) {
-        const existing = store.streamers.find(s => s.firestoreId === editId);
-        if(existing) imageUrl = existing.image || "";
-      }
-
-      if(fileInput.files && fileInput.files[0]) {
-        imageUrl = await compressImage(fileInput.files[0]);
-      }
-
-      if(editId) {
-        const target = store.streamers.find(s => s.firestoreId === editId);
-        if(target) {
-          target.name = name;
-          target.club = club;
-          target.value = value;
-          target.tier = tier;
-          target.soopUrl = soopUrl;
-          target.image = imageUrl;
-
-          await updateDoc(doc(window.db, "streamers", editId), {
-            name, club, value, tier, soopUrl, image: imageUrl
-          });
-        }
-      } else {
-        const newStreamer = {
-          id: Date.now(),
-          name, club, value, tier, soopUrl,
-          image: imageUrl
-        };
-        const docRef = await addDoc(collection(window.db, "streamers"), newStreamer);
-        store.streamers.unshift({ firestoreId: docRef.id, ...newStreamer });
-      }
-
-      closeStreamerForm();
-      renderStreamers();
-      renderMain();
-    }
-
-    async function deleteStreamer(firestoreId) {
-      if(!confirm("기숙사 정보를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(window.db, "streamers", firestoreId));
-      store.streamers = store.streamers.filter(s => s.firestoreId !== firestoreId);
-      renderStreamers();
-      renderMain();
-    }
-
-    function setTierFilter(tier, btnEl) {
-      currentTierFilter = tier;
-      document.querySelectorAll('.tier-sub-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-      renderStreamers();
-    }
-
-    function filterStreamers() {
-      renderStreamers();
+    async function deleteNotice(firestoreId) {
+      if(!confirm("공지를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_notices", firestoreId));
+      store.notices = store.notices.filter(n => n.firestoreId !== firestoreId);
+      renderNotices();
     }
 
     // 이미지 압축 헬퍼
@@ -1116,19 +681,11 @@
             const MAX_HEIGHT = 800;
             let width = img.width;
             let height = img.height;
-
             if (width > height) {
-              if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
-              }
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
             } else {
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
-              }
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
             }
-
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
@@ -1145,142 +702,56 @@
     }
 
     function renderAll() {
-      renderMain();
-      renderBoard('notice');
-      renderBoard('clip');
-      renderSquads();
-      renderStreamers();
+      renderMagics();
+      renderNotices();
     }
 
-    function renderMain() {
-      const nList = document.getElementById('main-notice-list');
-      nList.innerHTML = store.posts.notice.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 공지 없음</p>' : '';
-      store.posts.notice.slice(0, 3).forEach((p, idx) => {
-        nList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('notice'); viewDetail('notice', ${idx});">
-            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.title)}</div>
-            <div style="font-size:0.75em; color:#888; margin-top:3px;">${p.date}</div>
-          </div>
-        `;
-      });
-
-      const stList = document.getElementById('main-streamer-preview');
-      stList.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 기숙사 없음</p>' : '';
-      store.streamers.slice(0, 3).forEach(s => {
-        stList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('streamer')">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-weight:bold; font-size:0.9em; color:var(--accent-color);">${escapeHtml(s.name)}</span>
-              <span class="tier-badge tier-1" style="margin-bottom:0; font-size:10px;">${s.tier || '미정'}</span>
-            </div>
-            <div style="font-size:0.8em; color:#ccc; margin-top:3px;">대표: ${escapeHtml(s.club)} | 현황: ${escapeHtml(s.value || '미입력')}</div>
-          </div>
-        `;
-      });
-
-      const cList = document.getElementById('main-clip-list');
-      cList.innerHTML = store.posts.clip.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 클립 없음</p>' : '';
-      store.posts.clip.slice(0, 3).forEach((p, idx) => {
-        cList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('clip'); viewDetail('clip', ${idx});">
-            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.title)}</div>
-            <div style="font-size:0.75em; color:#888; margin-top:3px;">작성자: ${p.author}</div>
-          </div>
-        `;
-      });
-
-      const sqList = document.getElementById('main-squad-list');
-      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 마법해금 정보 없음</p>' : '';
-      store.squads.slice(0, 3).forEach(s => {
-        sqList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('squad')">
-            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(s.title)}</div>
-            <div style="font-size:0.75em; color:var(--accent-color); margin-top:3px;">기숙사: ${escapeHtml(s.color || '-')} | 작성자: ${escapeHtml(s.owner)}</div>
-          </div>
-        `;
-      });
-    }
-
-    function renderBoard(tab) {
-      const tbody = document.getElementById('table-' + tab);
-      tbody.innerHTML = '';
-      if(store.posts[tab].length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">등록된 게시글이 없습니다.</td></tr>`;
-        return;
-      }
-      store.posts[tab].forEach((p, idx) => {
-        tbody.innerHTML += `
-          <tr onclick="viewDetail('${tab}', ${idx})">
-            <td>${store.posts[tab].length - idx}</td>
-            <td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td>
-            <td>${p.author}</td>
-            <td style="font-size:0.8em; color:#888;">${p.date}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function renderSquads() {
-      const grid = document.getElementById('squadGrid');
+    function renderMagics() {
+      const grid = document.getElementById('magicGrid');
       grid.innerHTML = '';
-      if(store.squads.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">등록된 마법 해금 조건이 없습니다.</p>`;
+      if(store.magics.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">등록된 아르케온 마법 해금 조건이 없습니다.</p>`;
         return;
       }
 
-      store.squads.forEach(s => {
-        const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.soop === s.owner);
+      store.magics.forEach(m => {
+        const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.soop === m.author);
         grid.innerHTML += `
-          <div class="custom-card">
+          <div class="magic-card">
             ${canEdit ? `
               <div class="card-action-btns">
-                <button onclick="openSquadForm('${s.firestoreId}')">수정</button>
-                <button class="del" onclick="deleteSquad('${s.firestoreId}')">삭제</button>
+                <button onclick="openMagicForm('${m.firestoreId}')">수정</button>
+                <button class="btn-danger" onclick="deleteMagic('${m.firestoreId}')" style="background:none; color:#e53e3e;">삭제</button>
               </div>` : ''}
-            <div class="card-title-lg" style="margin-right: ${canEdit ? '60px' : '0'};">${escapeHtml(s.title)}</div>
-            <div class="card-subtitle">작성자: ${escapeHtml(s.owner)}</div>
-            ${s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" alt="인증 사진">` : ''}
-            <div class="info-row">필요 재료: <span>${escapeHtml(s.value || '미입력')}</span></div>
-            <div class="info-row">획득처/위치: <span>${escapeHtml(s.formation || '미입력')}</span></div>
-            <div class="info-row" style="margin-bottom:0;">소속 기숙사: <span>${escapeHtml(s.color || '미입력')}</span></div>
+            <span class="badge">아르케온 마법</span>
+            <div class="card-title" style="margin-right: ${canEdit ? '60px' : '0'};">${escapeHtml(m.title)}</div>
+            <div class="card-subtitle">작성자: ${escapeHtml(m.author)} (${m.date})</div>
+            ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
+            <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
+            <div class="info-row">해금 위치: <span>${escapeHtml(m.location || '미입력')}</span></div>
+            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap;">${escapeHtml(m.description)}</div>` : ''}
           </div>
         `;
       });
     }
 
-    function renderStreamers() {
-      const grid = document.getElementById('streamerGrid');
-      const searchKeyword = document.getElementById('streamerSearch').value.toLowerCase().trim();
-      grid.innerHTML = '';
-
-      let filtered = store.streamers.filter(s => {
-        const matchTier = (currentTierFilter === 'all' || s.tier === currentTierFilter);
-        const matchSearch = (!searchKeyword || (s.name && s.name.toLowerCase().includes(searchKeyword)) || (s.club && s.club.toLowerCase().includes(searchKeyword)));
-        return matchTier && matchSearch;
-      });
-
-      if(filtered.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 기숙사 정보가 없습니다.</p>`;
+    function renderNotices() {
+      const nList = document.getElementById('noticeList');
+      nList.innerHTML = '';
+      if(store.notices.length === 0) {
+        nList.innerHTML = `<p style="color:#777; text-align:center;">등록된 공지사항이 없습니다.</p>`;
         return;
       }
-
-      filtered.forEach(s => {
+      store.notices.forEach(n => {
         const isAdmin = currentUser && currentUser.role === 'admin';
-        grid.innerHTML += `
-          <div class="custom-card">
-            ${isAdmin ? `
-              <div class="card-action-btns">
-                <button onclick="openStreamerForm('${s.firestoreId}')">수정</button>
-                <button class="del" onclick="deleteStreamer('${s.firestoreId}')">삭제</button>
-              </div>` : ''}
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; margin-right: ${isAdmin ? '60px' : '0'};">
-              <span class="card-title-lg" style="margin-bottom:0;">${escapeHtml(s.name)}</span>
-              <span class="tier-badge tier-1">${s.tier || '미정'}</span>
+        nList.innerHTML += `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="margin:0 0 5px 0; color:var(--accent-color);">${escapeHtml(n.title)}</h4>
+              ${isAdmin ? `<button class="btn-danger" onclick="deleteNotice('${n.firestoreId}')" style="padding:2px 6px; font-size:11px;">삭제</button>` : ''}
             </div>
-            <div class="card-subtitle">대표 인물: ${escapeHtml(s.club)}</div>
-            ${s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" alt="기숙사 사진">` : ''}
-            <div class="info-row">연구 현황: <span>${escapeHtml(s.value || '미입력')}</span></div>
-            ${s.soopUrl ? `<a href="${s.soopUrl}" target="_blank" class="soop-btn">📺 SOOP 방송국 바로가기</a>` : ''}
+            <div style="font-size:11px; color:#a0aec0; margin-bottom:8px;">${n.date}</div>
+            <div style="font-size:14px; white-space:pre-wrap;">${escapeHtml(n.content)}</div>
           </div>
         `;
       });
