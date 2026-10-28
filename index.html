@@ -156,7 +156,6 @@
       gap: 10px;
     }
 
-    /* 카드 그리드 가독성 향상 */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -206,7 +205,6 @@
       padding-bottom: 8px;
     }
 
-    /* 속성별 뱃지 컬러 세분화 */
     .badge {
       display: inline-block;
       padding: 3px 10px;
@@ -380,9 +378,9 @@
           <option value="어둠">🌑 어둠 속성</option>
         </select>
         <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
-        <input type="text" id="magLocation" placeholder="해금 위치 / 조건">
+        <input type="text" id="magLocation" placeholder="해금 조건 (예: 네더 요새에서 몬스터 50마리 처치)">
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
-        <label style="font-size: 0.85em; color: #a0aec0;">해금 위치/재료 인증 사진:</label>
+        <label style="font-size: 0.85em; color: #a0aec0;">해금 조건/재료 인증 사진:</label>
         <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
         <div style="display:flex; gap:8px; margin-top:10px;">
           <button onclick="saveMagic()">저장하기</button>
@@ -427,7 +425,7 @@
     };
 
     let currentElementFilter = 'all';
-    let pendingAction = null; // 인증 성공 후 실행할 콜백 함수 저장
+    let pendingAction = null;
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -483,7 +481,6 @@
 
     function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
-    // --- 비밀번호 세션 관리 가드 ---
     function requireAuth(actionCallback) {
       const isAuthed = sessionStorage.getItem('archeon_authed') === 'true';
       if (isAuthed) {
@@ -519,7 +516,6 @@
       requireAuth(callback);
     }
 
-    // --- 마법해금 폼 제어 ---
     function openMagicForm(editId = null) {
       document.getElementById('form-magic-card').style.display = 'block';
       if(editId) {
@@ -676,7 +672,7 @@
             ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
             <div class="info-box">
               <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
-              <div class="info-row">해금 위치: <span>${escapeHtml(m.location || '미입력')}</span></div>
+              <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
             </div>
             ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
           </div>
