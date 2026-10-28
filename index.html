@@ -85,6 +85,7 @@
       display: block;
     }
 
+    /* 속성별 서브 탭 & 검색바 영역 */
     .filter-search-bar {
       display: flex;
       gap: 10px;
@@ -165,6 +166,16 @@
 
     button:hover { background-color: var(--accent-hover); }
     .btn-secondary { background-color: #4a5568; color: #fff; }
+    .btn-danger { background-color: #e53e3e; color: #fff; }
+
+    .action-bar {
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
     .grid-container {
       display: grid;
@@ -188,14 +199,13 @@
       transform: translateY(-2px);
     }
 
-    /* 🖼️ 이미지 가독성 및 여백 최소화 최적화 */
     .magic-img {
       width: 100%;
-      max-height: 220px;
-      object-fit: contain;
+      height: 160px;
+      object-fit: cover;
       border-radius: 8px;
-      margin: 10px 0;
-      background-color: rgba(0,0,0,0.2);
+      margin: 12px 0;
+      background-color: #0f1115;
       cursor: pointer;
       transition: opacity 0.2s;
     }
@@ -250,28 +260,6 @@
       color: #fff;
       font-weight: bold;
       text-align: right;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 25px;
-      margin-bottom: 15px;
-    }
-    .page-btn {
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9em;
-    }
-    .page-btn.active {
-      background-color: var(--accent-color);
-      border-color: var(--accent-color);
-      font-weight: bold;
     }
 
     .modal {
@@ -335,7 +323,7 @@
   <!-- Firebase SDK 로드 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL-9nkL26H-ZQufDznXERNlf_eDeHmwjs",
@@ -352,7 +340,7 @@
 
     window.db = db;
     window.collection = collection;
-    window.onSnapshot = onSnapshot;
+    window.getDocs = getDocs;
     window.addDoc = addDoc;
     window.deleteDoc = deleteDoc;
     window.doc = doc;
@@ -385,7 +373,7 @@
         <h3>아르케온 마법 해금 리스트</h3>
       </div>
 
-      <!-- 속성별 서브 탭 & 실시간 검색 바 -->
+      <!-- 속성별 서브 탭 & 실시간 검색 바 통합 영역 -->
       <div class="filter-search-bar">
         <div class="element-sub-tabs">
           <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체</button>
@@ -397,7 +385,7 @@
           <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
         </div>
         <div class="search-input-box">
-          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="currentPage=1; renderMagics()">
+          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="renderMagics()">
         </div>
       </div>
 
@@ -418,24 +406,15 @@
         <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
         <input type="text" id="magLocation" placeholder="해금 조건 (예: 네더 요새에서 몬스터 50마리 처치)">
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
-        
-        <label style="font-size: 0.85em; color: #a0aec0; display:block; margin-top:5px;">📷 사진 직접 업로드 (파일 선택):</label>
-        <input type="file" id="magFile" accept="image/*">
-        
-        <label style="font-size: 0.85em; color: #a0aec0; display:block; margin-top:5px;">🔗 또는 이미지 주소(링크) 입력:</label>
-        <input type="text" id="magImageUrl" placeholder="https://example.com/image.png (디스코드 이미지 주소 등)">
-
+        <label style="font-size: 0.85em; color: #a0aec0;">해금 조건/재료 인증 사진:</label>
+        <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
         <div style="display:flex; gap:8px; margin-top:10px;">
           <button onclick="saveMagic()">저장하기</button>
           <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
 
-      <!-- 마법 카드 목록 영역 -->
       <div id="magicGrid" class="grid-container"></div>
-      
-      <!-- 페이지네이션 버튼 영역 -->
-      <div id="paginationContainer" class="pagination"></div>
     </div>
 
     <!-- 2. 공지사항 탭 -->
@@ -472,31 +451,23 @@
     };
 
     let currentElementFilter = 'all';
-    let currentPage = 1;
-    const itemsPerPage = 12; 
     let pendingAction = null;
 
-    window.addEventListener('firebase-ready', () => {
+    window.addEventListener('firebase-ready', async () => {
+      await loadAllData();
       checkAuthStatus();
-      initRealtimeSync();
+      renderAll();
     });
 
-    // 🔄 진정한 파이어베이스 실시간 동기화 (100% 렉 없음)
-    function initRealtimeSync() {
+    async function loadAllData() {
       try {
-        window.onSnapshot(window.collection(window.db, "archeon_magics"), (snapshot) => {
-          store.magics = snapshot.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => (b.id || 0) - (a.id || 0));
-          renderMagics();
-        }, (error) => {
-          console.error("실시간 동기화 오류:", error);
-        });
+        const mSnap = await getDocs(collection(window.db, "archeon_magics"));
+        store.magics = mSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
 
-        window.onSnapshot(window.collection(window.db, "archeon_notices"), (snapshot) => {
-          store.notices = snapshot.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => (b.id || 0) - (a.id || 0));
-          renderNotices();
-        });
+        const nSnap = await getDocs(collection(window.db, "archeon_notices"));
+        store.notices = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
       } catch (e) {
-        console.error("데이터 수신 오류:", e);
+        console.error("데이터 로딩 실패:", e);
       }
     }
 
@@ -516,12 +487,11 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
-      if(event && event.currentTarget) event.currentTarget.classList.add('active');
+      event.currentTarget.classList.add('active');
     }
 
     function setElementFilter(element, btnEl) {
       currentElementFilter = element;
-      currentPage = 1; 
       document.querySelectorAll('.element-sub-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
       renderMagics();
@@ -585,7 +555,6 @@
           document.getElementById('magMaterials').value = target.materials || '';
           document.getElementById('magLocation').value = target.location || '';
           document.getElementById('magDesc').value = target.description || '';
-          document.getElementById('magImageUrl').value = (target.image && target.image.startsWith('http')) ? target.image : '';
         }
       } else {
         document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
@@ -597,7 +566,6 @@
         document.getElementById('magLocation').value = '';
         document.getElementById('magDesc').value = '';
         document.getElementById('magFile').value = '';
-        document.getElementById('magImageUrl').value = '';
       }
     }
 
@@ -611,7 +579,6 @@
       const location = document.getElementById('magLocation').value.trim();
       const description = document.getElementById('magDesc').value.trim();
       const fileInput = document.getElementById('magFile');
-      const imageUrlInput = document.getElementById('magImageUrl').value.trim();
       const editId = document.getElementById('editMagicId').value;
 
       if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
@@ -622,12 +589,143 @@
         if(existing) imageUrl = existing.image || "";
       }
 
-      if(imageUrlInput) {
-        imageUrl = imageUrlInput;
-      }
-      else if(fileInput.files && fileInput.files[0]) {
+      if(fileInput.files && fileInput.files[0]) {
         imageUrl = await compressImage(fileInput.files[0]);
       }
 
       if(editId) {
-        await window.updateDoc(window.doc(window.db, "archeon_mag
+        const target = store.magics.find(m => m.firestoreId === editId);
+        if(target) {
+          target.title = title;
+          target.author = author;
+          target.element = element;
+          target.materials = materials;
+          target.location = location;
+          target.description = description;
+          target.image = imageUrl;
+
+          await updateDoc(doc(window.db, "archeon_magics", editId), {
+            title, author, element, materials, location, description, image: imageUrl
+          });
+        }
+      } else {
+        const newMagic = {
+          id: Date.now(),
+          title, author, element, materials, location, description,
+          image: imageUrl,
+          date: new Date().toLocaleDateString()
+        };
+        const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
+        store.magics.unshift({ firestoreId: docRef.id, ...newMagic });
+      }
+
+      closeMagicForm();
+      renderMagics();
+      alert("성공적으로 저장되었습니다!");
+    }
+
+    async function deleteMagic(firestoreId) {
+      if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
+      store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
+      renderMagics();
+      alert("삭제되었습니다.");
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+        };
+      });
+    }
+
+    function escapeHtml(str) {
+      if(!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function renderAll() {
+      renderMagics();
+      renderNotices();
+    }
+
+    function renderMagics() {
+      const grid = document.getElementById('magicGrid');
+      const searchKeyword = document.getElementById('magicSearchInput') ? document.getElementById('magicSearchInput').value.toLowerCase().trim() : '';
+      grid.innerHTML = '';
+
+      let filtered = store.magics.filter(m => {
+        const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
+        const matchSearch = (!searchKeyword || 
+          (m.title && m.title.toLowerCase().includes(searchKeyword)) || 
+          (m.author && m.author.toLowerCase().includes(searchKeyword)) || 
+          (m.materials && m.materials.toLowerCase().includes(searchKeyword)) ||
+          (m.location && m.location.toLowerCase().includes(searchKeyword))
+        );
+        return matchElement && matchSearch;
+      });
+
+      if(filtered.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 마법 해금 조건이 없습니다.</p>`;
+        return;
+      }
+
+      filtered.forEach(m => {
+        const elType = m.element || '바람';
+        grid.innerHTML += `
+          <div class="magic-card">
+            <div class="card-action-btns">
+              <button onclick="tryAction(() => openMagicForm('${m.firestoreId}'))">수정</button>
+              <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
+            </div>
+            <span class="badge badge-${elType}">${elType} 속성</span>
+            <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
+            <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
+            ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
+            <div class="info-box">
+              <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
+              <div class="info-row">해금 조건: <span>${escapeHtml(m.location || '미입력')}</span></div>
+            </div>
+            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function renderNotices() {
+      const nList = document.getElementById('noticeList');
+      nList.innerHTML = store.notices.length === 0 ? `<p style="color:#777; text-align:center;">등록된 공지사항이 없습니다.</p>` : '';
+      store.notices.forEach(n => {
+        nList.innerHTML += `
+          <div class="card">
+            <h4 style="margin:0 0 5px 0; color:var(--accent-color);">${escapeHtml(n.title)}</h4>
+            <div style="font-size:11px; color:#a0aec0; margin-bottom:8px;">${n.date}</div>
+            <div style="font-size:14px; white-space:pre-wrap;">${escapeHtml(n.content)}</div>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
