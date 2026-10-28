@@ -85,15 +85,24 @@
       display: block;
     }
 
-    /* 속성별 서브 탭 */
+    /* 속성별 서브 탭 & 검색바 영역 */
+    .filter-search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .element-sub-tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 20px;
       overflow-x: auto;
       white-space: nowrap;
       padding-bottom: 5px;
+      flex: 1;
     }
+
     .element-sub-btn {
       background-color: #181818;
       color: #aaa;
@@ -110,6 +119,18 @@
       background-color: var(--accent-color);
       color: #fff;
       border-color: var(--accent-color);
+    }
+
+    .search-input-box {
+      min-width: 240px;
+      flex: 0.5;
+    }
+
+    .search-input-box input {
+      margin-bottom: 0;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 13px;
     }
 
     .card {
@@ -352,15 +373,20 @@
         <h3>아르케온 마법 해금 리스트</h3>
       </div>
 
-      <!-- 속성별 서브 탭 -->
-      <div class="element-sub-tabs">
-        <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체 보기</button>
-        <button class="element-sub-btn" onclick="setElementFilter('바람', this)">💨 바람</button>
-        <button class="element-sub-btn" onclick="setElementFilter('화염', this)">🔥 화염</button>
-        <button class="element-sub-btn" onclick="setElementFilter('물', this)">💧 물</button>
-        <button class="element-sub-btn" onclick="setElementFilter('대지', this)">🌍 대지</button>
-        <button class="element-sub-btn" onclick="setElementFilter('빛', this)">✨ 빛</button>
-        <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
+      <!-- 속성별 서브 탭 & 실시간 검색 바 통합 영역 -->
+      <div class="filter-search-bar">
+        <div class="element-sub-tabs">
+          <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체</button>
+          <button class="element-sub-btn" onclick="setElementFilter('바람', this)">💨 바람</button>
+          <button class="element-sub-btn" onclick="setElementFilter('화염', this)">🔥 화염</button>
+          <button class="element-sub-btn" onclick="setElementFilter('물', this)">💧 물</button>
+          <button class="element-sub-btn" onclick="setElementFilter('대지', this)">🌍 대지</button>
+          <button class="element-sub-btn" onclick="setElementFilter('빛', this)">✨ 빛</button>
+          <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
+        </div>
+        <div class="search-input-box">
+          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="renderMagics()">
+        </div>
       </div>
 
       <!-- 등록/수정 폼 -->
@@ -646,15 +672,22 @@
 
     function renderMagics() {
       const grid = document.getElementById('magicGrid');
+      const searchKeyword = document.getElementById('magicSearchInput') ? document.getElementById('magicSearchInput').value.toLowerCase().trim() : '';
       grid.innerHTML = '';
 
       let filtered = store.magics.filter(m => {
-        if(currentElementFilter === 'all') return true;
-        return m.element === currentElementFilter;
+        const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
+        const matchSearch = (!searchKeyword || 
+          (m.title && m.title.toLowerCase().includes(searchKeyword)) || 
+          (m.author && m.author.toLowerCase().includes(searchKeyword)) || 
+          (m.materials && m.materials.toLowerCase().includes(searchKeyword)) ||
+          (m.location && m.location.toLowerCase().includes(searchKeyword))
+        );
+        return matchElement && matchSearch;
       });
 
       if(filtered.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">해당 속성에 등록된 마법 해금 조건이 없습니다.</p>`;
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 마법 해금 조건이 없습니다.</p>`;
         return;
       }
 
