@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FC온라인 클럽 [산해궁]</title>
+  <title>차카데미 마법해금 연구소 [산해궁]</title>
   <style>
     :root {
       --bg-color: #121212;
@@ -226,7 +226,7 @@
       font-weight: bold;
     }
 
-    /* 티어 뱃지 스타일 */
+    /* 티어/상태 뱃지 스타일 */
     .tier-badge {
       display: inline-block;
       padding: 2px 8px;
@@ -243,7 +243,6 @@
     .tier-sashimi { background-color: #00bcd4; color: #000; }
     .tier-none { background-color: #555; color: #fff; }
 
-    /* 티어별 하위 서브 탭 스타일 */
     .tier-sub-tabs {
       display: flex;
       gap: 6px;
@@ -376,14 +375,6 @@
     .preview-card:hover {
       border-color: var(--accent-color);
     }
-    .preview-thumb-large {
-      width: 100%;
-      height: 130px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-bottom: 8px;
-      background-color: #121212;
-    }
 
     @media (max-width: 768px) {
       body { padding: 10px; }
@@ -398,7 +389,7 @@
   <!-- Firebase SDK 로드 (Firestore 전용) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL-9nkL26H-ZQufDznXERNlf_eDeHmwjs",
@@ -420,7 +411,6 @@
     window.deleteDoc = deleteDoc;
     window.doc = doc;
     window.updateDoc = updateDoc;
-    window.setDoc = setDoc;
 
     window.dispatchEvent(new Event('firebase-ready'));
   </script>
@@ -429,14 +419,14 @@
 
   <div class="container">
     <div class="header">
-      <h1>⚽ FC온라인 클럽 [산해궁]</h1>
-      <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #aaa;">공식 커뮤니티 & 정보 공유소</p>
+      <h1>🪄 차카데미 마법해금 연구소 [산해궁]</h1>
+      <p style="font-size: 0.9em; margin: 5px 0 0 0; color: #aaa;">SOOP 마인크래프트 서버 기숙사별 마법 해금 조건 공유소</p>
     </div>
 
     <div class="user-bar">
       <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #aaa;">비회원 (조회 전용)</span>
       <button id="authBtn" onclick="openLoginModal()">로그인</button>
-      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">가입 승인</button>
+      <button id="registerBtn" class="btn-secondary" onclick="openRegisterModal()">참가 승인</button>
       <button id="adminBtn" class="btn-danger" onclick="openAdminModal()">관리자</button>
       <button id="logoutBtn" class="btn-secondary" onclick="logout()" style="display:none;">로그아웃</button>
     </div>
@@ -444,29 +434,29 @@
     <div class="tab-menu">
       <button class="tab-btn active" onclick="switchTab('main')">🏠 메인</button>
       <button class="tab-btn" onclick="switchTab('notice')">📢 공지</button>
-      <button class="tab-btn" onclick="switchTab('squad')">🛡️ 스쿼드</button>
-      <button class="tab-btn" onclick="switchTab('clip')">🎬 산이봤?</button>
-      <button class="tab-btn" onclick="switchTab('streamer')">📺 스트리머</button>
+      <button class="tab-btn" onclick="switchTab('squad')">🔮 마법해금 조건</button>
+      <button class="tab-btn" onclick="switchTab('clip')">🎬 서버 클립/밈</button>
+      <button class="tab-btn" onclick="switchTab('streamer')">🏫 기숙사별 현황</button>
     </div>
 
     <!-- 0. 메인 대시보드 -->
     <div id="tab-main" class="tab-content active">
-      <h3 style="font-size: 1.1em; color: var(--accent-color); margin-bottom: 12px;">🔥 실시간 클럽 소식</h3>
+      <h3 style="font-size: 1.1em; color: var(--accent-color); margin-bottom: 12px;">🔥 실시간 서버 & 마법 연구 소식</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div class="card" style="margin-bottom:0;">
           <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">📢 공지사항 최신글</h4>
           <div id="main-notice-list"></div>
         </div>
         <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">📺 스트리머 구단 요약</h4>
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🏫 기숙사 요약 현황</h4>
           <div id="main-streamer-preview"></div>
         </div>
         <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🎬 산이봤? 최신글</h4>
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🎬 서버 클립 최신글</h4>
           <div id="main-clip-list"></div>
         </div>
         <div class="card" style="margin-bottom:0;">
-          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🛡️ 스쿼드 자랑 최신글</h4>
+          <h4 style="color:var(--accent-color); margin-top:0; font-size: 0.95em;">🔮 최신 마법해금 공유</h4>
           <div id="main-squad-list"></div>
         </div>
       </div>
@@ -475,7 +465,7 @@
     <!-- 1. 공지사항 탭 -->
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
-        <h3>클럽 공지사항</h3>
+        <h3>서버 공지사항</h3>
         <button id="writeNoticeBtn" style="display:none;" onclick="openPostForm('notice')">공지 작성</button>
       </div>
       <div id="form-notice" class="card" style="display:none;">
@@ -498,22 +488,22 @@
       <div id="detail-notice" style="display:none;"></div>
     </div>
 
-    <!-- 2. 스쿼드 자랑 탭 -->
+    <!-- 2. 마법해금 조건 탭 (기존 스쿼드 탭) -->
     <div id="tab-squad" class="tab-content">
       <div class="action-bar">
-        <h3>스쿼드 & 강화 인증</h3>
-        <button id="writeSquadBtn" style="display:none;" onclick="openSquadForm()">스쿼드 등록</button>
+        <h3>마법 해금 조건 & 재료 공유</h3>
+        <button id="writeSquadBtn" style="display:none;" onclick="openSquadForm()">해금정보 등록</button>
       </div>
       
       <div id="form-squad-card" class="card" style="display:none;">
-        <h4 id="squadFormTitle">새 스쿼드 자랑 등록</h4>
+        <h4 id="squadFormTitle">새 마법해금 정보 등록</h4>
         <input type="hidden" id="editSquadId" value="">
-        <input type="text" id="sqTitle" placeholder="제목 (예: 5조 바이에른 뮌헨 단일)">
-        <input type="text" id="sqOwner" placeholder="구단주명">
-        <input type="text" id="sqValue" placeholder="구단 가치 (예: 500조)">
-        <input type="text" id="sqFormation" placeholder="포메이션 (예: 4-2-3-1)">
-        <input type="text" id="sqColor" placeholder="팀컬러 (예: 바이에른 뮌헨)">
-        <label style="font-size: 0.85em; color: #aaa;">스쿼드/선수 사진:</label>
+        <input type="text" id="sqTitle" placeholder="마법 이름 (예: 파이어볼 3단계 해금)">
+        <input type="text" id="sqOwner" placeholder="작성자/기숙사명">
+        <input type="text" id="sqValue" placeholder="필요 재료 (예: 마력의 결정 10개, 다이아 5개)">
+        <input type="text" id="sqFormation" placeholder="획득처 / 위치 (예: 네더 요새 지하 몹 드랍)">
+        <input type="text" id="sqColor" placeholder="소속 기숙사 (예: 그리핀도르 / 아카데미 A반)">
+        <label style="font-size: 0.85em; color: #aaa;">해금 위치/조건 인증 사진:</label>
         <input type="file" id="sqFile" accept="image/*" style="margin-top:5px;">
         <button onclick="saveSquad()">저장하기</button>
         <button class="btn-secondary" onclick="closeSquadForm()">취소</button>
@@ -522,14 +512,14 @@
       <div id="squadGrid" class="grid-container"></div>
     </div>
 
-    <!-- 3. 산이봤? 탭 -->
+    <!-- 3. 서버 클립/밈 탭 -->
     <div id="tab-clip" class="tab-content">
       <div class="action-bar">
-        <h3>산이봤? (유머/클립/밈)</h3>
-        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">글 올리기</button>
+        <h3>서버 클립 (유머/클립/사건사고)</h3>
+        <button id="writeClipBtn" style="display:none;" onclick="openPostForm('clip')">클립 올리기</button>
       </div>
       <div id="form-clip" class="card" style="display:none;">
-        <h4 id="form-title-clip">산이봤? 게시글 등록</h4>
+        <h4 id="form-title-clip">서버 클립 게시글 등록</h4>
         <input type="hidden" id="editIndex-clip" value="">
         <input type="text" id="clipTitle" placeholder="제목">
         <textarea id="clipContent" rows="4" placeholder="내용"></textarea>
@@ -550,38 +540,34 @@
       <div id="detail-clip" style="display:none;"></div>
     </div>
 
-    <!-- 4. 스트리머 구단정보 탭 -->
+    <!-- 4. 기숙사별 현황 탭 -->
     <div id="tab-streamer" class="tab-content">
       <div class="action-bar">
-        <h3>스트리머 구단 정보</h3>
-        <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">스트리머 등록</button>
+        <h3>기숙사별 연구 현황 & 방송국</h3>
+        <button id="writeStreamerBtn" style="display:none;" onclick="openStreamerForm()">기숙사 등록</button>
       </div>
 
-      <!-- 티어별 분리 보기 서브 탭 -->
       <div class="tier-sub-tabs">
         <button class="tier-sub-btn active" onclick="setTierFilter('all', this)">전체 보기</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('1티어', this)">⭐ 1티어</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('2티어', this)">⭐ 2티어</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('3티어', this)">⭐ 3티어</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('4티어', this)">⭐ 4티어</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('5티어', this)">⭐ 5티어</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('횟집', this)">🐟 횟집</button>
-        <button class="tier-sub-btn" onclick="setTierFilter('티어미정', this)">❓ 미정</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('1기숙사', this)">🏰 1기숙사</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('2기숙사', this)">🏰 2기숙사</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('3기숙사', this)">🏰 3기숙사</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('4기숙사', this)">🏰 4기숙사</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('교수진', this)">🧙 교수진</button>
+        <button class="tier-sub-btn" onclick="setTierFilter('미정', this)">❓ 미정</button>
       </div>
 
-      <!-- 검색 바 -->
       <div style="margin-bottom: 15px;">
-        <input type="text" id="streamerSearch" placeholder="스트리머 또는 구단 이름 검색..." oninput="filterStreamers()" style="margin-bottom: 0;">
+        <input type="text" id="streamerSearch" placeholder="기숙사 이름 또는 대표 마법사 검색..." oninput="filterStreamers()" style="margin-bottom: 0;">
       </div>
       
-      <!-- 상단 신규 등록 폼 전용 컨테이너 -->
       <div id="form-streamer-container"></div>
 
       <div id="streamerGrid" class="grid-container"></div>
     </div>
   </div>
 
-  <!-- 이미지 확대 보기 모달 -->
+  <!-- 이미지 확대 모달 -->
   <div id="imageModal" onclick="closeImageModal()">
     <img id="expandedImg" src="">
   </div>
@@ -589,9 +575,9 @@
   <!-- 모달 창들 -->
   <div id="registerModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0;">클럽 가입 승인 신청</h3>
+      <h3 style="margin-top:0;">참가 가입 승인 신청</h3>
       <input type="text" id="regSoop" placeholder="SOOP 닉네임">
-      <input type="text" id="regFc" placeholder="FC온라인 닉네임">
+      <input type="text" id="regFc" placeholder="마인크래프트 닉네임">
       <input type="password" id="regPw" placeholder="개별 비밀번호">
       <button onclick="submitRegister()" style="width:100%; margin-top:5px;">신청하기</button>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
@@ -600,7 +586,7 @@
 
   <div id="loginModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0;">클럽원 로그인</h3>
+      <h3 style="margin-top:0;">연구원 로그인</h3>
       <input type="text" id="loginSoop" placeholder="SOOP 닉네임">
       <input type="password" id="loginPw" placeholder="개별 비밀번호">
       <button onclick="login()" style="width:100%; margin-top:5px;">로그인</button>
@@ -620,7 +606,7 @@
         <h4 style="font-size:0.95em; color:var(--accent-color);">⏳ 가입 승인 대기 목록</h4>
         <div id="pendingList"></div>
         <hr style="border-color:var(--border-color); margin-top:15px;">
-        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 클럽원 명단</h4>
+        <h4 style="font-size:0.95em; color:var(--accent-color);">👥 승인된 연구원 명단</h4>
         <div id="approvedList"></div>
       </div>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:15px;">닫기</button>
@@ -638,37 +624,14 @@
       streamers: []
     };
 
-    let currentUser = JSON.parse(localStorage.getItem('san_current_user') || 'null');
+    let currentUser = JSON.parse(localStorage.getItem('chacademi_user') || 'null');
     let currentTierFilter = 'all';
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
-      
-      // 최초 실행 시 기존에 무겁게 저장되어 있던 스트리머 사진들을 자동으로 싹 비워주는 마이그레이션 처리
-      await cleanOldStreamerImages();
-
       updateUIState();
       renderAll();
     });
-
-    async function cleanOldStreamerImages() {
-      let needsUpdate = false;
-      for(let s of store.streamers) {
-        // 이미지가 Base64 데이터 형식이거나 너무 길면(주소가 아닌 경우) 비워줌
-        if(s.image && (s.image.startsWith('data:') || s.image.length > 500)) {
-          s.image = "";
-          needsUpdate = true;
-          try {
-            await updateDoc(doc(window.db, "streamers", s.firestoreId), { image: "" });
-          } catch(e) {
-            console.error("이미지 초기화 오류:", e);
-          }
-        }
-      }
-      if(needsUpdate) {
-        console.log("기존 무거운 스트리머 이미지 데이터가 깔끔하게 정리되었습니다.");
-      }
-    }
 
     async function loadAllData() {
       try {
@@ -740,7 +703,7 @@
     function verifyAdmin() {
       if(document.getElementById('adminMasterPw').value === MASTER_PASSWORD) {
         currentUser = { soop: "최고관리자", role: "admin" };
-        localStorage.setItem('san_current_user', JSON.stringify(currentUser));
+        localStorage.setItem('chacademi_user', JSON.stringify(currentUser));
         showAdminDashboard();
         updateUIState();
         alert("관리자 인증 완료");
@@ -767,7 +730,7 @@
       });
 
       const aContainer = document.getElementById('approvedList');
-      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">클럽원 없음</p>' : '';
+      aContainer.innerHTML = store.approvedUsers.length === 0 ? '<p style="color:#777; font-size:0.85em;">연구원 없음</p>' : '';
       store.approvedUsers.forEach((u, idx) => {
         aContainer.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; background:#121212; padding:8px; margin-bottom:5px; border-radius:4px; font-size:0.85em;">
@@ -805,7 +768,7 @@
       const found = store.approvedUsers.find(u => u.soop === soopInput && u.pw === pwInput);
       if(found) {
         currentUser = { soop: found.soop, role: 'member' };
-        localStorage.setItem('san_current_user', JSON.stringify(currentUser));
+        localStorage.setItem('chacademi_user', JSON.stringify(currentUser));
         alert(`${found.soop}님 환영합니다!`);
         closeModals();
         updateUIState();
@@ -816,14 +779,14 @@
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem('san_current_user');
+      localStorage.removeItem('chacademi_user');
       updateUIState();
       alert("로그아웃 되었습니다.");
     }
 
     function updateUIState() {
       const isAdmin = currentUser && currentUser.role === 'admin';
-      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '클럽원'})` : "비회원";
+      document.getElementById('userInfoDisplay').innerText = currentUser ? `${currentUser.soop} (${isAdmin ? '관리자' : '연구원'})` : "비회원";
       document.getElementById('authBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('registerBtn').style.display = currentUser ? 'none' : 'inline-block';
       document.getElementById('logoutBtn').style.display = currentUser ? 'inline-block' : 'none';
@@ -854,7 +817,6 @@
     async function savePost(tab) {
       const title = document.getElementById(`${tab}Title`).value.trim();
       const content = document.getElementById(`${tab}Content`).value.trim();
-      const fileInput = document.getElementById(`${tab}File`);
       const linkInput = document.getElementById(`${tab}Link`);
       const editIdxVal = document.getElementById(`editIndex-${tab}`).value;
 
@@ -917,19 +879,19 @@
           <div style="white-space: pre-wrap; margin-bottom:15px; font-size:0.95em;">${escapeHtml(p.content)}</div>
           ${p.media}
           <div style="margin-top:20px; display:flex; gap:10px;">
-            ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button>` : ''}
-            ${canModify ? `<button class="btn-danger" onclick="deletePost('${tab}', ${idx})">삭제</button>` : ''}
+            ${canModify ? `<button onclick="openPostForm('${tab}', ${idx}); closeDetail('${tab}');">수정</button><button class="btn-danger" onclick="deletePost('${tab}', ${idx})">삭제</button>` : ''}
           </div>
-        </div>`;
+        </div>
+      `;
     }
 
     function closeDetail(tab) {
-      document.getElementById('view-' + tab).style.display = 'block';
       document.getElementById('detail-' + tab).style.display = 'none';
+      document.getElementById('view-' + tab).style.display = 'block';
     }
 
     async function deletePost(tab, idx) {
-      if(!confirm("삭제하시겠습니까?")) return;
+      if(!confirm("정말 삭제하시겠습니까?")) return;
       const target = store.posts[tab][idx];
       const colName = tab === 'notice' ? 'notices' : 'clips';
       await deleteDoc(doc(window.db, colName, target.firestoreId));
@@ -938,19 +900,22 @@
       renderAll();
     }
 
-    function openSquadForm(firestoreId = null) {
+    // --- 마법해금 정보 관련 함수 (스쿼드 기능 재활용) ---
+    function openSquadForm(editId = null) {
       document.getElementById('form-squad-card').style.display = 'block';
-      if(firestoreId !== null) {
-        document.getElementById('squadFormTitle').innerText = "스쿼드 정보 수정";
-        document.getElementById('editSquadId').value = firestoreId;
-        const s = store.squads.find(item => item.firestoreId === firestoreId);
-        document.getElementById('sqTitle').value = s.title;
-        document.getElementById('sqOwner').value = s.owner;
-        document.getElementById('sqValue').value = s.value;
-        document.getElementById('sqFormation').value = s.formation;
-        document.getElementById('sqColor').value = s.color;
+      if(editId) {
+        document.getElementById('squadFormTitle').innerText = "마법해금 정보 수정";
+        document.getElementById('editSquadId').value = editId;
+        const target = store.squads.find(s => s.firestoreId === editId);
+        if(target) {
+          document.getElementById('sqTitle').value = target.title || '';
+          document.getElementById('sqOwner').value = target.owner || '';
+          document.getElementById('sqValue').value = target.value || '';
+          document.getElementById('sqFormation').value = target.formation || '';
+          document.getElementById('sqColor').value = target.color || '';
+        }
       } else {
-        document.getElementById('squadFormTitle').innerText = "새 스쿼드 자랑 등록";
+        document.getElementById('squadFormTitle').innerText = "새 마법해금 정보 등록";
         document.getElementById('editSquadId').value = '';
         document.getElementById('sqTitle').value = '';
         document.getElementById('sqOwner').value = currentUser ? currentUser.soop : '';
@@ -966,337 +931,359 @@
     }
 
     async function saveSquad() {
-      const firestoreIdVal = document.getElementById('editSquadId').value;
       const title = document.getElementById('sqTitle').value.trim();
       const owner = document.getElementById('sqOwner').value.trim();
-      const value = document.getElementById('sqValue').value.trim() || '정보 없음';
-      const formation = document.getElementById('sqFormation').value.trim() || '정보 없음';
-      const color = document.getElementById('sqColor').value.trim() || '정보 없음';
+      const value = document.getElementById('sqValue').value.trim();
+      const formation = document.getElementById('sqFormation').value.trim();
+      const color = document.getElementById('sqColor').value.trim();
+      const fileInput = document.getElementById('sqFile');
+      const editId = document.getElementById('editSquadId').value;
 
-      if(!title || !owner) { alert("제목과 구단주명은 필수입니다!"); return; }
+      if(!title || !owner) { alert("마법 이름과 작성자는 필수입니다."); return; }
 
       let imageUrl = "";
-      if(firestoreIdVal !== "") {
-        const existing = store.squads.find(s => s.firestoreId === firestoreIdVal);
-        imageUrl = existing ? existing.image : "";
+      if(editId) {
+        const existing = store.squads.find(s => s.firestoreId === editId);
+        if(existing) imageUrl = existing.image || "";
       }
 
-      if(firestoreIdVal !== "") {
-        let idx = store.squads.findIndex(s => s.firestoreId === firestoreIdVal);
-        let target = store.squads[idx];
-        target.title = title;
-        target.owner = owner;
-        target.value = value;
-        target.formation = formation;
-        target.color = color;
-        target.image = imageUrl;
+      if(fileInput.files && fileInput.files[0]) {
+        imageUrl = await compressImage(fileInput.files[0]);
+      }
 
-        await updateDoc(doc(window.db, "squads", firestoreIdVal), {
-          title, owner, value, formation, color, image: imageUrl
-        });
-        alert("수정되었습니다!");
+      if(editId) {
+        const target = store.squads.find(s => s.firestoreId === editId);
+        if(target) {
+          target.title = title;
+          target.owner = owner;
+          target.value = value;
+          target.formation = formation;
+          target.color = color;
+          target.image = imageUrl;
+
+          await updateDoc(doc(window.db, "squads", editId), {
+            title, owner, value, formation, color, image: imageUrl
+          });
+        }
       } else {
         const newSquad = {
           id: Date.now(),
-          title,
-          owner,
-          value,
-          formation,
-          color,
-          image: imageUrl
+          title, owner, value, formation, color,
+          image: imageUrl,
+          date: new Date().toLocaleDateString()
         };
         const docRef = await addDoc(collection(window.db, "squads"), newSquad);
         store.squads.unshift({ firestoreId: docRef.id, ...newSquad });
-        alert("등록되었습니다!");
       }
 
       closeSquadForm();
       renderSquads();
-      renderMainDashboard();
+      renderMain();
     }
 
     async function deleteSquad(firestoreId) {
-      if(!confirm("정말 삭제하시겠습니까?")) return;
+      if(!confirm("해금 정보를 삭제하시겠습니까?")) return;
       await deleteDoc(doc(window.db, "squads", firestoreId));
       store.squads = store.squads.filter(s => s.firestoreId !== firestoreId);
       renderSquads();
-      renderMainDashboard();
+      renderMain();
     }
 
-    function getStreamerFormHtml(prefix = 'st', isEdit = false) {
-      return `
-        <div id="${prefix}-form-card" class="card">
-          <h4 id="${prefix}FormTitle">${isEdit ? '스트리머 정보 수정' : '새 스트리머 구단 정보 등록'}</h4>
-          <input type="hidden" id="${prefix}EditId" value="">
-          <input type="text" id="${prefix}Name" placeholder="스트리머 이름">
-          <input type="text" id="${prefix}Owner" placeholder="구단주명">
-          <input type="text" id="${prefix}Value" placeholder="구단 가치">
-          <input type="text" id="${prefix}Formation" placeholder="포메이션">
-          <input type="text" id="${prefix}Color" placeholder="팀컬러">
-          
-          <label style="font-size: 0.85em; color: #aaa;">티어 선택:</label>
-          <select id="${prefix}Tier">
-            <option value="1티어">1티어</option>
-            <option value="2티어">2티어</option>
-            <option value="3티어">3티어</option>
-            <option value="4티어">4티어</option>
-            <option value="5티어">5티어</option>
-            <option value="횟집">횟집</option>
-            <option value="티어미정" selected>티어미정</option>
+    // --- 기숙사별 정보 함수 ---
+    function openStreamerForm(editId = null) {
+      const container = document.getElementById('form-streamer-container');
+      container.innerHTML = `
+        <div class="card" style="border-color: var(--accent-color);">
+          <h4 id="streamerFormTitle" style="color:var(--accent-color); margin-top:0;">${editId ? '기숙사 정보 수정' : '신규 기숙사 등록'}</h4>
+          <input type="hidden" id="editStreamerId" value="${editId || ''}">
+          <input type="text" id="stName" placeholder="기숙사 이름 (예: 1기숙사 / 그리핀도르)">
+          <input type="text" id="stClub" placeholder="대표 인물 / 방장 (예: 킴성태)">
+          <input type="text" id="stValue" placeholder="현재 마법 해금 단계 (예: 3단계 진행 중)">
+          <select id="stTier">
+            <option value="1기숙사">🏰 1기숙사</option>
+            <option value="2기숙사">🏰 2기숙사</option>
+            <option value="3기숙사">🏰 3기숙사</option>
+            <option value="4기숙사">🏰 4기숙사</option>
+            <option value="교수진">🧙 교수진</option>
+            <option value="미정" selected>❓ 미정</option>
           </select>
-
-          <input type="text" id="${prefix}Url" placeholder="구단 정보 링크 (URL)">
-          <input type="text" id="${prefix}Image" placeholder="이미지 주소 (URL 복사해서 붙여넣기)" style="margin-top:5px;">
-
-          <button onclick="saveStreamer('${prefix}')">저장하기</button>
-          <button class="btn-secondary" onclick="closeStreamerForm('${prefix}')">취소</button>
+          <input type="text" id="stSoopUrl" placeholder="SOOP 방송국 링크 (https://bj.afreecatv.com/...)">
+          <label style="font-size: 0.85em; color: #aaa;">기숙사 대표 사진:</label>
+          <input type="file" id="stFile" accept="image/*" style="margin-top:5px;">
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button onclick="saveStreamer()">저장하기</button>
+            <button class="btn-secondary" onclick="closeStreamerForm()">취소</button>
+          </div>
         </div>
       `;
-    }
 
-    function openStreamerForm() {
-      const container = document.getElementById('form-streamer-container');
-      container.innerHTML = getStreamerFormHtml('st', false);
-      
-      document.getElementById('stName').value = '';
-      document.getElementById('stOwner').value = '';
-      document.getElementById('stValue').value = '';
-      document.getElementById('stFormation').value = '';
-      document.getElementById('stColor').value = '';
-      document.getElementById('stTier').value = '티어미정';
-      document.getElementById('stUrl').value = '';
-      document.getElementById('stImage').value = '';
-    }
-
-    function openInlineStreamerForm(firestoreId) {
-      renderStreamers();
-      const cardEl = document.getElementById('streamer-card-' + firestoreId);
-      if(!cardEl) return;
-
-      cardEl.innerHTML = getStreamerFormHtml('inline', true);
-
-      const s = store.streamers.find(item => item.firestoreId === firestoreId);
-      document.getElementById('inlineEditId').value = firestoreId;
-      document.getElementById('inlineName').value = s.name;
-      document.getElementById('inlineOwner').value = s.owner;
-      document.getElementById('inlineValue').value = s.value;
-      document.getElementById('inlineFormation').value = s.formation;
-      document.getElementById('inlineColor').value = s.color;
-      document.getElementById('inlineTier').value = s.tier || '티어미정';
-      document.getElementById('inlineUrl').value = s.url;
-      document.getElementById('inlineImage').value = s.image || '';
-    }
-
-    function closeStreamerForm(prefix = 'st') {
-      if(prefix === 'st') {
-        document.getElementById('form-streamer-container').innerHTML = '';
-      } else {
-        renderStreamers();
+      if(editId) {
+        const target = store.streamers.find(s => s.firestoreId === editId);
+        if(target) {
+          document.getElementById('stName').value = target.name || '';
+          document.getElementById('stClub').value = target.club || '';
+          document.getElementById('stValue').value = target.value || '';
+          document.getElementById('stTier').value = target.tier || '미정';
+          document.getElementById('stSoopUrl').value = target.soopUrl || '';
+        }
       }
     }
 
-    async function saveStreamer(prefix = 'st') {
-      const firestoreIdVal = document.getElementById(prefix + 'EditId').value;
-      const name = document.getElementById(prefix + 'Name').value.trim();
-      const owner = document.getElementById(prefix + 'Owner').value.trim();
-      const value = document.getElementById(prefix + 'Value').value.trim() || '정보 없음';
-      const formation = document.getElementById(prefix + 'Formation').value.trim() || '정보 없음';
-      const color = document.getElementById(prefix + 'Color').value.trim() || '정보 없음';
-      const tier = document.getElementById(prefix + 'Tier').value;
-      const url = document.getElementById(prefix + 'Url').value.trim() || '#';
-      const imageUrl = document.getElementById(prefix + 'Image').value.trim();
+    function closeStreamerForm() {
+      document.getElementById('form-streamer-container').innerHTML = '';
+    }
 
-      if(!name || !owner) { alert("스트리머 이름과 구단주명은 필수입니다!"); return; }
+    async function saveStreamer() {
+      const name = document.getElementById('stName').value.trim();
+      const club = document.getElementById('stClub').value.trim();
+      const value = document.getElementById('stValue').value.trim();
+      const tier = document.getElementById('stTier').value;
+      const soopUrl = document.getElementById('stSoopUrl').value.trim();
+      const fileInput = document.getElementById('stFile');
+      const editId = document.getElementById('editStreamerId').value;
 
-      if(firestoreIdVal !== "") {
-        let idx = store.streamers.findIndex(s => s.firestoreId === firestoreIdVal);
-        let target = store.streamers[idx];
-        target.name = name;
-        target.owner = owner;
-        target.value = value;
-        target.formation = formation;
-        target.color = color;
-        target.tier = tier;
-        target.url = url;
-        target.image = imageUrl;
+      if(!name || !club) { alert("기숙사 이름과 대표 인물은 필수입니다."); return; }
 
-        await updateDoc(doc(window.db, "streamers", firestoreIdVal), {
-          name, owner, value, formation, color, tier, url, image: imageUrl
-        });
-        alert("수정되었습니다!");
+      let imageUrl = "";
+      if(editId) {
+        const existing = store.streamers.find(s => s.firestoreId === editId);
+        if(existing) imageUrl = existing.image || "";
+      }
+
+      if(fileInput.files && fileInput.files[0]) {
+        imageUrl = await compressImage(fileInput.files[0]);
+      }
+
+      if(editId) {
+        const target = store.streamers.find(s => s.firestoreId === editId);
+        if(target) {
+          target.name = name;
+          target.club = club;
+          target.value = value;
+          target.tier = tier;
+          target.soopUrl = soopUrl;
+          target.image = imageUrl;
+
+          await updateDoc(doc(window.db, "streamers", editId), {
+            name, club, value, tier, soopUrl, image: imageUrl
+          });
+        }
       } else {
         const newStreamer = {
           id: Date.now(),
-          name,
-          owner,
-          value,
-          formation,
-          color,
-          tier,
-          url,
+          name, club, value, tier, soopUrl,
           image: imageUrl
         };
         const docRef = await addDoc(collection(window.db, "streamers"), newStreamer);
         store.streamers.unshift({ firestoreId: docRef.id, ...newStreamer });
-        alert("등록되었습니다!");
       }
 
-      if(prefix === 'st') {
-        document.getElementById('form-streamer-container').innerHTML = '';
-      }
+      closeStreamerForm();
       renderStreamers();
-      renderMainDashboard();
+      renderMain();
     }
 
     async function deleteStreamer(firestoreId) {
-      if(!confirm("정말 삭제하시겠습니까?")) return;
+      if(!confirm("기숙사 정보를 삭제하시겠습니까?")) return;
       await deleteDoc(doc(window.db, "streamers", firestoreId));
       store.streamers = store.streamers.filter(s => s.firestoreId !== firestoreId);
       renderStreamers();
-      renderMainDashboard();
+      renderMain();
     }
 
-    function setTierFilter(tier, btnElement) {
+    function setTierFilter(tier, btnEl) {
       currentTierFilter = tier;
       document.querySelectorAll('.tier-sub-btn').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
-      filterStreamers();
+      btnEl.classList.add('active');
+      renderStreamers();
     }
 
     function filterStreamers() {
-      const keyword = document.getElementById('streamerSearch').value.toLowerCase();
-      const cards = document.querySelectorAll('.streamer-card');
+      renderStreamers();
+    }
 
-      cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        const tier = card.getAttribute('data-tier');
-        const matchesKeyword = text.includes(keyword);
-        const matchesTier = (currentTierFilter === 'all' || tier === currentTierFilter);
+    // 이미지 압축 헬퍼
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
 
-        if(matchesKeyword && matchesTier) {
-          card.style.display = "";
-        } else {
-          card.style.display = "none";
-        }
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+        };
       });
     }
 
-    function renderAll() {
-      renderTable('notice');
-      renderTable('clip');
-      renderSquads();
-      renderStreamers();
-      renderMainDashboard();
+    function escapeHtml(str) {
+      if(!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    function renderTable(tab) {
+    function renderAll() {
+      renderMain();
+      renderBoard('notice');
+      renderBoard('clip');
+      renderSquads();
+      renderStreamers();
+    }
+
+    function renderMain() {
+      const nList = document.getElementById('main-notice-list');
+      nList.innerHTML = store.posts.notice.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 공지 없음</p>' : '';
+      store.posts.notice.slice(0, 3).forEach((p, idx) => {
+        nList.innerHTML += `
+          <div class="preview-card" onclick="switchTab('notice'); viewDetail('notice', ${idx});">
+            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.title)}</div>
+            <div style="font-size:0.75em; color:#888; margin-top:3px;">${p.date}</div>
+          </div>
+        `;
+      });
+
+      const stList = document.getElementById('main-streamer-preview');
+      stList.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 기숙사 없음</p>' : '';
+      store.streamers.slice(0, 3).forEach(s => {
+        stList.innerHTML += `
+          <div class="preview-card" onclick="switchTab('streamer')">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:bold; font-size:0.9em; color:var(--accent-color);">${escapeHtml(s.name)}</span>
+              <span class="tier-badge tier-1" style="margin-bottom:0; font-size:10px;">${s.tier || '미정'}</span>
+            </div>
+            <div style="font-size:0.8em; color:#ccc; margin-top:3px;">대표: ${escapeHtml(s.club)} | 현황: ${escapeHtml(s.value || '미입력')}</div>
+          </div>
+        `;
+      });
+
+      const cList = document.getElementById('main-clip-list');
+      cList.innerHTML = store.posts.clip.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 클립 없음</p>' : '';
+      store.posts.clip.slice(0, 3).forEach((p, idx) => {
+        cList.innerHTML += `
+          <div class="preview-card" onclick="switchTab('clip'); viewDetail('clip', ${idx});">
+            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.title)}</div>
+            <div style="font-size:0.75em; color:#888; margin-top:3px;">작성자: ${p.author}</div>
+          </div>
+        `;
+      });
+
+      const sqList = document.getElementById('main-squad-list');
+      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.85em; margin:5px 0;">등록된 마법해금 정보 없음</p>' : '';
+      store.squads.slice(0, 3).forEach(s => {
+        sqList.innerHTML += `
+          <div class="preview-card" onclick="switchTab('squad')">
+            <div style="font-size:0.9em; font-weight:bold; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(s.title)}</div>
+            <div style="font-size:0.75em; color:var(--accent-color); margin-top:3px;">기숙사: ${escapeHtml(s.color || '-')} | 작성자: ${escapeHtml(s.owner)}</div>
+          </div>
+        `;
+      });
+    }
+
+    function renderBoard(tab) {
       const tbody = document.getElementById('table-' + tab);
-      tbody.innerHTML = store.posts[tab].length === 0 ? `<tr><td colspan="4" style="text-align:center; color:#777;">게시글이 없습니다.</td></tr>` : '';
+      tbody.innerHTML = '';
+      if(store.posts[tab].length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#777;">등록된 게시글이 없습니다.</td></tr>`;
+        return;
+      }
       store.posts[tab].forEach((p, idx) => {
-        tbody.innerHTML += `<tr onclick="viewDetail('${tab}', ${idx})"><td>${store.posts[tab].length - idx}</td><td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td><td>${p.author}</td><td>${p.date}</td></tr>`;
+        tbody.innerHTML += `
+          <tr onclick="viewDetail('${tab}', ${idx})">
+            <td>${store.posts[tab].length - idx}</td>
+            <td style="font-weight:bold; color:#fff;">${escapeHtml(p.title)}</td>
+            <td>${p.author}</td>
+            <td style="font-size:0.8em; color:#888;">${p.date}</td>
+          </tr>
+        `;
       });
     }
 
     function renderSquads() {
       const grid = document.getElementById('squadGrid');
-      grid.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스쿼드 없음</p>' : '';
+      grid.innerHTML = '';
+      if(store.squads.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">등록된 마법 해금 조건이 없습니다.</p>`;
+        return;
+      }
+
       store.squads.forEach(s => {
-        let canModify = currentUser && (currentUser.role === 'admin' || currentUser.soop === s.owner);
-        let actionBtns = canModify ? `
-          <div class="card-action-btns">
-            <button onclick="openSquadForm('${s.firestoreId}')">수정</button>
-            <button class="del" onclick="deleteSquad('${s.firestoreId}')">✕</button>
-          </div>` : '';
-
-        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : '';
-
+        const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.soop === s.owner);
         grid.innerHTML += `
           <div class="custom-card">
-            ${actionBtns}
-            ${imgHtml}
-            <div class="card-title-lg">${escapeHtml(s.title)}</div>
-            <div class="card-subtitle">구단주: ${escapeHtml(s.owner)}</div>
-            <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
-            <div class="info-row">포메이션: <span>${escapeHtml(s.formation)}</span></div>
-            <div class="info-row">팀컬러: <span>${escapeHtml(s.color)}</span></div>
-          </div>`;
+            ${canEdit ? `
+              <div class="card-action-btns">
+                <button onclick="openSquadForm('${s.firestoreId}')">수정</button>
+                <button class="del" onclick="deleteSquad('${s.firestoreId}')">삭제</button>
+              </div>` : ''}
+            <div class="card-title-lg" style="margin-right: ${canEdit ? '60px' : '0'};">${escapeHtml(s.title)}</div>
+            <div class="card-subtitle">작성자: ${escapeHtml(s.owner)}</div>
+            ${s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" alt="인증 사진">` : ''}
+            <div class="info-row">필요 재료: <span>${escapeHtml(s.value || '미입력')}</span></div>
+            <div class="info-row">획득처/위치: <span>${escapeHtml(s.formation || '미입력')}</span></div>
+            <div class="info-row" style="margin-bottom:0;">소속 기숙사: <span>${escapeHtml(s.color || '미입력')}</span></div>
+          </div>
+        `;
       });
     }
 
     function renderStreamers() {
       const grid = document.getElementById('streamerGrid');
-      grid.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.9em;">등록된 스트리머 없음</p>' : '';
-      store.streamers.forEach(s => {
-        let adminBtns = (currentUser && currentUser.role === 'admin') ? `
-          <div class="card-action-btns">
-            <button onclick="openInlineStreamerForm('${s.firestoreId}')">수정</button>
-            <button class="del" onclick="deleteStreamer('${s.firestoreId}')">✕</button>
-          </div>` : '';
+      const searchKeyword = document.getElementById('streamerSearch').value.toLowerCase().trim();
+      grid.innerHTML = '';
 
-        let imgHtml = s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" title="클릭해서 확대 보기">` : '';
-        
-        let tierClass = 'tier-none';
-        let t = s.tier || '티어미정';
-        if(t === '1티어') tierClass = 'tier-1';
-        else if(t === '2티어') tierClass = 'tier-2';
-        else if(t === '3티어') tierClass = 'tier-3';
-        else if(t === '4티어') tierClass = 'tier-4';
-        else if(t === '5티어') tierClass = 'tier-5';
-        else if(t === '횟집') tierClass = 'tier-sashimi';
+      let filtered = store.streamers.filter(s => {
+        const matchTier = (currentTierFilter === 'all' || s.tier === currentTierFilter);
+        const matchSearch = (!searchKeyword || (s.name && s.name.toLowerCase().includes(searchKeyword)) || (s.club && s.club.toLowerCase().includes(searchKeyword)));
+        return matchTier && matchSearch;
+      });
 
+      if(filtered.length === 0) {
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 기숙사 정보가 없습니다.</p>`;
+        return;
+      }
+
+      filtered.forEach(s => {
+        const isAdmin = currentUser && currentUser.role === 'admin';
         grid.innerHTML += `
-          <div id="streamer-card-${s.firestoreId}" class="custom-card streamer-card" data-tier="${t}">
-            ${adminBtns}
-            ${imgHtml}
-            <div class="tier-badge ${tierClass}">${t}</div>
-            <div class="card-title-lg">${escapeHtml(s.name)}</div>
-            <div class="card-subtitle">구단주: ${escapeHtml(s.owner)}</div>
-            <div class="info-row">구단 가치: <span>${escapeHtml(s.value)}</span></div>
-            <div class="info-row">포메이션: <span>${escapeHtml(s.formation)}</span></div>
-            <div class="info-row">팀컬러: <span>${escapeHtml(s.color)}</span></div>
-            <a href="${escapeHtml(s.url)}" target="_blank" class="soop-btn">구단 정보 바로가기</a>
-          </div>`;
+          <div class="custom-card">
+            ${isAdmin ? `
+              <div class="card-action-btns">
+                <button onclick="openStreamerForm('${s.firestoreId}')">수정</button>
+                <button class="del" onclick="deleteStreamer('${s.firestoreId}')">삭제</button>
+              </div>` : ''}
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; margin-right: ${isAdmin ? '60px' : '0'};">
+              <span class="card-title-lg" style="margin-bottom:0;">${escapeHtml(s.name)}</span>
+              <span class="tier-badge tier-1">${s.tier || '미정'}</span>
+            </div>
+            <div class="card-subtitle">대표 인물: ${escapeHtml(s.club)}</div>
+            ${s.image ? `<img src="${s.image}" class="custom-img" onclick="openImageModal('${s.image}', event)" alt="기숙사 사진">` : ''}
+            <div class="info-row">연구 현황: <span>${escapeHtml(s.value || '미입력')}</span></div>
+            ${s.soopUrl ? `<a href="${s.soopUrl}" target="_blank" class="soop-btn">📺 SOOP 방송국 바로가기</a>` : ''}
+          </div>
+        `;
       });
-      filterStreamers();
-    }
-
-    function renderMainDashboard() {
-      ['notice', 'clip'].forEach(tab => {
-        const list = document.getElementById(`main-${tab}-list`);
-        list.innerHTML = store.posts[tab].length === 0 ? '<p style="color:#777; font-size:0.85em;">게시글 없음</p>' : '';
-        store.posts[tab].slice(0, 3).forEach((p, idx) => {
-          list.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #2a2a2a; cursor:pointer; font-size:0.85em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="switchTab('${tab}'); viewDetail('${tab}', ${idx});">${escapeHtml(p.title)}</div>`;
-        });
-      });
-
-      const sp = document.getElementById('main-streamer-preview');
-      sp.innerHTML = store.streamers.length === 0 ? '<p style="color:#777; font-size:0.85em;">등록된 스트리머 없음</p>' : '';
-      store.streamers.slice(0, 2).forEach(s => {
-        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:11px;">No Image</div>`;
-        sp.innerHTML += `
-          <div class="preview-card" onclick="switchTab('streamer')">
-            ${thumbHtml}
-            <div style="font-size:0.9em; font-weight:bold; color:var(--accent-color);">${escapeHtml(s.name)}</div>
-            <div style="font-size:0.8em; color:#ccc;">가치: ${escapeHtml(s.value)}</div>
-          </div>`;
-      });
-
-      const sqList = document.getElementById('main-squad-list');
-      sqList.innerHTML = store.squads.length === 0 ? '<p style="color:#777; font-size:0.85em;">등록된 스쿼드 없음</p>' : '';
-      store.squads.slice(0, 2).forEach(s => {
-        let thumbHtml = s.image ? `<img src="${s.image}" class="preview-thumb-large" onclick="openImageModal('${s.image}', event)">` : `<div class="preview-thumb-large" style="display:flex; align-items:center; justify-content:center; color:#555; font-size:11px;">No Image</div>`;
-        sqList.innerHTML += `
-          <div class="preview-card" onclick="switchTab('squad')">
-            ${thumbHtml}
-            <div style="font-size:0.9em; font-weight:bold; color:var(--accent-color); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(s.title)}</div>
-            <div style="font-size:0.8em; color:#ccc;">구단주: ${escapeHtml(s.owner)}</div>
-          </div>`;
-      });
-    }
-
-    function escapeHtml(text) {
-      if(!text) return '';
-      return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
   </script>
 </body>
