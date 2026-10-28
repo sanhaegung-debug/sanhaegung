@@ -85,7 +85,6 @@
       display: block;
     }
 
-    /* 속성별 서브 탭 & 검색바 영역 */
     .filter-search-bar {
       display: flex;
       gap: 10px;
@@ -199,14 +198,14 @@
       transform: translateY(-2px);
     }
 
-    /* 사진 비율 유지 및 잘림 방지 (object-fit: contain) */
+    /* 🖼️ 빈공간(검은 박스)을 완전히 없애고 이미지 비율에 맞게 자연스럽게 출력 */
     .magic-img {
       width: 100%;
-      height: 180px;
+      max-height: 240px;
       object-fit: contain;
       border-radius: 8px;
-      margin: 12px 0;
-      background-color: #0b0d10;
+      margin: 10px 0;
+      background-color: transparent;
       cursor: pointer;
       transition: opacity 0.2s;
     }
@@ -261,6 +260,33 @@
       color: #fff;
       font-weight: bold;
       text-align: right;
+    }
+
+    /* 페이지네이션 버튼 스타일 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+    .page-btn {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    .page-btn.active {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      font-weight: bold;
+    }
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
     .modal {
@@ -374,7 +400,7 @@
         <h3>아르케온 마법 해금 리스트</h3>
       </div>
 
-      <!-- 속성별 서브 탭 & 실시간 검색 바 통합 영역 -->
+      <!-- 속성별 서브 탭 & 실시간 검색 바 -->
       <div class="filter-search-bar">
         <div class="element-sub-tabs">
           <button class="element-sub-btn active" onclick="setElementFilter('all', this)">🌪️ 전체</button>
@@ -386,7 +412,7 @@
           <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
         </div>
         <div class="search-input-box">
-          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="renderMagics()">
+          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="currentPage=1; renderMagics()">
         </div>
       </div>
 
@@ -407,15 +433,24 @@
         <input type="text" id="magMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
         <input type="text" id="magLocation" placeholder="해금 조건 (예: 네더 요새에서 몬스터 50마리 처치)">
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
-        <label style="font-size: 0.85em; color: #a0aec0;">해금 조건/재료 인증 사진:</label>
-        <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
+        
+        <label style="font-size: 0.85em; color: #a0aec0; display:block; margin-top:5px;">📷 사진 직접 업로드 (파일 선택):</label>
+        <input type="file" id="magFile" accept="image/*">
+        
+        <label style="font-size: 0.85em; color: #a0aec0; display:block; margin-top:5px;">🔗 또는 이미지 주소(링크) 입력:</label>
+        <input type="text" id="magImageUrl" placeholder="https://example.com/image.png (이미지 주소 복사 붙여넣기)">
+
         <div style="display:flex; gap:8px; margin-top:10px;">
           <button onclick="saveMagic()">저장하기</button>
           <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
 
+      <!-- 마법 카드 목록 영역 -->
       <div id="magicGrid" class="grid-container"></div>
+      
+      <!-- 페이지네이션 버튼 영역 -->
+      <div id="paginationContainer" class="pagination"></div>
     </div>
 
     <!-- 2. 공지사항 탭 -->
@@ -452,6 +487,8 @@
     };
 
     let currentElementFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 12; // 한 페이지에 보여줄 카드 수 (렉 방지)
     let pendingAction = null;
 
     window.addEventListener('firebase-ready', async () => {
@@ -493,6 +530,7 @@
 
     function setElementFilter(element, btnEl) {
       currentElementFilter = element;
+      currentPage = 1; // 속성 변경 시 첫 페이지로 이동
       document.querySelectorAll('.element-sub-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
       renderMagics();
@@ -556,6 +594,7 @@
           document.getElementById('magMaterials').value = target.materials || '';
           document.getElementById('magLocation').value = target.location || '';
           document.getElementById('magDesc').value = target.description || '';
+          document.getElementById('magImageUrl').value = (target.image && target.image.startsWith('http')) ? target.image : '';
         }
       } else {
         document.getElementById('magicFormTitle').innerText = "새 마법해금 정보 등록";
@@ -567,6 +606,7 @@
         document.getElementById('magLocation').value = '';
         document.getElementById('magDesc').value = '';
         document.getElementById('magFile').value = '';
+        document.getElementById('magImageUrl').value = '';
       }
     }
 
@@ -580,6 +620,7 @@
       const location = document.getElementById('magLocation').value.trim();
       const description = document.getElementById('magDesc').value.trim();
       const fileInput = document.getElementById('magFile');
+      const imageUrlInput = document.getElementById('magImageUrl').value.trim();
       const editId = document.getElementById('editMagicId').value;
 
       if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
@@ -590,7 +631,12 @@
         if(existing) imageUrl = existing.image || "";
       }
 
-      if(fileInput.files && fileInput.files[0]) {
+      // 1. 링크 주소가 입력되어 있으면 링크 우선 사용
+      if(imageUrlInput) {
+        imageUrl = imageUrlInput;
+      }
+      // 2. 파일이 업로드되었으면 압축해서 변환
+      else if(fileInput.files && fileInput.files[0]) {
         imageUrl = await compressImage(fileInput.files[0]);
       }
 
@@ -673,9 +719,11 @@
 
     function renderMagics() {
       const grid = document.getElementById('magicGrid');
+      const paginationContainer = document.getElementById('paginationContainer');
       const searchInput = document.getElementById('magicSearchInput');
       const searchKeyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
       grid.innerHTML = '';
+      paginationContainer.innerHTML = '';
 
       let filtered = store.magics.filter(m => {
         const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
@@ -689,11 +737,17 @@
       });
 
       if(filtered.length === 0) {
-        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 마법 해금 조건이 없습니다.</p>`;
+        grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center;">조건에 일치하는 마법 해금 조건이 없습니다.</p>";
         return;
       }
 
-      filtered.forEach(m => {
+      // 페이지네이션 계산
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const currentItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+      currentItems.forEach(m => {
         const elType = m.element || '바람';
         grid.innerHTML += `
           <div class="magic-card">
@@ -713,6 +767,21 @@
           </div>
         `;
       });
+
+      // 페이지네이션 버튼 생성
+      if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+          paginationContainer.innerHTML += `
+            <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
+          `;
+        }
+      }
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      renderMagics();
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 이동 시 상단으로 부드럽게 스크롤
     }
 
     function renderNotices() {
