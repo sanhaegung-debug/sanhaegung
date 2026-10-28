@@ -23,7 +23,7 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -85,7 +85,7 @@
       display: block;
     }
 
-    /* 속성별 서브 탭 스타일 */
+    /* 속성별 서브 탭 */
     .element-sub-tabs {
       display: flex;
       gap: 6px;
@@ -156,63 +156,91 @@
       gap: 10px;
     }
 
+    /* 카드 그리드 가독성 향상 */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
     }
 
     .magic-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 12px;
+      padding: 18px;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .magic-card:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
     }
 
     .magic-img {
       width: 100%;
-      height: 180px;
+      height: 160px;
       object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 10px;
+      border-radius: 8px;
+      margin: 12px 0;
       background-color: #0f1115;
       cursor: pointer;
+      transition: opacity 0.2s;
     }
+    .magic-img:hover { opacity: 0.85; }
 
     .card-title {
       font-size: 18px;
       font-weight: bold;
-      margin-bottom: 5px;
       color: #fff;
+      margin-bottom: 4px;
     }
 
     .card-subtitle {
       font-size: 12px;
       color: #a0aec0;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
     }
 
+    /* 속성별 뱃지 컬러 세분화 */
     .badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
       font-size: 11px;
       font-weight: bold;
       margin-bottom: 8px;
-      background-color: #2b6cb0;
-      color: #fff;
+      width: fit-content;
+    }
+    .badge-바람 { background-color: #319795; color: #fff; }
+    .badge-화염 { background-color: #dd6b20; color: #fff; }
+    .badge-물 { background-color: #3182ce; color: #fff; }
+    .badge-대지 { background-color: #276749; color: #fff; }
+    .badge-빛 { background-color: #d69e2e; color: #000; }
+    .badge-어둠 { background-color: #4a5568; color: #fff; }
+
+    .info-box {
+      background-color: rgba(15, 17, 21, 0.6);
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: auto;
+      font-size: 13px;
     }
 
     .info-row {
-      font-size: 13px;
-      color: #a0aec0;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
+      color: #cbd5e0;
+      display: flex;
+      justify-content: space-between;
     }
-
     .info-row span {
       color: #fff;
       font-weight: bold;
+      text-align: right;
     }
 
     .modal {
@@ -255,20 +283,22 @@
 
     .card-action-btns {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 15px;
+      right: 15px;
       display: flex;
       gap: 5px;
     }
 
     .card-action-btns button {
-      background: none;
-      border: none;
-      color: #a0aec0;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border-color);
+      color: #cbd5e0;
       cursor: pointer;
-      font-size: 13px;
-      padding: 2px 5px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
     }
+    .card-action-btns button:hover { background-color: var(--accent-color); color: #fff; }
   </style>
 
   <!-- Firebase SDK 로드 -->
@@ -310,7 +340,7 @@
 
     <div class="user-bar">
       <span id="userInfoDisplay" style="align-self: center; margin-right: auto; color: #a0aec0;">전체 시청자 모드 (조회 전용)</span>
-      <button onclick="openMagicForm()">+ 해금 정보 등록 (스트리머 전용)</button>
+      <button onclick="tryOpenRegisterForm()">+ 해금 정보 등록 (스트리머 전용)</button>
     </div>
 
     <div class="tab-menu">
@@ -354,9 +384,8 @@
         <textarea id="magDesc" rows="3" placeholder="상세 공략 및 주의사항 (선택사항)"></textarea>
         <label style="font-size: 0.85em; color: #a0aec0;">해금 위치/재료 인증 사진:</label>
         <input type="file" id="magFile" accept="image/*" style="margin-top:5px;">
-        <input type="password" id="magSecretPw" placeholder="스트리머 비밀번호 입력">
         <div style="display:flex; gap:8px; margin-top:10px;">
-          <button onclick="saveMagic()">확인 및 저장</button>
+          <button onclick="saveMagic()">저장하기</button>
           <button class="btn-secondary" onclick="closeMagicForm()">취소</button>
         </div>
       </div>
@@ -378,21 +407,19 @@
     <img id="expandedImg" src="">
   </div>
 
-  <!-- 스트리머 비밀번호 확인 모달 -->
+  <!-- 최초 1회 비밀번호 입력 모달 -->
   <div id="authModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 확인</h3>
-      <p style="font-size:0.85em; color:#a0aec0;">해당 정보를 수정/삭제하려면 스트리머 비밀번호를 입력하세요.</p>
-      <input type="hidden" id="targetActionId" value="">
-      <input type="hidden" id="targetActionType" value="">
-      <input type="password" id="checkSecretPw" placeholder="스트리머 비밀번호">
-      <button onclick="verifyAndExecute()" style="width:100%; margin-top:5px;">확인</button>
+      <h3 style="margin-top:0; color:var(--accent-color);">스트리머 권한 인증</h3>
+      <p style="font-size:0.85em; color:#a0aec0;">마법 해금 정보를 등록/수정/삭제하려면 스트리머 비밀번호를 입력하세요. (한 번 입력하면 세션 동안 유지됩니다)</p>
+      <input type="password" id="checkSecretPw" placeholder="비밀번호 입력">
+      <button onclick="verifyPassword()" style="width:100%; margin-top:5px;">인증하기</button>
       <button class="btn-secondary" onclick="closeModals()" style="width:100%; margin-top:5px;">닫기</button>
     </div>
   </div>
 
   <script>
-    const STREAMER_PASSWORD = "archeonsu"; 
+    const STREAMER_PASSWORD = "rinring"; 
 
     let store = {
       magics: [],
@@ -400,9 +427,11 @@
     };
 
     let currentElementFilter = 'all';
+    let pendingAction = null; // 인증 성공 후 실행할 콜백 함수 저장
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
+      checkAuthStatus();
       renderAll();
     });
 
@@ -415,6 +444,18 @@
         store.notices = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
       } catch (e) {
         console.error("데이터 로딩 실패:", e);
+      }
+    }
+
+    function checkAuthStatus() {
+      const isAuthed = sessionStorage.getItem('archeon_authed') === 'true';
+      const display = document.getElementById('userInfoDisplay');
+      if (isAuthed) {
+        display.innerText = "✨ 스트리머 인증 완료 (편집 가능)";
+        display.style.color = "var(--accent-color)";
+      } else {
+        display.innerText = "전체 시청자 모드 (조회 전용)";
+        display.style.color = "#a0aec0";
       }
     }
 
@@ -442,9 +483,45 @@
 
     function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
+    // --- 비밀번호 세션 관리 가드 ---
+    function requireAuth(actionCallback) {
+      const isAuthed = sessionStorage.getItem('archeon_authed') === 'true';
+      if (isAuthed) {
+        actionCallback();
+      } else {
+        pendingAction = actionCallback;
+        document.getElementById('checkSecretPw').value = '';
+        document.getElementById('authModal').style.display = 'flex';
+      }
+    }
+
+    function verifyPassword() {
+      const pwInput = document.getElementById('checkSecretPw').value.trim();
+      if (pwInput === STREAMER_PASSWORD) {
+        sessionStorage.setItem('archeon_authed', 'true');
+        closeModals();
+        checkAuthStatus();
+        alert("인증되었습니다! 이제 자유롭게 등록/수정/삭제가 가능합니다.");
+        if (pendingAction) {
+          pendingAction();
+          pendingAction = null;
+        }
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
+    }
+
+    function tryOpenRegisterForm() {
+      requireAuth(() => { openMagicForm(); });
+    }
+
+    function tryAction(callback) {
+      requireAuth(callback);
+    }
+
+    // --- 마법해금 폼 제어 ---
     function openMagicForm(editId = null) {
       document.getElementById('form-magic-card').style.display = 'block';
-      document.getElementById('magSecretPw').value = '';
       if(editId) {
         document.getElementById('magicFormTitle').innerText = "마법해금 정보 수정";
         document.getElementById('editMagicId').value = editId;
@@ -473,12 +550,6 @@
     function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
 
     async function saveMagic() {
-      const pwInput = document.getElementById('magSecretPw').value.trim();
-      if(pwInput !== STREAMER_PASSWORD) {
-        alert("스트리머 비밀번호가 틀렸습니다! 시청자는 등록할 수 없습니다.");
-        return;
-      }
-
       const title = document.getElementById('magTitle').value.trim();
       const author = document.getElementById('magAuthor').value.trim();
       const element = document.getElementById('magElement').value;
@@ -531,33 +602,12 @@
       alert("성공적으로 저장되었습니다!");
     }
 
-    function requestAuth(actionType, firestoreId) {
-      document.getElementById('targetActionType').value = actionType;
-      document.getElementById('targetActionId').value = firestoreId;
-      document.getElementById('checkSecretPw').value = '';
-      document.getElementById('authModal').style.display = 'flex';
-    }
-
-    async function verifyAndExecute() {
-      const pwInput = document.getElementById('checkSecretPw').value.trim();
-      if(pwInput !== STREAMER_PASSWORD) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
-      }
-
-      const actionType = document.getElementById('targetActionType').value;
-      const firestoreId = document.getElementById('targetActionId').value;
-      closeModals();
-
-      if(actionType === 'edit') {
-        openMagicForm(firestoreId);
-      } else if(actionType === 'delete') {
-        if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
-        await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
-        store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
-        renderMagics();
-        alert("삭제되었습니다.");
-      }
+    async function deleteMagic(firestoreId) {
+      if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_magics", firestoreId));
+      store.magics = store.magics.filter(m => m.firestoreId !== firestoreId);
+      renderMagics();
+      alert("삭제되었습니다.");
     }
 
     function compressImage(file) {
@@ -613,19 +663,22 @@
       }
 
       filtered.forEach(m => {
+        const elType = m.element || '바람';
         grid.innerHTML += `
           <div class="magic-card">
             <div class="card-action-btns">
-              <button onclick="requestAuth('edit', '${m.firestoreId}')">수정</button>
-              <button onclick="requestAuth('delete', '${m.firestoreId}')" style="color:#e53e3e;">삭제</button>
+              <button onclick="tryAction(() => openMagicForm('${m.firestoreId}'))">수정</button>
+              <button onclick="tryAction(() => deleteMagic('${m.firestoreId}'))" style="color:#fc8181;">삭제</button>
             </div>
-            <span class="badge">${m.element || '바람'} 속성</span>
-            <div class="card-title" style="margin-right: 70px;">${escapeHtml(m.title)}</div>
-            <div class="card-subtitle">스트리머: ${escapeHtml(m.author)} (${m.date})</div>
+            <span class="badge badge-${elType}">${elType} 속성</span>
+            <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
+            <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
             ${m.image ? `<img src="${m.image}" class="magic-img" onclick="openImageModal('${m.image}', event)" alt="마법 인증샷">` : ''}
-            <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
-            <div class="info-row">해금 위치: <span>${escapeHtml(m.location || '미입력')}</span></div>
-            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap;">${escapeHtml(m.description)}</div>` : ''}
+            <div class="info-box">
+              <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
+              <div class="info-row">해금 위치: <span>${escapeHtml(m.location || '미입력')}</span></div>
+            </div>
+            ${m.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:10px; white-space:pre-wrap; line-height: 1.4;">${escapeHtml(m.description)}</div>` : ''}
           </div>
         `;
       });
