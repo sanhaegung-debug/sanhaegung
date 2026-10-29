@@ -284,6 +284,64 @@
       margin: 2px;
     }
 
+    /* 🎁 교수별 선물 공략 - 가로 표(Table) 전용 스타일 */
+    .gift-table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
+    .gift-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--text-color);
+      text-align: left;
+      font-size: 14px;
+    }
+    .gift-table th {
+      background-color: #0f1115;
+      color: var(--accent-color);
+      padding: 12px 16px;
+      font-weight: bold;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .gift-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+      line-height: 1.5;
+    }
+    .gift-table tbody tr:hover {
+      background-color: rgba(138, 43, 226, 0.05);
+    }
+    .gift-item-name {
+      font-weight: bold;
+      color: #fff;
+    }
+    .gift-prof-badge {
+      display: inline-block;
+      background-color: #2d3748;
+      color: var(--accent-color);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .gift-action-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: #a0aec0;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .gift-action-btn:hover {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -391,6 +449,7 @@
     <div class="tab-menu">
       <button class="tab-btn active" onclick="switchTab('magic', event)">🔮 마법해금 조건 공유</button>
       <button class="tab-btn" onclick="switchTab('alchemy', event)">🧪 연금술 조합법 공유</button>
+      <button class="tab-btn" onclick="switchTab('gift', event)">🎁 교수별 선물 공략</button>
       <button class="tab-btn" onclick="switchTab('notice', event)">📢 공지사항</button>
     </div>
 
@@ -411,7 +470,7 @@
           <button class="element-sub-btn" onclick="setElementFilter('어둠', this)">🌑 어둠</button>
         </div>
         <div class="search-input-box">
-          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 스트리머, 재료 검색..." oninput="renderMagics()">
+          <input type="text" id="magicSearchInput" placeholder="🔍 마법 이름, 재료 검색..." oninput="renderMagics()">
         </div>
       </div>
 
@@ -419,7 +478,6 @@
       <div id="form-magic-card" class="card" style="display:none;">
         <h4 style="color:var(--accent-color); margin-top:0;">새 마법해금 정보 등록</h4>
         <input type="text" id="magTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
-        <input type="text" id="magAuthor" placeholder="스트리머 닉네임">
         <select id="magElement">
           <option value="바람">💨 바람 속성</option>
           <option value="화염">🔥 화염 속성</option>
@@ -495,7 +553,49 @@
       <div id="alcGrid" class="grid-container"></div>
     </div>
 
-    <!-- 3. 공지사항 탭 -->
+    <!-- 3. 🎁 교수별 선물 공략 탭 (신규 추가) -->
+    <div id="tab-gift" class="tab-content">
+      <div class="action-bar">
+        <h3>🎁 마법 교수별 선물 & 아이템 공략</h3>
+      </div>
+
+      <div class="filter-search-bar">
+        <div class="search-input-box" style="flex:1;">
+          <input type="text" id="giftSearchInput" placeholder="🔍 아이템 이름, 설명, 교수님 이름 검색..." oninput="renderGifts()">
+        </div>
+      </div>
+
+      <!-- 선물 정보 신규 등록 폼 -->
+      <div id="form-gift-card" class="card" style="display:none;">
+        <h4 style="color:var(--accent-color); margin-top:0;">새 교수 선물 공략 등록</h4>
+        <input type="text" id="giftItemName" placeholder="아이템 이름 (예: 반짝이는 허브)">
+        <input type="text" id="giftProfessor" placeholder="선물 대상 교수 (예: 하르바 교수)">
+        <textarea id="giftDesc" rows="3" placeholder="아이템 설명 및 획득방법 (예: 숲 속 깊은 동굴에서 채집 가능)"></textarea>
+        
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button onclick="saveNewGift()">등록하기</button>
+          <button class="btn-secondary" onclick="closeGiftForm()">취소</button>
+        </div>
+      </div>
+
+      <!-- 가로 표(Table) 영역 -->
+      <div class="gift-table-container">
+        <table class="gift-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">아이템 이름</th>
+              <th style="width: 50%;">아이템 설명</th>
+              <th style="width: 25%;">선물 대상 교수</th>
+            </tr>
+          </thead>
+          <tbody id="giftTableBody">
+            <!-- 데이터가 가로 행(tr)으로 출력됩니다 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. 공지사항 탭 -->
     <div id="tab-notice" class="tab-content">
       <div class="action-bar">
         <h3>기숙사 공지사항</h3>
@@ -534,6 +634,7 @@
     let store = {
       magics: [],
       alchemys: [],
+      gifts: [],
       notices: []
     };
 
@@ -542,6 +643,7 @@
     let pendingAction = null;
     let editingId = null; 
     let editingAlcId = null;
+    let editingGiftId = null;
 
     window.addEventListener('firebase-ready', async () => {
       await loadAllData();
@@ -556,6 +658,9 @@
 
         const aSnap = await getDocs(collection(window.db, "archeon_alchemys"));
         store.alchemys = aSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
+
+        const gSnap = await getDocs(collection(window.db, "archeon_gifts"));
+        store.gifts = gSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
 
         const nSnap = await getDocs(collection(window.db, "archeon_notices"));
         store.notices = nSnap.docs.map(d => ({ firestoreId: d.id, ...d.data() })).sort((a,b) => b.id - a.id);
@@ -590,6 +695,8 @@
         btnReg.innerText = "+ 마법해금 정보 등록";
       } else if(tabName === 'alchemy') {
         btnReg.innerText = "+ 연금술 조합법 등록";
+      } else if(tabName === 'gift') {
+        btnReg.innerText = "+ 교수 선물 공략 등록";
       } else {
         btnReg.innerText = "+ 등록하기";
       }
@@ -626,7 +733,7 @@
           <span class="badge badge-${elType}">${elType} 속성</span>
           <h2 style="margin: 5px 0 10px 0; color:#fff;">${escapeHtml(item.title)}</h2>
           <div style="font-size:12px; color:#a0aec0; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            등록자: ${escapeHtml(item.author)} | 등록일: ${item.date}
+            등록일: ${item.date || '-'}
           </div>
           ${item.image ? `<img src="${escapeHtml(item.image)}" style="width:100%; max-height:350px; object-fit:contain; border-radius:8px; margin-bottom:15px; cursor:pointer;" onclick="openImageModal('${escapeHtml(item.image)}', event)">` : ''}
           <div class="info-box" style="font-size:14px; margin-bottom:15px;">
@@ -712,13 +819,21 @@
           document.getElementById('alcImgUrl').value = '';
           document.getElementById('alcFile').value = '';
           formCard.scrollIntoView({ behavior: 'smooth' });
+        } else if(currentTab === 'gift') {
+          editingGiftId = null;
+          renderGifts();
+          const formCard = document.getElementById('form-gift-card');
+          formCard.style.display = 'block';
+          document.getElementById('giftItemName').value = '';
+          document.getElementById('giftProfessor').value = '';
+          document.getElementById('giftDesc').value = '';
+          formCard.scrollIntoView({ behavior: 'smooth' });
         } else {
           editingId = null;
           renderMagics();
           const formCard = document.getElementById('form-magic-card');
           formCard.style.display = 'block';
           document.getElementById('magTitle').value = '';
-          document.getElementById('magAuthor').value = '';
           document.getElementById('magElement').value = '바람';
           document.getElementById('magMaterials').value = '';
           document.getElementById('magLocation').value = '';
@@ -732,6 +847,7 @@
 
     function closeMagicForm() { document.getElementById('form-magic-card').style.display = 'none'; }
     function closeAlcForm() { document.getElementById('form-alc-card').style.display = 'none'; }
+    function closeGiftForm() { document.getElementById('form-gift-card').style.display = 'none'; }
 
     function tryAction(callback, event) {
       if(event) event.stopPropagation();
@@ -740,7 +856,6 @@
 
     async function saveNewMagic() {
       const title = document.getElementById('magTitle').value.trim();
-      const author = document.getElementById('magAuthor').value.trim();
       const element = document.getElementById('magElement').value;
       const materials = document.getElementById('magMaterials').value.trim();
       const location = document.getElementById('magLocation').value.trim();
@@ -748,14 +863,14 @@
       const imgUrlInput = document.getElementById('magImgUrl') ? document.getElementById('magImgUrl').value.trim() : '';
       const fileInput = document.getElementById('magFile');
 
-      if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
+      if(!title) { alert("마법 이름은 필수입니다."); return; }
 
       let imageUrl = "";
       if(imgUrlInput) imageUrl = imgUrlInput;
       else if(fileInput && fileInput.files && fileInput.files[0]) imageUrl = await compressImage(fileInput.files[0]);
 
       const newMagic = {
-        id: Date.now(), title, author, element, materials, location, description,
+        id: Date.now(), title, element, materials, location, description,
         image: imageUrl, date: new Date().toLocaleDateString()
       };
       const docRef = await addDoc(collection(window.db, "archeon_magics"), newMagic);
@@ -797,6 +912,29 @@
       alert("연금술 조합법이 등록되었습니다!");
     }
 
+    async function saveNewGift() {
+      const itemName = document.getElementById('giftItemName').value.trim();
+      const professor = document.getElementById('giftProfessor').value.trim();
+      const description = document.getElementById('giftDesc').value.trim();
+
+      if(!itemName || !professor) { alert("아이템 이름과 교수님 이름은 필수입니다."); return; }
+
+      const newGift = {
+        id: Date.now(),
+        itemName,
+        professor,
+        description,
+        date: new Date().toLocaleDateString()
+      };
+
+      const docRef = await addDoc(collection(window.db, "archeon_gifts"), newGift);
+      store.gifts.unshift({ firestoreId: docRef.id, ...newGift });
+
+      closeGiftForm();
+      renderGifts();
+      alert("선물 공략 정보가 성공적으로 등록되었습니다!");
+    }
+
     function startInlineEdit(firestoreId, event) {
       if(event) event.stopPropagation();
       closeMagicForm(); editingId = firestoreId; renderMagics();
@@ -809,25 +947,24 @@
     async function saveInlineEdit(firestoreId, event) {
       if(event) event.stopPropagation();
       const title = document.getElementById(`edit_title_${firestoreId}`).value.trim();
-      const author = document.getElementById(`edit_author_${firestoreId}`).value.trim();
       const element = document.getElementById(`edit_element_${firestoreId}`).value;
       const materials = document.getElementById(`edit_materials_${firestoreId}`).value.trim();
       const location = document.getElementById(`edit_location_${firestoreId}`).value.trim();
       const description = document.getElementById(`edit_desc_${firestoreId}`).value.trim();
       const imgUrl = document.getElementById(`edit_imgUrl_${firestoreId}`).value.trim();
 
-      if(!title || !author) { alert("마법 이름과 스트리머 닉네임은 필수입니다."); return; }
+      if(!title) { alert("마법 이름은 필수입니다."); return; }
 
       const target = store.magics.find(m => m.firestoreId === firestoreId);
       let imageUrl = target ? target.image : "";
       if(imgUrl) imageUrl = imgUrl;
 
       if(target) {
-        target.title = title; target.author = author; target.element = element;
+        target.title = title; target.element = element;
         target.materials = materials; target.location = location; target.description = description; target.image = imageUrl;
 
         await updateDoc(doc(window.db, "archeon_magics", firestoreId), {
-          title, author, element, materials, location, description, image: imageUrl
+          title, element, materials, location, description, image: imageUrl
         });
       }
 
@@ -878,6 +1015,39 @@
       alert("연금술 정보가 수정되었습니다!");
     }
 
+    function startGiftInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
+      closeGiftForm(); editingGiftId = firestoreId; renderGifts();
+    }
+    function cancelGiftInlineEdit(event) {
+      if(event) event.stopPropagation();
+      editingGiftId = null; renderGifts();
+    }
+
+    async function saveGiftInlineEdit(firestoreId, event) {
+      if(event) event.stopPropagation();
+      const itemName = document.getElementById(`edit_gift_item_${firestoreId}`).value.trim();
+      const professor = document.getElementById(`edit_gift_prof_${firestoreId}`).value.trim();
+      const description = document.getElementById(`edit_gift_desc_${firestoreId}`).value.trim();
+
+      if(!itemName || !professor) { alert("아이템 이름과 교수님 이름은 필수입니다."); return; }
+
+      const target = store.gifts.find(g => g.firestoreId === firestoreId);
+      if(target) {
+        target.itemName = itemName;
+        target.professor = professor;
+        target.description = description;
+
+        await updateDoc(doc(window.db, "archeon_gifts", firestoreId), {
+          itemName, professor, description
+        });
+      }
+
+      editingGiftId = null;
+      renderGifts();
+      alert("선물 정보가 수정되었습니다!");
+    }
+
     async function deleteMagic(firestoreId, event) {
       if(event) event.stopPropagation();
       if(!confirm("정말 이 해금 정보를 삭제하시겠습니까?")) return;
@@ -893,6 +1063,15 @@
       await deleteDoc(doc(window.db, "archeon_alchemys", firestoreId));
       store.alchemys = store.alchemys.filter(a => a.firestoreId !== firestoreId);
       renderAlchemys();
+      alert("삭제되었습니다.");
+    }
+
+    async function deleteGift(firestoreId, event) {
+      if(event) event.stopPropagation();
+      if(!confirm("정말 이 선물 공략 정보를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(window.db, "archeon_gifts", firestoreId));
+      store.gifts = store.gifts.filter(g => g.firestoreId !== firestoreId);
+      renderGifts();
       alert("삭제되었습니다.");
     }
 
@@ -929,6 +1108,7 @@
     function renderAll() {
       renderMagics();
       renderAlchemys();
+      renderGifts();
       renderNotices();
     }
 
@@ -941,7 +1121,6 @@
         const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
         const matchSearch = (!searchKeyword || 
           (m.title && m.title.toLowerCase().includes(searchKeyword)) || 
-          (m.author && m.author.toLowerCase().includes(searchKeyword)) || 
           (m.materials && m.materials.toLowerCase().includes(searchKeyword)) ||
           (m.location && m.location.toLowerCase().includes(searchKeyword))
         );
@@ -962,7 +1141,6 @@
             <div class="magic-card" style="border-color: var(--accent-color); cursor:default;" onclick="event.stopPropagation()">
               <div style="font-weight: bold; margin-bottom: 10px; color: var(--accent-color);">✨ 마법해금 정보 수정</div>
               <input type="text" id="edit_title_${m.firestoreId}" value="${escapeHtml(m.title)}" placeholder="마법 이름">
-              <input type="text" id="edit_author_${m.firestoreId}" value="${escapeHtml(m.author)}" placeholder="스트리머 닉네임">
               <select id="edit_element_${m.firestoreId}">
                 <option value="바람" ${m.element==='바람'?'selected':''}>💨 바람 속성</option>
                 <option value="화염" ${m.element==='화염'?'selected':''}>🔥 화염 속성</option>
@@ -990,7 +1168,7 @@
               </div>
               <span class="badge badge-${elType}">${elType} 속성</span>
               <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
-              <div class="card-subtitle">등록자: ${escapeHtml(m.author)} | ${m.date}</div>
+              <div class="card-subtitle">등록일: ${m.date || '-'}</div>
               ${m.image ? `<img src="${escapeHtml(m.image)}" class="magic-img" onclick="openImageModal('${escapeHtml(m.image)}', event)" alt="마법 인증샷">` : ''}
               <div class="info-box">
                 <div class="info-row">필요 재료: <span>${escapeHtml(m.materials || '미입력')}</span></div>
@@ -1072,6 +1250,59 @@
               ${a.description ? `<div style="font-size:13px; color:#cbd5e0; margin-top:8px; white-space:pre-wrap; line-height: 1.4; max-height:60px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(a.description)}</div>` : ''}
               <div style="font-size:11px; color:var(--accent-color); margin-top:8px; text-align:right;">🔍 클릭하여 자세히 보기</div>
             </div>
+          `;
+        }
+      });
+    }
+
+    function renderGifts() {
+      const tbody = document.getElementById('giftTableBody');
+      const searchKeyword = document.getElementById('giftSearchInput') ? document.getElementById('giftSearchInput').value.toLowerCase().trim() : '';
+      tbody.innerHTML = '';
+
+      let filtered = store.gifts.filter(g => {
+        return (!searchKeyword || 
+          (g.itemName && g.itemName.toLowerCase().includes(searchKeyword)) || 
+          (g.professor && g.professor.toLowerCase().includes(searchKeyword)) || 
+          (g.description && g.description.toLowerCase().includes(searchKeyword))
+        );
+      });
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#777; padding:20px;">조건에 일치하는 교수 선물 공략이 없습니다.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(g => {
+        const isEditing = (editingGiftId === g.firestoreId);
+
+        if (isEditing) {
+          tbody.innerHTML += `
+            <tr style="background-color: #12151c;">
+              <td><input type="text" id="edit_gift_item_${g.firestoreId}" value="${escapeHtml(g.itemName)}" placeholder="아이템 이름" style="margin:0;"></td>
+              <td><textarea id="edit_gift_desc_${g.firestoreId}" rows="2" placeholder="아이템 설명" style="margin:0;">${escapeHtml(g.description)}</textarea></td>
+              <td>
+                <input type="text" id="edit_gift_prof_${g.firestoreId}" value="${escapeHtml(g.professor)}" placeholder="선물 대상 교수" style="margin-bottom:5px;">
+                <div style="display:flex; gap:4px;">
+                  <button onclick="saveGiftInlineEdit('${g.firestoreId}', event)" style="padding:4px 8px; font-size:12px;">저장</button>
+                  <button class="btn-secondary" onclick="cancelGiftInlineEdit(event)" style="padding:4px 8px; font-size:12px;">취소</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML += `
+            <tr>
+              <td class="gift-item-name">📦 ${escapeHtml(g.itemName)}</td>
+              <td style="color:#cbd5e0; white-space:pre-wrap;">${escapeHtml(g.description || '-')}</td>
+              <td>
+                <span class="gift-prof-badge">👨‍🏫 ${escapeHtml(g.professor)}</span>
+                <div style="display:inline-block; margin-left:6px;">
+                  <button class="gift-action-btn" onclick="tryAction((e) => startGiftInlineEdit('${g.firestoreId}', e), event)">수정</button>
+                  <button class="gift-action-btn" onclick="tryAction((e) => deleteGift('${g.firestoreId}', e), event)" style="color:#fc8181;">삭제</button>
+                </div>
+              </td>
+            </tr>
           `;
         }
       });
