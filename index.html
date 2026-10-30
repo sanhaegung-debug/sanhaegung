@@ -163,14 +163,6 @@
       font-size: 13px;
     }
 
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
     input, textarea, select {
       width: 100%;
       padding: 10px;
@@ -445,7 +437,7 @@
     .card-action-btns button:hover { background-color: var(--accent-color); color: #fff; }
   </style>
 
-  <!-- Firebase SDK 로드 -->
+  <!-- Firebase 및 메인 로직 스크립트 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -463,207 +455,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 전역 바인딩
-    window.db = db;
-    window.collection = collection;
-    window.getDocs = getDocs;
-    window.addDoc = addDoc;
-    window.deleteDoc = deleteDoc;
-    window.doc = doc;
-    window.updateDoc = updateDoc;
-
-    window.dispatchEvent(new Event('firebase-ready'));
-  </script>
-</head>
-<body>
-
-  <!-- 최초 접속 로그인 모달 -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content" style="text-align: center;">
-      <h2 style="color: var(--accent-color); margin-top: 0;">🏰 아르케온 기숙사 연구소</h2>
-      <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">사이트 이용 및 개인 해금 체크를 위해 비밀번호와 본인 닉네임을 선택해주세요.</p>
-      
-      <div style="text-align: left; font-size: 13px; margin-bottom: 5px;">스트리머 본인 닉네임 선택</div>
-      <select id="loginUserSelect">
-        <option value="">-- 본인 닉네임을 선택하세요 --</option>
-      </select>
-
-      <div style="text-align: left; font-size: 13px; margin-bottom: 5px; margin-top: 10px;">접속 비밀번호</div>
-      <input type="password" id="loginPassword" placeholder="비밀번호를 입력하세요">
-
-      <button onclick="handleLogin()" style="width: 100%; margin-top: 10px; padding: 12px;">입장하기</button>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="header">
-      <h1>🏰 아르케온 기숙사 연구소</h1>
-      <p style="margin: 0; font-size: 13px; color: #a0aec0;">SOOP 마인크래프트 서버 '차카데미' 아르케온 기숙사 전용 연구소</p>
-    </div>
-
-    <!-- 유저 프로필 & 개인 해금 달성도 대시보드 -->
-    <div class="user-bar">
-      <div class="user-bar-top">
-        <div id="currentUserDisplay">현재 접속자: 확인 중...</div>
-        <button class="btn-secondary" onclick="switchUser()" style="padding: 5px 12px; font-size: 12px;">다른 사용자로 변경</button>
-      </div>
-      <div>
-        <div style="font-size: 12px; color: #a0aec0; margin-bottom: 6px;">나의 속성별 마법 해금 현황</div>
-        <div class="progress-dashboard" id="progressDashboard"></div>
-      </div>
-    </div>
-
-    <!-- 메인 탭 -->
-    <div class="tab-menu">
-      <button class="tab-btn active" onclick="switchTab('tabMagics', this)">🔮 마법 해금 공유</button>
-      <button class="tab-btn" onclick="switchTab('tabAlchemys', this)">🧪 연금술 조합법</button>
-      <button class="tab-btn" onclick="switchTab('tabGifts', this)">🎓 교수별 선물 정보</button>
-    </div>
-
-    <!-- 탭 1: 마법 해금 -->
-    <div id="tabMagics" class="tab-content active">
-      <div class="action-bar">
-        <div class="element-sub-tabs">
-          <button class="element-sub-btn active" onclick="setElementTab('전체', this)">전체</button>
-          <button class="element-sub-btn" onclick="setElementTab('바람', this)">💨 바람</button>
-          <button class="element-sub-btn" onclick="setElementTab('화염', this)">🔥 화염</button>
-          <button class="element-sub-btn" onclick="setElementTab('물', this)">💧 물</button>
-          <button class="element-sub-btn" onclick="setElementTab('대지', this)">🌍 대지</button>
-          <button class="element-sub-btn" onclick="setElementTab('빛', this)">✨ 빛</button>
-          <button class="element-sub-btn" onclick="setElementTab('어둠', this)">🌑 어둠</button>
-        </div>
-
-        <button onclick="openAddMagicModal()">+ 새 마법 정보 등록</button>
-      </div>
-
-      <div class="filter-search-bar">
-        <div class="status-sub-tabs">
-          <button class="status-sub-btn active" onclick="setStatusTab('전체', this)">전체 보기</button>
-          <button class="status-sub-btn" onclick="setStatusTab('해금완료', this)">내가 해금한 마법만</button>
-          <button class="status-sub-btn" onclick="setStatusTab('미해금', this)">내가 미해금한 마법만</button>
-        </div>
-
-        <div class="search-input-box">
-          <input type="text" id="magicSearchInput" onkeyup="renderMagics()" placeholder="마법 이름, 재료, 해금조건 검색...">
-        </div>
-      </div>
-
-      <div id="magicGrid" class="grid-container"></div>
-    </div>
-
-    <!-- 탭 2: 연금술 조합법 (독립 탭) -->
-    <div id="tabAlchemys" class="tab-content">
-      <div class="action-bar">
-        <div class="search-input-box">
-          <input type="text" id="alcSearchInput" onkeyup="renderAlchemys()" placeholder="연금술 완성품, 작성자, 재료 검색...">
-        </div>
-        <button onclick="openAddAlcModal()">+ 새 연금술 조합법 등록</button>
-      </div>
-
-      <div id="alcGrid" class="grid-container"></div>
-    </div>
-
-    <!-- 탭 3: 교수별 선물 정보 -->
-    <div id="tabGifts" class="tab-content">
-      <div class="action-bar">
-        <div class="search-input-box">
-          <input type="text" id="giftSearchInput" onkeyup="renderGifts()" placeholder="교수 이름 또는 선물 이름 검색...">
-        </div>
-        <button onclick="openAddGiftModal()">+ 새 선물 정보 등록</button>
-      </div>
-
-      <div class="gift-table-container">
-        <table class="gift-table">
-          <thead>
-            <tr>
-              <th style="width: 150px;">교수명</th>
-              <th style="width: 200px;">선물 이름</th>
-              <th style="width: 150px;">이미지</th>
-              <th>설명 및 획득 방법</th>
-              <th style="width: 100px;">관리</th>
-            </tr>
-          </thead>
-          <tbody id="giftTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 마법 등록/수정 모달 -->
-  <div id="magicModal" class="modal">
-    <div class="modal-content">
-      <h3 id="magicModalTitle" style="margin-top:0; color:var(--accent-color);">새 마법 등록</h3>
-      <input type="hidden" id="magicId">
-      <input type="text" id="mTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
-      <select id="mElement">
-        <option value="바람">바람</option>
-        <option value="화염">화염</option>
-        <option value="물">물</option>
-        <option value="대지">대지</option>
-        <option value="빛">빛</option>
-        <option value="어둠">어둠</option>
-      </select>
-      <input type="text" id="mMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
-      <input type="text" id="mLocation" placeholder="해금 조건 (예: 네더 요새 몬스터 처치)">
-      <input type="text" id="mImageUrl" placeholder="이미지 URL (Imgur 영구 직주소 .jpg/.png 추천)">
-      <textarea id="mDesc" rows="4" placeholder="상세 공략 및 주의사항 작성"></textarea>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-        <button class="btn-secondary" onclick="closeMagicModal()">취소</button>
-        <button onclick="saveMagic()">저장</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 연금술 등록/수정 모달 -->
-  <div id="alcModal" class="modal">
-    <div class="modal-content">
-      <h3 id="alcModalTitle" style="margin-top:0; color:var(--accent-color);">새 연금술 조합법 등록</h3>
-      <input type="hidden" id="alcId">
-      <input type="text" id="aTitle" placeholder="완성품 이름 (예: 상급 체력 포션)">
-      <input type="text" id="aAuthor" placeholder="작성자 / 스트리머 닉네임">
-      <label style="font-size: 0.85em; color: #a0aec0;">조합 재료 (최대 9개):</label>
-      <div class="ingredients-grid">
-        <input type="text" id="aMat1" placeholder="재료 1">
-        <input type="text" id="aMat2" placeholder="재료 2">
-        <input type="text" id="aMat3" placeholder="재료 3">
-        <input type="text" id="aMat4" placeholder="재료 4">
-        <input type="text" id="aMat5" placeholder="재료 5">
-        <input type="text" id="aMat6" placeholder="재료 6">
-        <input type="text" id="aMat7" placeholder="재료 7">
-        <input type="text" id="aMat8" placeholder="재료 8">
-        <input type="text" id="aMat9" placeholder="재료 9">
-      </div>
-      <input type="text" id="aImageUrl" placeholder="이미지 URL (Imgur 추천)">
-      <textarea id="aDesc" rows="3" placeholder="효과 및 제작 팁"></textarea>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-        <button class="btn-secondary" onclick="closeAlcModal()">취소</button>
-        <button onclick="saveAlc()">저장</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 선물 등록/수정 모달 -->
-  <div id="giftModal" class="modal">
-    <div class="modal-content">
-      <h3 id="giftModalTitle" style="margin-top:0; color:var(--accent-color);">새 교수 선물 정보 등록</h3>
-      <input type="hidden" id="giftId">
-      <input type="text" id="gProf" placeholder="교수 이름 (예: 스네이프)">
-      <input type="text" id="gName" placeholder="선물 이름">
-      <input type="text" id="gImageUrl" placeholder="이미지 URL (Imgur 영구 직주소 .jpg/.png 추천)">
-      <textarea id="gDesc" rows="4" placeholder="선물 효과, 선호도, 획득 방식 등"></textarea>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-        <button class="btn-secondary" onclick="closeGiftModal()">취소</button>
-        <button onclick="saveGift()">저장</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 이미지 확대 모달 -->
-  <div id="imageModal" onclick="closeImageModal()">
-    <img id="expandedImg" src="">
-  </div>
-
-  <script>
     const STREAMERS = [
       "강만식", "띵굴", "사과몽", "쥐돌이", "킴성태", "오아", "린링", "푸닝", "구월이", "딸기슈몽이", "연우암",
       "임구산", "유즈코", "미링", "한아련", "슈야", "김성진", "현단아", "제복이", "잼율이", "해또잉",
@@ -679,7 +470,7 @@
     let currentElementTab = '전체';
     let currentStatusTab = '전체';
 
-    window.addEventListener('firebase-ready', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       initAuth();
       loadData();
     });
@@ -772,13 +563,13 @@
 
     async function loadData() {
       try {
-        const magicSnap = await window.getDocs(window.collection(window.db, "archeon_magics"));
+        const magicSnap = await getDocs(collection(db, "archeon_magics"));
         magicList = magicSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        const alcSnap = await window.getDocs(window.collection(window.db, "archeon_alchemys"));
+        const alcSnap = await getDocs(collection(db, "archeon_alchemys"));
         alcList = alcSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        const giftSnap = await window.getDocs(window.collection(window.db, "archeon_gifts"));
+        const giftSnap = await getDocs(collection(db, "archeon_gifts"));
         giftList = giftSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         renderMagics();
@@ -827,13 +618,13 @@
         card.className = 'magic-card';
         card.innerHTML = `
           <div class="card-action-btns">
-            <button onclick="openEditMagicModal('${item.id}')">수정</button>
-            <button onclick="deleteMagic('${item.id}')" style="color:#fc8181;">삭제</button>
+            <button onclick="window.openEditMagicModal('${item.id}')">수정</button>
+            <button onclick="window.deleteMagic('${item.id}')" style="color:#fc8181;">삭제</button>
           </div>
           <span class="badge badge-${item.element || '바람'}">${item.element || '바람'} 속성</span>
           <div class="card-title">${item.title}</div>
           <div class="card-subtitle">획득처 / 해금 조건</div>
-          ${item.imageUrl ? `<img src="${item.imageUrl}" class="magic-img" onclick="expandImage('${item.imageUrl}')">` : ''}
+          ${item.imageUrl ? `<img src="${item.imageUrl}" class="magic-img" onclick="window.expandImage('${item.imageUrl}')">` : ''}
           
           <div class="info-box" style="margin-bottom: 10px;">
             <div class="info-row">필요 재료: <span>${item.materials || '미입력'}</span></div>
@@ -843,7 +634,7 @@
           ${item.desc ? `<div style="font-size: 13px; color: #cbd5e0; white-space: pre-line; margin-bottom: 10px;">${item.desc}</div>` : ''}
           
           <div class="learn-check-box">
-            <button class="learn-btn ${isLearnedByMe ? 'learned' : ''}" onclick="toggleLearnMagic('${item.id}')">
+            <button class="learn-btn ${isLearnedByMe ? 'learned' : ''}" onclick="window.toggleLearnMagic('${item.id}')">
               ${isLearnedByMe ? '☑️ 내 해금 완료 (취소하려면 클릭)' : '☐ 내 해금 체크하기'}
             </button>
             <div class="learned-users-tag">
@@ -885,13 +676,13 @@
         card.className = 'magic-card';
         card.innerHTML = `
           <div class="card-action-btns">
-            <button onclick="openEditAlcModal('${item.id}')">수정</button>
-            <button onclick="deleteAlc('${item.id}')" style="color:#fc8181;">삭제</button>
+            <button onclick="window.openEditAlcModal('${item.id}')">수정</button>
+            <button onclick="window.deleteAlc('${item.id}')" style="color:#fc8181;">삭제</button>
           </div>
           <span class="badge badge-연금술">🧪 연금술</span>
           <div class="card-title">${item.title}</div>
           <div class="card-subtitle">작성자: ${item.author || '미입력'}</div>
-          ${item.imageUrl ? `<img src="${item.imageUrl}" class="magic-img" onclick="expandImage('${item.imageUrl}')">` : ''}
+          ${item.imageUrl ? `<img src="${item.imageUrl}" class="magic-img" onclick="window.expandImage('${item.imageUrl}')">` : ''}
           
           <div style="margin-top: 8px; margin-bottom: 8px;">
             <div style="font-size: 12px; color: #a0aec0; margin-bottom: 4px;">조합 재료 (총 ${matList.length}개):</div>
@@ -928,11 +719,11 @@
         tr.innerHTML = `
           <td><span class="gift-prof-badge">🎓 ${item.professor}</span></td>
           <td style="font-weight: bold; color: #fff;">${item.giftName}</td>
-          <td>${item.imageUrl ? `<img src="${item.imageUrl}" style="max-height:70px; border-radius:6px; cursor:pointer;" onclick="expandImage('${item.imageUrl}')">` : '이미지 없음'}</td>
+          <td>${item.imageUrl ? `<img src="${item.imageUrl}" style="max-height:70px; border-radius:6px; cursor:pointer;" onclick="window.expandImage('${item.imageUrl}')">` : '이미지 없음'}</td>
           <td style="color: #cbd5e0; white-space: pre-line;">${item.desc || ''}</td>
           <td>
-            <button class="btn-secondary" style="padding:3px 8px; font-size:11px;" onclick="openEditGiftModal('${item.id}')">수정</button>
-            <button style="padding:3px 8px; font-size:11px; background:#e53e3e;" onclick="deleteGift('${item.id}')">삭제</button>
+            <button class="btn-secondary" style="padding:3px 8px; font-size:11px;" onclick="window.openEditGiftModal('${item.id}')">수정</button>
+            <button style="padding:3px 8px; font-size:11px; background:#e53e3e;" onclick="window.deleteGift('${item.id}')">삭제</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -943,24 +734,24 @@
       currentElementTab = el;
       document.querySelectorAll('.element-sub-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderMagics();
+      window.renderMagics();
     };
 
     window.setStatusTab = function(status, btn) {
       currentStatusTab = status;
       document.querySelectorAll('.status-sub-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderMagics();
+      window.renderMagics();
     };
 
-    // 체크 토글 함수
+    // 체크 토글 함수 전역 등록
     window.toggleLearnMagic = async function(id) {
       if (!currentLoggedInUser) {
         alert("로그인 정보가 없습니다.");
         return;
       }
 
-      const itemRef = window.doc(window.db, "archeon_magics", id);
+      const itemRef = doc(db, "archeon_magics", id);
       const target = magicList.find(m => m.id === id);
       if (!target) return;
 
@@ -972,16 +763,16 @@
       }
 
       try {
-        await window.updateDoc(itemRef, { learnedUsers: learnedUsers });
+        await updateDoc(itemRef, { learnedUsers: learnedUsers });
         target.learnedUsers = learnedUsers;
-        renderMagics();
+        window.renderMagics();
       } catch (err) {
         console.error("해금 상태 업데이트 실패:", err);
         alert("업데이트 중 오류가 발생했습니다.");
       }
     };
 
-    // 모달 제어
+    // 모달 제어 함수 전역 등록
     window.openAddMagicModal = () => {
       document.getElementById('magicModalTitle').innerText = "새 마법 등록";
       document.getElementById('magicId').value = "";
@@ -1068,7 +859,7 @@
 
     window.closeImageModal = () => { document.getElementById('imageModal').style.display = 'none'; };
 
-    // 저장 및 삭제 처리
+    // 저장 및 삭제 처리 함수 전역 등록
     window.saveMagic = async function() {
       const id = document.getElementById('magicId').value;
       const title = document.getElementById('mTitle').value.trim();
@@ -1082,11 +873,11 @@
 
       try {
         if (id) {
-          await window.updateDoc(window.doc(window.db, "archeon_magics", id), { title, element, materials, location, imageUrl, desc });
+          await updateDoc(doc(db, "archeon_magics", id), { title, element, materials, location, imageUrl, desc });
         } else {
-          await window.addDoc(window.collection(window.db, "archeon_magics"), { title, element, materials, location, imageUrl, desc, learnedUsers: [] });
+          await addDoc(collection(db, "archeon_magics"), { title, element, materials, location, imageUrl, desc, learnedUsers: [] });
         }
-        closeMagicModal();
+        window.closeMagicModal();
         loadData();
       } catch (err) {
         console.error("저장 실패:", err);
@@ -1097,7 +888,7 @@
     window.deleteMagic = async function(id) {
       if (!confirm("정말 이 항목을 삭제하시겠습니까?")) return;
       try {
-        await window.deleteDoc(window.doc(window.db, "archeon_magics", id));
+        await deleteDoc(doc(db, "archeon_magics", id));
         loadData();
       } catch (err) {
         console.error("삭제 실패:", err);
@@ -1121,11 +912,11 @@
 
       try {
         if (id) {
-          await window.updateDoc(window.doc(window.db, "archeon_alchemys", id), { title, author, materials, imageUrl, desc });
+          await updateDoc(doc(db, "archeon_alchemys", id), { title, author, materials, imageUrl, desc });
         } else {
-          await window.addDoc(window.collection(window.db, "archeon_alchemys"), { title, author, materials, imageUrl, desc });
+          await addDoc(collection(db, "archeon_alchemys"), { title, author, materials, imageUrl, desc });
         }
-        closeAlcModal();
+        window.closeAlcModal();
         loadData();
       } catch (err) {
         console.error("연금술 저장 실패:", err);
@@ -1135,7 +926,7 @@
     window.deleteAlc = async function(id) {
       if (!confirm("정말 이 연금술 항목을 삭제하시겠습니까?")) return;
       try {
-        await window.deleteDoc(window.doc(window.db, "archeon_alchemys", id));
+        await deleteDoc(doc(db, "archeon_alchemys", id));
         loadData();
       } catch (err) {
         console.error("삭제 실패:", err);
@@ -1153,11 +944,11 @@
 
       try {
         if (id) {
-          await window.updateDoc(window.doc(window.db, "archeon_gifts", id), { professor, giftName, imageUrl, desc });
+          await updateDoc(doc(db, "archeon_gifts", id), { professor, giftName, imageUrl, desc });
         } else {
-          await window.addDoc(window.collection(window.db, "archeon_gifts"), { professor, giftName, imageUrl, desc });
+          await addDoc(collection(db, "archeon_gifts"), { professor, giftName, imageUrl, desc });
         }
-        closeGiftModal();
+        window.closeGiftModal();
         loadData();
       } catch (err) {
         console.error("선물 저장 실패:", err);
@@ -1167,12 +958,201 @@
     window.deleteGift = async function(id) {
       if (!confirm("정말 이 선물 항목을 삭제하시겠습니까?")) return;
       try {
-        await window.deleteDoc(window.doc(window.db, "archeon_gifts", id));
+        await deleteDoc(doc(db, "archeon_gifts", id));
         loadData();
       } catch (err) {
         console.error("삭제 실패:", err);
       }
     };
   </script>
+</head>
+<body>
+
+  <!-- 최초 접속 로그인 모달 -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+      <h2 style="color: var(--accent-color); margin-top: 0;">🏰 아르케온 기숙사 연구소</h2>
+      <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">사이트 이용 및 개인 해금 체크를 위해 비밀번호와 본인 닉네임을 선택해주세요.</p>
+      
+      <div style="text-align: left; font-size: 13px; margin-bottom: 5px;">스트리머 본인 닉네임 선택</div>
+      <select id="loginUserSelect">
+        <option value="">-- 본인 닉네임을 선택하세요 --</option>
+      </select>
+
+      <div style="text-align: left; font-size: 13px; margin-bottom: 5px; margin-top: 10px;">접속 비밀번호</div>
+      <input type="password" id="loginPassword" placeholder="비밀번호를 입력하세요">
+
+      <button onclick="window.handleLogin()" style="width: 100%; margin-top: 10px; padding: 12px;">입장하기</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>🏰 아르케온 기숙사 연구소</h1>
+      <p style="margin: 0; font-size: 13px; color: #a0aec0;">SOOP 마인크래프트 서버 '차카데미' 아르케온 기숙사 전용 연구소</p>
+    </div>
+
+    <!-- 유저 프로필 & 개인 해금 달성도 대시보드 -->
+    <div class="user-bar">
+      <div class="user-bar-top">
+        <div id="currentUserDisplay">현재 접속자: 확인 중...</div>
+        <button class="btn-secondary" onclick="window.switchUser()" style="padding: 5px 12px; font-size: 12px;">다른 사용자로 변경</button>
+      </div>
+      <div>
+        <div style="font-size: 12px; color: #a0aec0; margin-bottom: 6px;">나의 속성별 마법 해금 현황</div>
+        <div class="progress-dashboard" id="progressDashboard"></div>
+      </div>
+    </div>
+
+    <!-- 메인 탭 -->
+    <div class="tab-menu">
+      <button class="tab-btn active" onclick="window.switchTab('tabMagics', this)">🔮 마법 해금 공유</button>
+      <button class="tab-btn" onclick="window.switchTab('tabAlchemys', this)">🧪 연금술 조합법</button>
+      <button class="tab-btn" onclick="window.switchTab('tabGifts', this)">🎓 교수별 선물 정보</button>
+    </div>
+
+    <!-- 탭 1: 마법 해금 -->
+    <div id="tabMagics" class="tab-content active">
+      <div class="action-bar">
+        <div class="element-sub-tabs">
+          <button class="element-sub-btn active" onclick="window.setElementTab('전체', this)">전체</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('바람', this)">💨 바람</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('화염', this)">🔥 화염</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('물', this)">💧 물</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('대지', this)">🌍 대지</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('빛', this)">✨ 빛</button>
+          <button class="element-sub-btn" onclick="window.setElementTab('어둠', this)">🌑 어둠</button>
+        </div>
+
+        <button onclick="window.openAddMagicModal()">+ 새 마법 정보 등록</button>
+      </div>
+
+      <div class="filter-search-bar">
+        <div class="status-sub-tabs">
+          <button class="status-sub-btn active" onclick="window.setStatusTab('전체', this)">전체 보기</button>
+          <button class="status-sub-btn" onclick="window.setStatusTab('해금완료', this)">내가 해금한 마법만</button>
+          <button class="status-sub-btn" onclick="window.setStatusTab('미해금', this)">내가 미해금한 마법만</button>
+        </div>
+
+        <div class="search-input-box">
+          <input type="text" id="magicSearchInput" onkeyup="window.renderMagics()" placeholder="마법 이름, 재료, 해금조건 검색...">
+        </div>
+      </div>
+
+      <div id="magicGrid" class="grid-container"></div>
+    </div>
+
+    <!-- 탭 2: 연금술 조합법 -->
+    <div id="tabAlchemys" class="tab-content">
+      <div class="action-bar">
+        <div class="search-input-box">
+          <input type="text" id="alcSearchInput" onkeyup="window.renderAlchemys()" placeholder="연금술 완성품, 작성자, 재료 검색...">
+        </div>
+        <button onclick="window.openAddAlcModal()">+ 새 연금술 조합법 등록</button>
+      </div>
+
+      <div id="alcGrid" class="grid-container"></div>
+    </div>
+
+    <!-- 탭 3: 교수별 선물 정보 -->
+    <div id="tabGifts" class="tab-content">
+      <div class="action-bar">
+        <div class="search-input-box">
+          <input type="text" id="giftSearchInput" onkeyup="window.renderGifts()" placeholder="교수 이름 또는 선물 이름 검색...">
+        </div>
+        <button onclick="window.openAddGiftModal()">+ 새 선물 정보 등록</button>
+      </div>
+
+      <div class="gift-table-container">
+        <table class="gift-table">
+          <thead>
+            <tr>
+              <th style="width: 150px;">교수명</th>
+              <th style="width: 200px;">선물 이름</th>
+              <th style="width: 150px;">이미지</th>
+              <th>설명 및 획득 방법</th>
+              <th style="width: 100px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="giftTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 마법 등록/수정 모달 -->
+  <div id="magicModal" class="modal">
+    <div class="modal-content">
+      <h3 id="magicModalTitle" style="margin-top:0; color:var(--accent-color);">새 마법 등록</h3>
+      <input type="hidden" id="magicId">
+      <input type="text" id="mTitle" placeholder="마법 이름 (예: 파이어볼 2단계)">
+      <select id="mElement">
+        <option value="바람">바람</option>
+        <option value="화염">화염</option>
+        <option value="물">물</option>
+        <option value="대지">대지</option>
+        <option value="빛">빛</option>
+        <option value="어둠">어둠</option>
+      </select>
+      <input type="text" id="mMaterials" placeholder="필요 재료 (예: 마력 결정 5개)">
+      <input type="text" id="mLocation" placeholder="해금 조건 (예: 네더 요새 몬스터 처치)">
+      <input type="text" id="mImageUrl" placeholder="이미지 URL (Imgur 영구 직주소 .jpg/.png 추천)">
+      <textarea id="mDesc" rows="4" placeholder="상세 공략 및 주의사항 작성"></textarea>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+        <button class="btn-secondary" onclick="window.closeMagicModal()">취소</button>
+        <button onclick="window.saveMagic()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 연금술 등록/수정 모달 -->
+  <div id="alcModal" class="modal">
+    <div class="modal-content">
+      <h3 id="alcModalTitle" style="margin-top:0; color:var(--accent-color);">새 연금술 조합법 등록</h3>
+      <input type="hidden" id="alcId">
+      <input type="text" id="aTitle" placeholder="완성품 이름 (예: 상급 체력 포션)">
+      <input type="text" id="aAuthor" placeholder="작성자 / 스트리머 닉네임">
+      <label style="font-size: 0.85em; color: #a0aec0;">조합 재료 (최대 9개):</label>
+      <div class="ingredients-grid">
+        <input type="text" id="aMat1" placeholder="재료 1">
+        <input type="text" id="aMat2" placeholder="재료 2">
+        <input type="text" id="aMat3" placeholder="재료 3">
+        <input type="text" id="aMat4" placeholder="재료 4">
+        <input type="text" id="aMat5" placeholder="재료 5">
+        <input type="text" id="aMat6" placeholder="재료 6">
+        <input type="text" id="aMat7" placeholder="재료 7">
+        <input type="text" id="aMat8" placeholder="재료 8">
+        <input type="text" id="aMat9" placeholder="재료 9">
+      </div>
+      <input type="text" id="aImageUrl" placeholder="이미지 URL (Imgur 추천)">
+      <textarea id="aDesc" rows="3" placeholder="효과 및 제작 팁"></textarea>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+        <button class="btn-secondary" onclick="window.closeAlcModal()">취소</button>
+        <button onclick="window.saveAlc()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 선물 등록/수정 모달 -->
+  <div id="giftModal" class="modal">
+    <div class="modal-content">
+      <h3 id="giftModalTitle" style="margin-top:0; color:var(--accent-color);">새 교수 선물 정보 등록</h3>
+      <input type="hidden" id="giftId">
+      <input type="text" id="gProf" placeholder="교수 이름 (예: 스네이프)">
+      <input type="text" id="gName" placeholder="선물 이름">
+      <input type="text" id="gImageUrl" placeholder="이미지 URL (Imgur 영구 직주소 .jpg/.png 추천)">
+      <textarea id="gDesc" rows="4" placeholder="선물 효과, 선호도, 획득 방식 등"></textarea>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+        <button class="btn-secondary" onclick="window.closeGiftModal()">취소</button>
+        <button onclick="window.saveGift()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이미지 확대 모달 -->
+  <div id="imageModal" onclick="window.closeImageModal()">
+    <img id="expandedImg" src="">
+  </div>
+
 </body>
 </html>
