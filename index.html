@@ -35,7 +35,7 @@
 
     .filter-search-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
     .element-sub-tabs { display: flex; gap: 6px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; flex: 1; }
-    .element-sub-btn, .status-sub-btn { background-color: #181818; color: #aaa; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85em; font-weight: bold; flex-shrink: 0; transition: all 0.2s; }
+    .element-sub-btn, .status-sub-btn { background-color: #14120e; color: #aaa; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85em; font-weight: bold; flex-shrink: 0; transition: all 0.2s; }
     .element-sub-btn.active, .status-sub-btn.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
     .search-input-box { min-width: 240px; flex: 0.5; }
@@ -58,14 +58,9 @@
     .page-btn.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .magic-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; position: relative; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s, border-color 0.2s; cursor: grab; }
-    .magic-card:active { cursor: grabbing; }
-    .magic-card.dragging { opacity: 0.4; border: 2px dashed var(--accent-color); }
+    .magic-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; position: relative; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s, border-color 0.2s; }
     .magic-card:hover { border-color: var(--accent-color); transform: translateY(-2px); }
     .magic-card.completed { border-color: #319795; background-color: rgba(49, 151, 149, 0.08); }
-
-    .drag-handle { position: absolute; top: 12px; left: 12px; color: #666; font-size: 14px; cursor: grab; user-select: none; }
-    .magic-card:hover .drag-handle { color: var(--accent-color); }
 
     .card-title { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 4px; }
     .card-subtitle { font-size: 12px; color: #a0aec0; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
@@ -108,10 +103,10 @@
     .inline-edit-box { background: #0f1115; border: 1px solid var(--accent-color); border-radius: 8px; padding: 12px; margin-top: 10px; }
   </style>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK 설정 (버전 10.7.1 적용) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL-9nkL26H-ZQufDznXERNlf_eDeHmwjs",
@@ -132,7 +127,7 @@
   <script>
     const STREAMER_PASSWORD = "rinring"; 
     
-    // 아르케온 기숙사 스트리머 51명 전체 목록
+    // 아르케온 기숙사 스트리머 51명 전체 명단
     const STREAMERS = [
       "강만식", "띵귤", "사과몽", "쥐돌이", "킴성태", "오아", "린링", "푸닝", "구월이", "딸기슈몽이", "연우암",
       "임구산", "유즈코", "미링", "한아련", "슈야", "김성진", "현단아", "제복이", "잼율이", "해또잉",
@@ -177,17 +172,17 @@
       "어둠": [
         "밤눈", "그림자 매듭", "그림자 송곳니", "어둠 구슬", "배낭 정리", "잔향 읽기", "석상 깨우기", "영혼 낫", "그림자 금고",
         "얕은 은신", "봉인의 실", "생명 갈취", "굶주린 그림자", "먹물 손끝", "뒤집힌 공물", "되감기", "차원 표식", "마나 흡수",
-        "망각의 탄환", "뼈의 손아귀", "그림자 도약", "마음 읽기", "단잠의 주문", "나약함의 저주", "손아귀 풀기", "고용한 밑창", "그림자 걸음",
+        "망각의 탄환", "뼈의 손아귀", "그림자 도약", "마음 읽기", "단잠의 주문", "나약함의 저주", "손아귀 풀기", "고요한 밑창", "그림자 걸음",
         "그림자 분신", "저주의 전가", "검은 수확", "회복 봉인", "상처 회계", "그림자 늪", "악몽", "저주 인형", "그림자 교환",
         "졸음", "마인드컨트롤", "고통 유예", "밤의 자장가", "어둠의 저울", "유령 도구", "공포의 종", "밤의 사슬", "그림자 못",
         "경고의 실", "운명의 실", "금서의 계약", "공허의 입", "망령의 행진", "월식의 눈", "심연의 문"
       ],
       "바람": [
         "깃털 낙하", "윈드 푸쉬", "바람의 전언", "바람 걸음", "바람 털빛", "미라지 슈터", "클린", "바람 송곳", "작은 회오리",
-        "계절 예보", "상승기류", "손길 너머", "반달 바람날", "사쁜한 걸음", "바람바구니", "수확의 바람", "윈드 커터", "깃털 털기",
-        "바람 화살", "되돌이 칼날", "빗자루 차원이동", "돌풍 날갯짓", "깃털 폭풍", "포효 도약", "질풍 연격", "몰이 바람", "미스틱 슈터",
+        "계절 예보", "상승기류", "손길 너머", "반달 바람날", "사쁜한 발걸음", "바람바구니", "수확의 바람", "윈드 커터", "깃털 털기",
+        "바람 화살", "되돌이 칼날", "빗자루 차원이동", "돌풍 날갯짓", "깃털 폭풍", "포효도약", "질풍 연격", "몰이바람", "미스틱 슈터",
         "끌어오기", "순풍", "비행", "되받는 바람", "잎새 청소", "윈드 프레스", "바람 미끼", "토네이도 스핀", "진공 폭발",
-        "공기 포탄", "허공 디딤", "허공 쌓기", "숨 막힘", "폭풍의 눈", "폭풍의 지휘", "라이트닝 쇼크", "퍼붓는 화살", "중력지대",
+        "공기 포탄", "허공 디딤", "허공 쌓기", "숨막힘", "폭풍의 눈", "폭풍의 지휘", "라이트닝 쇼크", "퍼붓는 화살", "중력지대",
         "삼중 탄환", "천공 강하", "뇌운", "크로스 애로우", "하늘의 눈"
       ]
     };
@@ -200,10 +195,9 @@
     const itemsPerPage = 9;
     let currentStreamer = null;
     let editingId = null, editingAlcId = null, editingGiftId = null;
-    let draggedCard = null;
+    let isSavingMagic = false;
 
     function getPhotoOrder(item) {
-      if (item.order !== undefined && item.order !== null) return item.order;
       const el = item.element;
       if (SCREENSHOT_ORDERS[el]) {
         const cleanTitle = (item.title || "").replace(/\s+/g, "").toLowerCase();
@@ -253,8 +247,25 @@
       const { collection, getDocs } = window.firebaseOps;
       try {
         const magSnap = await getDocs(collection(window.db, "archeon_magics"));
-        store.magics = [];
-        magSnap.forEach(docSnap => store.magics.push({ id: docSnap.id, ...docSnap.data() }));
+        let rawMagics = [];
+        magSnap.forEach(docSnap => rawMagics.push({ id: docSnap.id, ...docSnap.data() }));
+
+        let uniqueMagicsMap = new Map();
+        rawMagics.forEach(item => {
+          const key = `${item.element}_${(item.title || '').replace(/\s+/g, '').toLowerCase()}`;
+          if (!uniqueMagicsMap.has(key)) {
+            uniqueMagicsMap.set(key, item);
+          } else {
+            const existing = uniqueMagicsMap.get(key);
+            const existingScore = (existing.materials && existing.materials !== '미입력' ? 1 : 0) + (existing.location && existing.location !== '미입력' ? 1 : 0) + (existing.description ? 1 : 0);
+            const currentScore = (item.materials && item.materials !== '미입력' ? 1 : 0) + (item.location && item.location !== '미입력' ? 1 : 0) + (item.description ? 1 : 0);
+            if (currentScore > existingScore) {
+              uniqueMagicsMap.set(key, item);
+            }
+          }
+        });
+
+        store.magics = Array.from(uniqueMagicsMap.values());
         
         if(store.magics.length === 0) {
           await initServerMagics();
@@ -275,7 +286,6 @@
         noticeSnap.forEach(docSnap => store.notices.push({ id: docSnap.id, ...docSnap.data() }));
 
         await loadMyCompletionsFromServer();
-
         renderAll();
       } catch(e) {
         console.error("데이터 불러오기 실패:", e);
@@ -287,7 +297,7 @@
       let list = [];
       for (const [el, titles] of Object.entries(SCREENSHOT_ORDERS)) {
         titles.forEach((title, idx) => {
-          const id = "mag_" + Math.random().toString(36).substr(2, 9);
+          const id = "mag_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
           const item = {
             id: id,
             title: title,
@@ -296,7 +306,6 @@
             materials: "미입력",
             location: "미입력",
             description: "",
-            order: idx,
             date: "2026. 10. 31."
           };
           list.push(item);
@@ -337,7 +346,7 @@
       const selected = document.getElementById('streamerSelect').value;
       const pwInput = document.getElementById('checkSecretPw').value.trim();
       if(!selected) { alert("본인의 스트리머 닉네임을 선택해주세요."); return; }
-      if (pwInput !== STREAMER_PASSWORD) { alert("비밀번호가 틀렸습니다."); return; }
+      if (pwInput !== STREAMER_PASSWORD) { alert("스트리머 비밀번호가 틀렸습니다."); return; }
       currentStreamer = selected;
       sessionStorage.setItem('archeon_streamer', currentStreamer);
       document.getElementById('loginModal').style.display = 'none';
@@ -448,22 +457,39 @@
     function closeGiftForm() { document.getElementById('form-gift-card').style.display = 'none'; }
 
     async function saveNewMagic() {
+      if (isSavingMagic) return;
       const title = document.getElementById('magTitle').value.trim();
       const author = currentStreamer;
       const element = document.getElementById('magElement').value;
       const materials = document.getElementById('magMaterials').value.trim();
       const location = document.getElementById('magLocation').value.trim();
       const description = document.getElementById('magDesc').value.trim();
-      if(!title) { alert("마법 이름은 필수입니다."); return; }
-      const maxOrder = store.magics.reduce((max, m) => (m.order !== undefined && m.order > max ? m.order : max), 0);
-      const id = "mag_" + Date.now();
-      const newMagic = { id, title, author, element, materials, location, description, order: maxOrder + 1, date: new Date().toLocaleDateString() };
       
-      const { doc, setDoc } = window.firebaseOps;
-      await setDoc(doc(window.db, "archeon_magics", id), newMagic);
-      store.magics.push(newMagic);
-      store.magics.sort((a, b) => getPhotoOrder(a) - getPhotoOrder(b));
-      closeMagicForm(); renderMagics(); alert("성공적으로 등록되었습니다!");
+      if(!title) { alert("마법 이름은 필수입니다."); return; }
+
+      const cleanNewTitle = title.replace(/\s+/g, "").toLowerCase();
+      const isAlreadyExists = store.magics.some(m => m.element === element && m.title.replace(/\s+/g, "").toLowerCase() === cleanNewTitle);
+      if (isAlreadyExists) {
+        alert("이미 등록되어 있는 마법 이름과 속성입니다! 중복 등록할 수 없습니다.");
+        return;
+      }
+      
+      isSavingMagic = true;
+      const id = "mag_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+      const newMagic = { id, title, author, element, materials, location, description, date: new Date().toLocaleDateString() };
+      
+      try {
+        const { doc, setDoc } = window.firebaseOps;
+        await setDoc(doc(window.db, "archeon_magics", id), newMagic);
+        store.magics.push(newMagic);
+        store.magics.sort((a, b) => getPhotoOrder(a) - getPhotoOrder(b));
+        closeMagicForm(); renderAll(); alert("성공적으로 등록되었습니다!");
+      } catch (e) {
+        console.error("저장 실패:", e);
+        alert("저장 중 오류가 발생했습니다.");
+      } finally {
+        isSavingMagic = false;
+      }
     }
 
     async function saveNewAlchemy() {
@@ -476,7 +502,7 @@
         if(val) materials.push(val);
       }
       if(!title) { alert("완성품 이름은 필수입니다."); return; }
-      const id = "alc_" + Date.now();
+      const id = "alc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
       const newAlc = { id, title, author, materials, description, date: new Date().toLocaleDateString() };
       
       const { doc, setDoc } = window.firebaseOps;
@@ -490,13 +516,13 @@
       const professor = document.getElementById('giftProfessor').value.trim();
       const description = document.getElementById('giftDesc').value.trim();
       if(!itemName || !professor) { alert("아이템 이름과 교수님 이름은 필수입니다."); return; }
-      const id = "gift_" + Date.now();
+      const id = "gift_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
       const newGift = { id, itemName, professor, description, date: new Date().toLocaleDateString() };
       
       const { doc, setDoc } = window.firebaseOps;
       await setDoc(doc(window.db, "archeon_gifts", id), newGift);
       store.gifts.unshift(newGift);
-      closeGiftForm(); renderGifts(); alert("선물 공략 정보가 등록되었습니다!");
+      closeGiftForm(); renderGifts(); alert("선물 공략 정보가 성공적으로 등록되었습니다!");
     }
 
     function startInlineEdit(id, event) { if(event) event.stopPropagation(); closeMagicForm(); editingId = id; renderMagics(); }
@@ -569,8 +595,13 @@
       store.magics = store.magics.filter(m => m.id != id);
       
       const { doc, deleteDoc } = window.firebaseOps;
-      await deleteDoc(doc(window.db, "archeon_magics", String(id)));
-      renderMagics(); alert("삭제되었습니다.");
+      try {
+        await deleteDoc(doc(window.db, "archeon_magics", String(id)));
+        renderMagics(); alert("삭제되었습니다.");
+      } catch(e) {
+        console.error("삭제 실패:", e);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
     }
 
     async function deleteAlchemy(id, event) {
@@ -640,7 +671,6 @@
       const paginationContainer = document.getElementById('magicPagination');
       const searchKeyword = document.getElementById('magicSearchInput') ? document.getElementById('magicSearchInput').value.toLowerCase().trim() : '';
       grid.innerHTML = ''; paginationContainer.innerHTML = '';
-      const isDraggable = !searchKeyword;
 
       let filtered = store.magics.filter(m => {
         const matchElement = (currentElementFilter === 'all' || m.element === currentElementFilter);
@@ -697,21 +727,13 @@
           const cardEl = document.createElement('div');
           cardEl.className = `magic-card ${isCompleted ? 'completed' : ''}`;
           cardEl.dataset.id = m.id;
-          if (isDraggable) {
-            cardEl.draggable = true;
-            cardEl.addEventListener('dragstart', handleDragStart);
-            cardEl.addEventListener('dragover', handleDragOver);
-            cardEl.addEventListener('drop', handleDrop);
-            cardEl.addEventListener('dragend', handleDragEnd);
-          }
           cardEl.onclick = (e) => openDetailModal('magic', m.id, e);
           cardEl.innerHTML = `
-            ${isDraggable ? '<div class="drag-handle" title="드래그하여 위치 변경">⋮⋮</div>' : ''}
             <div class="card-action-btns">
               <button onclick="startInlineEdit('${m.id}', event)">수정</button>
               <button onclick="deleteMagic('${m.id}', event)" style="color:#fc8181;">삭제</button>
             </div>
-            <span class="badge badge-${elType}" style="${isDraggable ? 'margin-left: 20px;' : ''}">${elType} 속성</span>
+            <span class="badge badge-${elType}">${elType} 속성</span>
             <div class="card-title" style="margin-right: 80px;">${escapeHtml(m.title)}</div>
             <div class="card-subtitle">최종 수정자: ${escapeHtml(m.author)} | ${m.date || '-'}</div>
             <div class="info-box">
@@ -750,36 +772,6 @@
         paginationContainer.appendChild(nextBtn);
       }
     }
-
-    function handleDragStart(e) { draggedCard = this; this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/html', this.innerHTML); }
-    function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
-    
-    async function handleDrop(e) {
-      if (e.stopPropagation) e.stopPropagation();
-      if (draggedCard !== this) {
-        const grid = document.getElementById('magicGrid');
-        const cards = Array.from(grid.querySelectorAll('.magic-card'));
-        const draggedIndex = cards.indexOf(draggedCard);
-        const targetIndex = cards.indexOf(this);
-        if (draggedIndex < targetIndex) { this.parentNode.insertBefore(draggedCard, this.nextSibling); }
-        else { this.parentNode.insertBefore(draggedCard, this); }
-        
-        const allCardElements = Array.from(grid.querySelectorAll('.magic-card'));
-        const newOrderMap = {};
-        allCardElements.forEach((el, idx) => { const id = el.dataset.id; if (id) newOrderMap[id] = idx; });
-        
-        const { doc, updateDoc } = window.firebaseOps;
-        store.magics.forEach(async m => { 
-          if (newOrderMap[m.id] !== undefined) {
-            m.order = newOrderMap[m.id];
-            await updateDoc(doc(window.db, "archeon_magics", String(m.id)), { order: m.order });
-          }
-        });
-        store.magics.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
-      }
-      return false;
-    }
-    function handleDragEnd() { this.classList.remove('dragging'); draggedCard = null; }
 
     function renderAlchemys() {
       const grid = document.getElementById('alcGrid');
@@ -1036,10 +1028,10 @@
   <div id="loginModal" class="modal" style="display:flex;">
     <div class="modal-content" style="max-width: 500px;">
       <h3 style="margin-top:0; color:var(--accent-color);">✨ 아르케온 기숙사 입장</h3>
-      <p style="font-size:0.85em; color:#a0aec0;">본인의 닉네임을 선택하고 비밀번호를 입력해주세요.</p>
+      <p style="font-size:0.85em; color:#a0aec0;">본인의 닉네임을 선택하고 스트리머 비밀번호를 입력해주세요.</p>
       <label style="font-size:0.85em; color:#cbd5e0; display:block; margin-bottom:5px;">스트리머 선택:</label>
       <select id="streamerSelect" style="margin-bottom:12px;"><option value="">-- 본인 닉네임을 선택하세요 --</option></select>
-      <label style="font-size:0.85em; color:#cbd5e0; display:block; margin-bottom:5px;">비밀번호:</label>
+      <label style="font-size:0.85em; color:#cbd5e0; display:block; margin-bottom:5px;">스트리머 비밀번호:</label>
       <input type="password" id="checkSecretPw" placeholder="비밀번호 입력">
       <button onclick="verifyStreamerLogin()" style="width:100%; margin-top:5px; padding:10px;">입장하기</button>
     </div>
